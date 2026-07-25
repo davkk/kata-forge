@@ -1,0 +1,113 @@
+{
+  "title": "Map",
+  "shape": "commands",
+  "description": "Hash map string\u2192int: get, set, delete, size.\n",
+  "interface": "set(k,v) get(k) delete(k) size()\n",
+  "tests": [
+    {
+      "name": "basic",
+      "in": {
+        "ops": [
+          {
+            "op": "set",
+            "args": [
+              55
+            ],
+            "sargs": [
+              "foo"
+            ]
+          },
+          {
+            "op": "size"
+          },
+          {
+            "op": "set",
+            "args": [
+              75
+            ],
+            "sargs": [
+              "fool"
+            ]
+          },
+          {
+            "op": "size"
+          },
+          {
+            "op": "set",
+            "args": [
+              105
+            ],
+            "sargs": [
+              "foolish"
+            ]
+          },
+          {
+            "op": "size"
+          },
+          {
+            "op": "set",
+            "args": [
+              69
+            ],
+            "sargs": [
+              "bar"
+            ]
+          },
+          {
+            "op": "size"
+          },
+          {
+            "op": "get",
+            "sargs": [
+              "bar"
+            ]
+          },
+          {
+            "op": "get",
+            "sargs": [
+              "blaz"
+            ]
+          },
+          {
+            "op": "delete",
+            "sargs": [
+              "barblabr"
+            ]
+          },
+          {
+            "op": "size"
+          },
+          {
+            "op": "delete",
+            "sargs": [
+              "bar"
+            ]
+          },
+          {
+            "op": "size"
+          },
+          {
+            "op": "get",
+            "sargs": [
+              "bar"
+            ]
+          }
+        ]
+      },
+      "out": [
+        1,
+        2,
+        3,
+        4,
+        69,
+        "empty",
+        "empty",
+        4,
+        69,
+        3,
+        "empty"
+      ]
+    }
+  ],
+  "id": "map"
+}

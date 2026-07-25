@@ -1,0 +1,67 @@
+{
+  "title": "BT Pre-Order",
+  "shape": "tree_list",
+  "description": "Pre-order traversal: root, left, right.\n",
+  "interface": "pre_order(root) -> int[]\n",
+  "tests": [
+    {
+      "name": "tree",
+      "in": {
+        "tree": {
+          "value": 20,
+          "left": {
+            "value": 10,
+            "left": {
+              "value": 5,
+              "left": null,
+              "right": {
+                "value": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "value": 15,
+              "left": null,
+              "right": null
+            }
+          },
+          "right": {
+            "value": 50,
+            "left": {
+              "value": 30,
+              "left": {
+                "value": 29,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "value": 45,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "value": 100,
+              "left": null,
+              "right": null
+            }
+          }
+        }
+      },
+      "out": [
+        20,
+        10,
+        5,
+        7,
+        15,
+        50,
+        30,
+        29,
+        45,
+        100
+      ]
+    }
+  ],
+  "id": "bt_pre_order"
+}

@@ -1,0 +1,77 @@
+{
+  "title": "0/1 Knapsack",
+  "shape": "knapsack",
+  "description": "Max value with weight capacity; each item once.\n",
+  "interface": "knapsack(capacity, weights, values) -> int\n",
+  "tests": [
+    {
+      "name": "a",
+      "in": {
+        "capacity": 10,
+        "weights": [
+          5,
+          4,
+          6,
+          3
+        ],
+        "values": [
+          10,
+          40,
+          30,
+          50
+        ]
+      },
+      "out": 90
+    },
+    {
+      "name": "b",
+      "in": {
+        "capacity": 5,
+        "weights": [
+          2,
+          3,
+          4
+        ],
+        "values": [
+          3,
+          4,
+          5
+        ]
+      },
+      "out": 7
+    },
+    {
+      "name": "c",
+      "in": {
+        "capacity": 0,
+        "weights": [
+          1,
+          2
+        ],
+        "values": [
+          5,
+          6
+        ]
+      },
+      "out": 0
+    },
+    {
+      "name": "d",
+      "in": {
+        "capacity": 50,
+        "weights": [
+          10,
+          20,
+          30
+        ],
+        "values": [
+          60,
+          100,
+          120
+        ]
+      },
+      "out": 220
+    }
+  ],
+  "id": "knapsack"
+}

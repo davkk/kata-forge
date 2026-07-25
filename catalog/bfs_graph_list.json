@@ -1,0 +1,141 @@
+{
+  "title": "BFS Graph (List)",
+  "shape": "graph_path",
+  "description": "BFS shortest path (by hops) on weighted adj list. Return node path or null.\n",
+  "interface": "bfs(graph, source, sink) -> int[] | null\n",
+  "tests": [
+    {
+      "name": "path",
+      "in": {
+        "graph": [
+          [
+            {
+              "to": 1,
+              "weight": 3
+            },
+            {
+              "to": 2,
+              "weight": 1
+            }
+          ],
+          [
+            {
+              "to": 4,
+              "weight": 1
+            }
+          ],
+          [
+            {
+              "to": 3,
+              "weight": 7
+            }
+          ],
+          [],
+          [
+            {
+              "to": 1,
+              "weight": 1
+            },
+            {
+              "to": 3,
+              "weight": 5
+            },
+            {
+              "to": 5,
+              "weight": 2
+            }
+          ],
+          [
+            {
+              "to": 2,
+              "weight": 18
+            },
+            {
+              "to": 6,
+              "weight": 1
+            }
+          ],
+          [
+            {
+              "to": 3,
+              "weight": 1
+            }
+          ]
+        ],
+        "source": 0,
+        "sink": 6
+      },
+      "out": [
+        0,
+        1,
+        4,
+        5,
+        6
+      ]
+    },
+    {
+      "name": "none",
+      "in": {
+        "graph": [
+          [
+            {
+              "to": 1,
+              "weight": 3
+            },
+            {
+              "to": 2,
+              "weight": 1
+            }
+          ],
+          [
+            {
+              "to": 4,
+              "weight": 1
+            }
+          ],
+          [
+            {
+              "to": 3,
+              "weight": 7
+            }
+          ],
+          [],
+          [
+            {
+              "to": 1,
+              "weight": 1
+            },
+            {
+              "to": 3,
+              "weight": 5
+            },
+            {
+              "to": 5,
+              "weight": 2
+            }
+          ],
+          [
+            {
+              "to": 2,
+              "weight": 18
+            },
+            {
+              "to": 6,
+              "weight": 1
+            }
+          ],
+          [
+            {
+              "to": 3,
+              "weight": 1
+            }
+          ]
+        ],
+        "source": 6,
+        "sink": 0
+      },
+      "out": null
+    }
+  ],
+  "id": "bfs_graph_list"
+}

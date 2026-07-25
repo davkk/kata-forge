@@ -1,0 +1,81 @@
+{
+  "title": "Daily Temperatures",
+  "shape": "list_list",
+  "description": "For each day, days until a warmer temperature (0 if none).\n",
+  "interface": "daily_temperatures(t: int[]) -> int[]\n",
+  "tests": [
+    {
+      "name": "a",
+      "in": {
+        "arr": [
+          73,
+          74,
+          75,
+          71,
+          69,
+          72,
+          76,
+          73
+        ]
+      },
+      "out": [
+        1,
+        1,
+        4,
+        2,
+        1,
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "b",
+      "in": {
+        "arr": [
+          30,
+          40,
+          50,
+          60
+        ]
+      },
+      "out": [
+        1,
+        1,
+        1,
+        0
+      ]
+    },
+    {
+      "name": "c",
+      "in": {
+        "arr": [
+          30,
+          60,
+          90
+        ]
+      },
+      "out": [
+        1,
+        1,
+        0
+      ]
+    },
+    {
+      "name": "d",
+      "in": {
+        "arr": [
+          90,
+          80,
+          70
+        ]
+      },
+      "out": [
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "id": "daily_temperatures"
+}

@@ -1,0 +1,95 @@
+{
+  "title": "Fenwick Tree",
+  "shape": "commands",
+  "description": "Binary indexed tree on 1-indexed range [1..n]. add(i,delta), sum(i) prefix.\n",
+  "interface": "add(i, d) sum(i) length()\n",
+  "tests": [
+    {
+      "name": "basic",
+      "in": {
+        "init": [
+          5
+        ],
+        "ops": [
+          {
+            "op": "length"
+          },
+          {
+            "op": "add",
+            "args": [
+              1,
+              1
+            ]
+          },
+          {
+            "op": "add",
+            "args": [
+              2,
+              2
+            ]
+          },
+          {
+            "op": "add",
+            "args": [
+              3,
+              3
+            ]
+          },
+          {
+            "op": "sum",
+            "args": [
+              1
+            ]
+          },
+          {
+            "op": "sum",
+            "args": [
+              2
+            ]
+          },
+          {
+            "op": "sum",
+            "args": [
+              3
+            ]
+          },
+          {
+            "op": "sum",
+            "args": [
+              5
+            ]
+          },
+          {
+            "op": "add",
+            "args": [
+              3,
+              -1
+            ]
+          },
+          {
+            "op": "sum",
+            "args": [
+              5
+            ]
+          },
+          {
+            "op": "sum",
+            "args": [
+              2
+            ]
+          }
+        ]
+      },
+      "out": [
+        5,
+        1,
+        3,
+        6,
+        6,
+        5,
+        3
+      ]
+    }
+  ],
+  "id": "fenwick_tree"
+}

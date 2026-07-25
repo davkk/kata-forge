@@ -1,0 +1,74 @@
+#!/usr/bin/env python3
+import argparse
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from kf_common import (
+    active_path,
+    ensure_sessions_dir,
+    kata_by_id,
+    lang_config,
+    new_session_id,
+    read_json,
+    render_stub,
+    sessions_dir,
+    write_json,
+)
+
+
+
+def main():
+    ap = argparse.ArgumentParser(description="Create a practice session")
+    ap.add_argument("--katas", type=str, default=None, help="override .active.json")
+    ap.add_argument("--lang", type=str, default="cpp", help="target language (default: cpp)")
+    args = ap.parse_args()
+
+    if args.katas:
+        picks = [s.strip() for s in args.katas.split(",") if s.strip()]
+    else:
+        picks = read_json(active_path(), [])
+
+    if not picks:
+        print("error: no katas selected (run ./pick or pass --katas)", file=sys.stderr)
+        sys.exit(1)
+
+    try:
+        _, ext = lang_config(args.lang)
+    except ValueError as e:
+        print(f"error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    ensure_sessions_dir()
+    sid = new_session_id()
+    sdir = sessions_dir() / sid
+    sdir.mkdir(parents=True, exist_ok=False)
+
+    written = []
+    for kid in picks:
+        kata = kata_by_id(kid)
+        if not kata:
+            print(f"error: unknown kata {kid}", file=sys.stderr)
+            sys.exit(1)
+        fname = f"{kid}{ext}"
+        path = sdir / fname
+        path.write_text(render_stub(kata, args.lang), encoding="utf-8")
+        written.append(kid)
+
+    meta = {
+        "id": sid,
+        "lang": args.lang,
+        "created": datetime.now(timezone.utc).isoformat(),
+        "katas": written,
+    }
+    write_json(sdir / "meta.json", meta)
+
+    print(f"session: {sdir}  ({args.lang})")
+    for kid in written:
+        _, ext = lang_config(args.lang)
+        print(f"  {kid}{ext}")
+    print("Edit the stubs, then run ./test")
+
+if __name__ == "__main__":
+    main()

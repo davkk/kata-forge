@@ -1,0 +1,67 @@
+{
+  "title": "BT Post-Order",
+  "shape": "tree_list",
+  "description": "Post-order traversal: left, right, root.\n",
+  "interface": "post_order(root) -> int[]\n",
+  "tests": [
+    {
+      "name": "tree",
+      "in": {
+        "tree": {
+          "value": 20,
+          "left": {
+            "value": 10,
+            "left": {
+              "value": 5,
+              "left": null,
+              "right": {
+                "value": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "value": 15,
+              "left": null,
+              "right": null
+            }
+          },
+          "right": {
+            "value": 50,
+            "left": {
+              "value": 30,
+              "left": {
+                "value": 29,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "value": 45,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "value": 100,
+              "left": null,
+              "right": null
+            }
+          }
+        }
+      },
+      "out": [
+        7,
+        5,
+        15,
+        10,
+        29,
+        45,
+        30,
+        100,
+        50,
+        20
+      ]
+    }
+  ],
+  "id": "bt_post_order"
+}

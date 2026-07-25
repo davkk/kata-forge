@@ -1,0 +1,124 @@
+{
+  "title": "Merge Ranges",
+  "shape": "pairs",
+  "description": "Merge overlapping [start,end] intervals.\n",
+  "interface": "merge_ranges(intervals: [int,int][]) -> [int,int][]\n",
+  "tests": [
+    {
+      "name": "a",
+      "in": {
+        "pairs": [
+          [
+            1,
+            3
+          ],
+          [
+            2,
+            6
+          ],
+          [
+            8,
+            10
+          ],
+          [
+            15,
+            18
+          ]
+        ]
+      },
+      "out": [
+        [
+          1,
+          6
+        ],
+        [
+          8,
+          10
+        ],
+        [
+          15,
+          18
+        ]
+      ]
+    },
+    {
+      "name": "b",
+      "in": {
+        "pairs": [
+          [
+            1,
+            4
+          ],
+          [
+            4,
+            5
+          ]
+        ]
+      },
+      "out": [
+        [
+          1,
+          5
+        ]
+      ]
+    },
+    {
+      "name": "c",
+      "in": {
+        "pairs": [
+          [
+            1,
+            2
+          ],
+          [
+            3,
+            4
+          ]
+        ]
+      },
+      "out": [
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          4
+        ]
+      ]
+    },
+    {
+      "name": "d",
+      "in": {
+        "pairs": []
+      },
+      "out": []
+    },
+    {
+      "name": "e",
+      "in": {
+        "pairs": [
+          [
+            1,
+            10
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            4,
+            5
+          ]
+        ]
+      },
+      "out": [
+        [
+          1,
+          10
+        ]
+      ]
+    }
+  ],
+  "id": "merge_ranges"
+}

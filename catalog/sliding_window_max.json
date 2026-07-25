@@ -1,0 +1,85 @@
+{
+  "title": "Sliding Window Maximum",
+  "shape": "list_k_list",
+  "description": "Maximum of each contiguous window of size k.\n",
+  "interface": "sliding_window_max(nums: int[], k: int) -> int[]\n",
+  "tests": [
+    {
+      "name": "a",
+      "in": {
+        "arr": [
+          1,
+          3,
+          -1,
+          -3,
+          5,
+          3,
+          6,
+          7
+        ],
+        "k": 3
+      },
+      "out": [
+        3,
+        3,
+        5,
+        5,
+        6,
+        7
+      ]
+    },
+    {
+      "name": "b",
+      "in": {
+        "arr": [
+          1
+        ],
+        "k": 1
+      },
+      "out": [
+        1
+      ]
+    },
+    {
+      "name": "c",
+      "in": {
+        "arr": [
+          1,
+          -1
+        ],
+        "k": 1
+      },
+      "out": [
+        1,
+        -1
+      ]
+    },
+    {
+      "name": "d",
+      "in": {
+        "arr": [
+          9,
+          11
+        ],
+        "k": 2
+      },
+      "out": [
+        11
+      ]
+    },
+    {
+      "name": "e",
+      "in": {
+        "arr": [
+          4,
+          -2
+        ],
+        "k": 2
+      },
+      "out": [
+        4
+      ]
+    }
+  ],
+  "id": "sliding_window_max"
+}

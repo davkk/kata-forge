@@ -1,0 +1,19 @@
+#!/usr/bin/env python3
+"""Reset kata-forge state: clear sessions and reset .active.json."""
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from kf_common import SESSIONS_DIR, ACTIVE_PATH, write_json
+
+def main():
+    if SESSIONS_DIR.exists():
+        import shutil
+        shutil.rmtree(SESSIONS_DIR)
+        print(f"removed {SESSIONS_DIR}")
+
+    write_json(ACTIVE_PATH, [])
+    print(f"reset {ACTIVE_PATH}")
+
+if __name__ == "__main__":
+    main()

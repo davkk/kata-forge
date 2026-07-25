@@ -1,0 +1,144 @@
+{
+  "title": "Doubly Linked List",
+  "shape": "commands",
+  "description": "Doubly linked list with head and tail.\n",
+  "interface": "prepend(x) append(x) insertAt(x,i)\nget(i) remove(x) removeAt(i) length()\n",
+  "example": "append 5,7,9; get(2) \u2192 9",
+  "tests": [
+    {
+      "name": "list_ops",
+      "in": {
+        "init": [],
+        "ops": [
+          {
+            "op": "append",
+            "args": [
+              5
+            ]
+          },
+          {
+            "op": "append",
+            "args": [
+              7
+            ]
+          },
+          {
+            "op": "append",
+            "args": [
+              9
+            ]
+          },
+          {
+            "op": "get",
+            "args": [
+              2
+            ]
+          },
+          {
+            "op": "removeAt",
+            "args": [
+              1
+            ]
+          },
+          {
+            "op": "length"
+          },
+          {
+            "op": "append",
+            "args": [
+              11
+            ]
+          },
+          {
+            "op": "removeAt",
+            "args": [
+              1
+            ]
+          },
+          {
+            "op": "remove",
+            "args": [
+              9
+            ]
+          },
+          {
+            "op": "removeAt",
+            "args": [
+              0
+            ]
+          },
+          {
+            "op": "removeAt",
+            "args": [
+              0
+            ]
+          },
+          {
+            "op": "length"
+          },
+          {
+            "op": "prepend",
+            "args": [
+              5
+            ]
+          },
+          {
+            "op": "prepend",
+            "args": [
+              7
+            ]
+          },
+          {
+            "op": "prepend",
+            "args": [
+              9
+            ]
+          },
+          {
+            "op": "get",
+            "args": [
+              2
+            ]
+          },
+          {
+            "op": "get",
+            "args": [
+              0
+            ]
+          },
+          {
+            "op": "remove",
+            "args": [
+              9
+            ]
+          },
+          {
+            "op": "length"
+          },
+          {
+            "op": "get",
+            "args": [
+              0
+            ]
+          }
+        ]
+      },
+      "out": [
+        9,
+        7,
+        2,
+        9,
+        "empty",
+        5,
+        11,
+        0,
+        5,
+        9,
+        9,
+        2,
+        7
+      ]
+    }
+  ],
+  "id": "doubly_linked_list"
+}

@@ -1,0 +1,49 @@
+{
+  "title": "Longest Common Subsequence",
+  "shape": "str2_scalar",
+  "description": "Length of LCS of two strings.\n",
+  "interface": "lcs(a: string, b: string) -> int\n",
+  "tests": [
+    {
+      "name": "a",
+      "in": {
+        "a": "abcde",
+        "b": "ace"
+      },
+      "out": 3
+    },
+    {
+      "name": "b",
+      "in": {
+        "a": "abc",
+        "b": "abc"
+      },
+      "out": 3
+    },
+    {
+      "name": "c",
+      "in": {
+        "a": "abc",
+        "b": "def"
+      },
+      "out": 0
+    },
+    {
+      "name": "d",
+      "in": {
+        "a": "",
+        "b": "abc"
+      },
+      "out": 0
+    },
+    {
+      "name": "e",
+      "in": {
+        "a": "AGGTAB",
+        "b": "GXTXAYB"
+      },
+      "out": 4
+    }
+  ],
+  "id": "longest_common_subsequence"
+}

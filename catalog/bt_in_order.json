@@ -1,0 +1,67 @@
+{
+  "title": "BT In-Order",
+  "shape": "tree_list",
+  "description": "In-order traversal: left, root, right.\n",
+  "interface": "in_order(root) -> int[]\n",
+  "tests": [
+    {
+      "name": "tree",
+      "in": {
+        "tree": {
+          "value": 20,
+          "left": {
+            "value": 10,
+            "left": {
+              "value": 5,
+              "left": null,
+              "right": {
+                "value": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "value": 15,
+              "left": null,
+              "right": null
+            }
+          },
+          "right": {
+            "value": 50,
+            "left": {
+              "value": 30,
+              "left": {
+                "value": 29,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "value": 45,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "value": 100,
+              "left": null,
+              "right": null
+            }
+          }
+        }
+      },
+      "out": [
+        5,
+        7,
+        10,
+        15,
+        20,
+        29,
+        30,
+        45,
+        50,
+        100
+      ]
+    }
+  ],
+  "id": "bt_in_order"
+}

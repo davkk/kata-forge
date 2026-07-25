@@ -1,0 +1,153 @@
+{
+  "title": "BT BFS",
+  "shape": "tree_find",
+  "description": "Breadth-first search for a value in a binary tree.\n",
+  "interface": "bfs(root, needle) -> bool\n",
+  "tests": [
+    {
+      "name": "found_45",
+      "in": {
+        "tree": {
+          "value": 20,
+          "left": {
+            "value": 10,
+            "left": {
+              "value": 5,
+              "left": null,
+              "right": {
+                "value": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "value": 15,
+              "left": null,
+              "right": null
+            }
+          },
+          "right": {
+            "value": 50,
+            "left": {
+              "value": 30,
+              "left": {
+                "value": 29,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "value": 45,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "value": 100,
+              "left": null,
+              "right": null
+            }
+          }
+        },
+        "needle": 45
+      },
+      "out": true
+    },
+    {
+      "name": "found_7",
+      "in": {
+        "tree": {
+          "value": 20,
+          "left": {
+            "value": 10,
+            "left": {
+              "value": 5,
+              "left": null,
+              "right": {
+                "value": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "value": 15,
+              "left": null,
+              "right": null
+            }
+          },
+          "right": {
+            "value": 50,
+            "left": {
+              "value": 30,
+              "left": {
+                "value": 29,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "value": 45,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "value": 100,
+              "left": null,
+              "right": null
+            }
+          }
+        },
+        "needle": 7
+      },
+      "out": true
+    },
+    {
+      "name": "missing",
+      "in": {
+        "tree": {
+          "value": 20,
+          "left": {
+            "value": 10,
+            "left": {
+              "value": 5,
+              "left": null,
+              "right": {
+                "value": 7,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "value": 15,
+              "left": null,
+              "right": null
+            }
+          },
+          "right": {
+            "value": 50,
+            "left": {
+              "value": 30,
+              "left": {
+                "value": 29,
+                "left": null,
+                "right": null
+              },
+              "right": {
+                "value": 45,
+                "left": null,
+                "right": null
+              }
+            },
+            "right": {
+              "value": 100,
+              "left": null,
+              "right": null
+            }
+          }
+        },
+        "needle": 69
+      },
+      "out": false
+    }
+  ],
+  "id": "bt_bfs"
+}

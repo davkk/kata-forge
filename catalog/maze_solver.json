@@ -1,0 +1,93 @@
+{
+  "title": "Maze Solver",
+  "shape": "maze",
+  "description": "Find a path from start to end. wall char blocks cells. Return list of points.\n",
+  "interface": "solve(maze, wall, start, end) -> Point[]\n",
+  "tests": [
+    {
+      "name": "unique_path",
+      "in": {
+        "maze": [
+          "xxxxxxxxxx x",
+          "x        x x",
+          "x        x x",
+          "x xxxxxxxx x",
+          "x          x",
+          "x xxxxxxxxxx"
+        ],
+        "wall": "x",
+        "start": {
+          "x": 10,
+          "y": 0
+        },
+        "end": {
+          "x": 1,
+          "y": 5
+        }
+      },
+      "out": [
+        {
+          "x": 10,
+          "y": 0
+        },
+        {
+          "x": 10,
+          "y": 1
+        },
+        {
+          "x": 10,
+          "y": 2
+        },
+        {
+          "x": 10,
+          "y": 3
+        },
+        {
+          "x": 10,
+          "y": 4
+        },
+        {
+          "x": 9,
+          "y": 4
+        },
+        {
+          "x": 8,
+          "y": 4
+        },
+        {
+          "x": 7,
+          "y": 4
+        },
+        {
+          "x": 6,
+          "y": 4
+        },
+        {
+          "x": 5,
+          "y": 4
+        },
+        {
+          "x": 4,
+          "y": 4
+        },
+        {
+          "x": 3,
+          "y": 4
+        },
+        {
+          "x": 2,
+          "y": 4
+        },
+        {
+          "x": 1,
+          "y": 4
+        },
+        {
+          "x": 1,
+          "y": 5
+        }
+      ]
+    }
+  ],
+  "id": "maze_solver"
+}

@@ -1,0 +1,79 @@
+{
+  "title": "Invert Binary Tree",
+  "shape": "tree_map",
+  "description": "Swap left/right children recursively.\n",
+  "interface": "invert_tree(root) -> root\n",
+  "tests": [
+    {
+      "name": "basic",
+      "in": {
+        "tree": {
+          "value": 4,
+          "left": {
+            "value": 2,
+            "left": {
+              "value": 1,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "value": 3,
+              "left": null,
+              "right": null
+            }
+          },
+          "right": {
+            "value": 7,
+            "left": {
+              "value": 6,
+              "left": null,
+              "right": null
+            },
+            "right": {
+              "value": 9,
+              "left": null,
+              "right": null
+            }
+          }
+        }
+      },
+      "out": {
+        "value": 4,
+        "left": {
+          "value": 7,
+          "left": {
+            "value": 9,
+            "left": null,
+            "right": null
+          },
+          "right": {
+            "value": 6,
+            "left": null,
+            "right": null
+          }
+        },
+        "right": {
+          "value": 2,
+          "left": {
+            "value": 3,
+            "left": null,
+            "right": null
+          },
+          "right": {
+            "value": 1,
+            "left": null,
+            "right": null
+          }
+        }
+      }
+    },
+    {
+      "name": "null",
+      "in": {
+        "tree": null
+      },
+      "out": null
+    }
+  ],
+  "id": "invert_tree"
+}

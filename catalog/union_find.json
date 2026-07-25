@@ -1,0 +1,171 @@
+{
+  "title": "Union Find",
+  "shape": "commands",
+  "description": "Disjoint set: find, union, connected. init = n elements 0..n-1.\n",
+  "interface": "find(p) union(p,q) connected(p,q) length()\n",
+  "tests": [
+    {
+      "name": "basic",
+      "in": {
+        "init": [
+          10
+        ],
+        "ops": [
+          {
+            "op": "length"
+          },
+          {
+            "op": "connected",
+            "args": [
+              0,
+              1
+            ]
+          },
+          {
+            "op": "union",
+            "args": [
+              0,
+              1
+            ]
+          },
+          {
+            "op": "connected",
+            "args": [
+              0,
+              1
+            ]
+          },
+          {
+            "op": "union",
+            "args": [
+              2,
+              3
+            ]
+          },
+          {
+            "op": "union",
+            "args": [
+              4,
+              5
+            ]
+          },
+          {
+            "op": "union",
+            "args": [
+              1,
+              2
+            ]
+          },
+          {
+            "op": "connected",
+            "args": [
+              0,
+              3
+            ]
+          },
+          {
+            "op": "connected",
+            "args": [
+              0,
+              4
+            ]
+          },
+          {
+            "op": "union",
+            "args": [
+              3,
+              4
+            ]
+          },
+          {
+            "op": "connected",
+            "args": [
+              0,
+              5
+            ]
+          },
+          {
+            "op": "connected",
+            "args": [
+              6,
+              7
+            ]
+          }
+        ]
+      },
+      "out": [
+        10,
+        false,
+        true,
+        true,
+        false,
+        true,
+        false
+      ]
+    },
+    {
+      "name": "find_same_component",
+      "in": {
+        "init": [
+          10
+        ],
+        "ops": [
+          {
+            "op": "union",
+            "args": [
+              0,
+              1
+            ]
+          },
+          {
+            "op": "union",
+            "args": [
+              1,
+              2
+            ]
+          },
+          {
+            "op": "union",
+            "args": [
+              2,
+              3
+            ]
+          },
+          {
+            "op": "union",
+            "args": [
+              3,
+              4
+            ]
+          },
+          {
+            "op": "union",
+            "args": [
+              4,
+              5
+            ]
+          },
+          {
+            "op": "connected",
+            "args": [
+              0,
+              5
+            ]
+          },
+          {
+            "op": "connected",
+            "args": [
+              0,
+              6
+            ]
+          }
+        ]
+      },
+      "out": [
+        true,
+        false
+      ]
+    }
+  ],
+  "id": "union_find"
+}

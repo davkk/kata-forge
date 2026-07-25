@@ -1,0 +1,20 @@
+#!/usr/bin/env python3
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from kf_common import list_katas
+
+def main():
+    katas = list_katas()
+    if not katas:
+        print("no katas in catalog/")
+        return
+    width = max(len(k["id"]) for k in katas)
+    for k in katas:
+        shape = k.get("shape", "?")
+        title = k.get("title", "")
+        print(f"{k['id']:<{width}}  {shape:<14}  {title}")
+
+if __name__ == "__main__":
+    main()
