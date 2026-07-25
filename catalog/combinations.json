@@ -3,65 +3,9 @@
   "shape": "combos",
   "description": "All k-combinations from 1..n (order-insensitive judge).\n",
   "interface": "combinations(n, k) -> int[][]\n",
-  "tests": [
-    {
-      "name": "n4k2",
-      "in": {
-        "n": 4,
-        "k": 2
-      },
-      "out": [
-        [
-          1,
-          2
-        ],
-        [
-          1,
-          3
-        ],
-        [
-          1,
-          4
-        ],
-        [
-          2,
-          3
-        ],
-        [
-          2,
-          4
-        ],
-        [
-          3,
-          4
-        ]
-      ]
-    },
-    {
-      "name": "n4k4",
-      "in": {
-        "n": 4,
-        "k": 4
-      },
-      "out": [
-        [
-          1,
-          2,
-          3,
-          4
-        ]
-      ]
-    },
-    {
-      "name": "n4k0",
-      "in": {
-        "n": 4,
-        "k": 0
-      },
-      "out": [
-        []
-      ]
-    }
-  ],
-  "id": "combinations"
+  "id": "combinations",
+  "cpp": {
+    "fn": "vector<vector<int64_t>> combine(int64_t n, int64_t k)",
+    "hint": "// return list of k-combinations of 1..n"
+  }
 }

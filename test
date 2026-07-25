@@ -1,44 +1,33 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-import argparse
 import os
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from kf_common import (
-    LIB_CPP,
     ROOT,
-    encode_case,
+    TESTS_DIR,
     kata_by_id,
     latest_session,
-    normalize_out,
     sessions_dir,
-    values_equal,
 )
 
 TIMEOUT_S = 2.0
+CXX = os.environ.get("CXX", "c++")
+TMP_BIN = Path("/tmp") / "kata-forge-test"
 
 
-def find_solution(session: Path, kid: str) -> Path | None:
-    for ext in (".cpp", ".cc", ".cxx"):
-        p = session / f"{kid}{ext}"
-        if p.exists():
-            return p
-    return None
-
-
-def compile_cpp(src: Path, out_bin: Path) -> tuple[bool, str]:
+def compile_with_include(src: Path, include_path: Path, out_bin: Path) -> tuple[bool, str]:
     cmd = [
-        os.environ.get("CXX", "c++"),
+        CXX,
         "-std=c++17",
         "-O2",
         "-Wall",
-        f"-I{LIB_CPP}",
-        str(src),
+        f"-include", str(include_path.resolve()),
+        str(src.resolve()),
         "-o",
         str(out_bin),
     ]
@@ -53,59 +42,17 @@ def compile_cpp(src: Path, out_bin: Path) -> tuple[bool, str]:
     return True, ""
 
 
-def run_cmd(cmd: list[str] | str, stdin_data: str, env: dict | None = None) -> tuple[int, str, str]:
+def run_bin(bin_path: Path) -> tuple[int, str, str]:
     try:
         r = subprocess.run(
-            cmd,
-            input=stdin_data,
+            [str(bin_path)],
             capture_output=True,
             text=True,
             timeout=TIMEOUT_S,
-            shell=isinstance(cmd, str),
-            env=env,
         )
         return r.returncode, r.stdout, r.stderr
     except subprocess.TimeoutExpired:
         return -1, "", f"timeout after {TIMEOUT_S}s"
-
-
-def run_cases(kata: dict, runner) -> tuple[int, int]:
-    """runner(stdin_text) -> (rc, stdout, stderr). Returns (passed, total)."""
-    shape = kata["shape"]
-    tests = kata.get("tests") or []
-    passed = 0
-    for t in tests:
-        name = t.get("name", "?")
-        stdin_data = encode_case(shape, t["in"])
-        rc, stdout, stderr = runner(stdin_data)
-        if rc == -1:
-            print(f"  FAIL {name} (timeout)")
-            if stderr:
-                print(f"    {stderr}")
-            continue
-        if rc != 0:
-            print(f"  FAIL {name} (exit {rc})")
-            if stderr.strip():
-                print(f"    stderr: {stderr.strip()}")
-            continue
-        expected, actual = normalize_out(shape, t["out"], stdout)
-        if values_equal(expected, actual, shape):
-            print(f"  ok  {name}")
-            passed += 1
-        else:
-            print(f"  FAIL {name}")
-            print(f"    stdin:\n{ _indent(stdin_data.rstrip()) }")
-            print(f"    expected: {expected}")
-            print(f"    actual:   {actual}")
-            if stdout.strip() != str(actual):
-                print(f"    raw stdout:\n{ _indent(stdout.rstrip()) }")
-            if stderr.strip():
-                print(f"    stderr: {stderr.strip()}")
-    return passed, len(tests)
-
-
-def _indent(s: str, pad: str = "      ") -> str:
-    return "\n".join(pad + line for line in s.splitlines())
 
 
 def test_session(session: Path, filter_kid: str | None = None) -> int:
@@ -117,7 +64,6 @@ def test_session(session: Path, filter_kid: str | None = None) -> int:
     else:
         kids = []
 
-    # also discover any *.cpp whose stem is a known kata
     if not kids:
         kids = sorted({p.stem for p in session.glob("*.cpp")})
 
@@ -130,61 +76,68 @@ def test_session(session: Path, filter_kid: str | None = None) -> int:
     print(f"session {session.name}\n")
     total_p = total_t = 0
 
-    with tempfile.TemporaryDirectory(prefix="kata-forge-") as td:
-        tdir = Path(td)
-        for kid in kids:
-            kata = kata_by_id(kid)
-            if not kata:
-                print(f"{kid}\n  FAIL unknown kata\n")
-                continue
-            src = find_solution(session, kid)
-            print(kid)
-            if not src:
-                print("  FAIL no solution file (expected <id>.cpp)\n")
-                total_t += len(kata.get("tests") or [])
-                continue
+    for kid in kids:
+        src = session / f"{kid}.cpp"
+        print(kid)
+        if not src.exists():
+            print("  FAIL no solution file\n")
+            total_t += 1
+            continue
 
-            bin_path = tdir / kid
-            ok, err = compile_cpp(src, bin_path)
-            if not ok:
-                print(f"  FAIL compile\n    {err}\n")
-                total_t += len(kata.get("tests") or [])
-                continue
+        kata = kata_by_id(kid)
+        if not kata:
+            print("  FAIL unknown kata\n")
+            total_t += 1
+            continue
 
-            def runner(stdin_data: str, _bin=bin_path):
-                return run_cmd([str(_bin)], stdin_data)
+        test_src = TESTS_DIR / f"{kid}.test.cpp"
+        if not test_src.exists():
+            print("  FAIL missing shared test harness (run ./generate --harnesses)\n")
+            total_t += 1
+            continue
 
-            p, t = run_cases(kata, runner)
-            total_p += p
-            total_t += t
-            print()
+        bin_path = TMP_BIN / kid
+        bin_path.parent.mkdir(parents=True, exist_ok=True)
+        ntests = test_src.read_text().count("assert(")
+
+        ok, err = compile_with_include(test_src, src, bin_path)
+        if not ok:
+            print(f"  FAIL compile\n    {err}\n")
+            total_t += ntests or 1
+            continue
+
+        rc, stdout, stderr = run_bin(bin_path)
+        if rc == -1:
+            print(f"  FAIL (timeout)\n")
+            total_t += ntests or 1
+            if stderr:
+                print(f"    {stderr}")
+            continue
+        if rc == 0:
+            print(f"  ok  {ntests}/{ntests} passed")
+            total_p += ntests
+            total_t += ntests
+        else:
+            total_t += ntests or 1
+            print(f"  FAIL (exit {rc})")
+            if stdout.strip():
+                print(f"    {stdout.strip()}")
+            if stderr.strip():
+                print(f"    {stderr.strip()}")
+            if stdout.strip():
+                for line in stdout.strip().splitlines()[-3:]:
+                    print(f"    > {line}")
+
+        print()
 
     print(f"{total_p}/{total_t} passed")
     return 0 if total_p == total_t and total_t > 0 else 1
 
 
-def test_cmd(kid: str, cmd: str) -> int:
-    kata = kata_by_id(kid)
-    if not kata:
-        print(f"error: unknown kata {kid}", file=sys.stderr)
-        return 1
-    print(f"{kid} (--cmd)\n")
-    env = os.environ.copy()
-    env["KATA_FORGE_ROOT"] = str(ROOT)
-
-    def runner(stdin_data: str):
-        return run_cmd(cmd, stdin_data, env=env)
-
-    p, t = run_cases(kata, runner)
-    print(f"\n{p}/{t} passed")
-    return 0 if p == t and t > 0 else 1
-
-
 def main():
+    import argparse
     ap = argparse.ArgumentParser(description="Run kata tests")
-    ap.add_argument("session", nargs="?", help="session id or path (default: latest)")
-    ap.add_argument("--kata", type=str, help="kata id (with --cmd)")
-    ap.add_argument("--cmd", type=str, help="custom command that speaks shape I/O")
+    ap.add_argument("session", nargs="?", help="session id/path or .cpp filename")
     ap.add_argument("--print-session", action="store_true", help="print latest session path")
     args = ap.parse_args()
 
@@ -196,16 +149,9 @@ def main():
         print(s)
         return
 
-    if args.cmd:
-        if not args.kata:
-            print("error: --cmd requires --kata", file=sys.stderr)
-            sys.exit(1)
-        sys.exit(test_cmd(args.kata, args.cmd))
-
     if args.session:
         sp = Path(args.session)
-        # treat .cpp file (or bare kata id) as a single-kata selector
-        if sp.suffix in (".cpp", ".cc", ".cxx"):
+        if sp.suffix == ".cpp":
             kid = sp.stem
             session = latest_session()
             if not session:

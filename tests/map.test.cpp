@@ -1,0 +1,24 @@
+#include <cassert>
+#include <optional>
+
+int main() {
+    // basic
+    HashMap _inst0;
+    _inst0.set("foo", 55);
+    // unknown op: size
+    _inst0.set("fool", 75);
+    // unknown op: size
+    _inst0.set("foolish", 105);
+    // unknown op: size
+    _inst0.set("bar", 69);
+    // unknown op: size
+    { auto _v = _inst0.get("bar"); assert(_v.has_value() && *_v == 1); }
+    { auto _v = _inst0.get("blaz"); assert(_v.has_value() && *_v == 2); }
+    _inst0.remove("barblabr");
+    // unknown op: size
+    _inst0.remove("bar");
+    // unknown op: size
+    { auto _v = _inst0.get("bar"); assert(_v.has_value() && *_v == 3); }
+
+    return 0;
+}

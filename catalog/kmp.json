@@ -3,63 +3,9 @@
   "shape": "str2_scalar",
   "description": "First index of pattern in text, or -1. Empty pattern \u2192 0.\n",
   "interface": "kmp_search(text, pattern) -> int\n",
-  "tests": [
-    {
-      "name": "a",
-      "in": {
-        "a": "abcxabcdabcdabcy",
-        "b": "abcdabcy"
-      },
-      "out": 8
-    },
-    {
-      "name": "b",
-      "in": {
-        "a": "hello world",
-        "b": "world"
-      },
-      "out": 6
-    },
-    {
-      "name": "c",
-      "in": {
-        "a": "hello world",
-        "b": "xyz"
-      },
-      "out": -1
-    },
-    {
-      "name": "d",
-      "in": {
-        "a": "",
-        "b": "a"
-      },
-      "out": -1
-    },
-    {
-      "name": "e",
-      "in": {
-        "a": "a",
-        "b": ""
-      },
-      "out": 0
-    },
-    {
-      "name": "f",
-      "in": {
-        "a": "mississippi",
-        "b": "issip"
-      },
-      "out": 4
-    },
-    {
-      "name": "g",
-      "in": {
-        "a": "aaaaab",
-        "b": "aaab"
-      },
-      "out": 2
-    }
-  ],
-  "id": "kmp"
+  "id": "kmp",
+  "cpp": {
+    "fn": "int64_t solve(const string& a, const string& b)",
+    "hint": "// return scalar from two strings"
+  }
 }

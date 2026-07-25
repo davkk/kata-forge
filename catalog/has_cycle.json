@@ -3,59 +3,12 @@
   "shape": "cycle",
   "description": "Detect cycle (Floyd). cycle_to is index the tail links to, or -1.\n",
   "interface": "has_cycle(head) -> bool\n",
-  "tests": [
-    {
-      "name": "no_cycle",
-      "in": {
-        "arr": [
-          1,
-          2,
-          3
-        ],
-        "cycle_to": -1
-      },
-      "out": false
-    },
-    {
-      "name": "cycle",
-      "in": {
-        "arr": [
-          1,
-          2,
-          3
-        ],
-        "cycle_to": 0
-      },
-      "out": true
-    },
-    {
-      "name": "empty",
-      "in": {
-        "arr": [],
-        "cycle_to": -1
-      },
-      "out": false
-    },
-    {
-      "name": "single",
-      "in": {
-        "arr": [
-          1
-        ],
-        "cycle_to": -1
-      },
-      "out": false
-    },
-    {
-      "name": "self",
-      "in": {
-        "arr": [
-          1
-        ],
-        "cycle_to": 0
-      },
-      "out": true
-    }
-  ],
-  "id": "has_cycle"
+  "id": "has_cycle",
+  "cpp": {
+    "fn": "bool has_cycle(ListNode* head)",
+    "structs": [
+      "struct ListNode { int val; ListNode* next; };"
+    ],
+    "hint": "// return true if cycle"
+  }
 }

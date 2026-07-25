@@ -3,67 +3,9 @@
   "shape": "commands",
   "description": "Prefix tree: insert/delete words, find all words with a prefix.\n",
   "interface": "insert(s) delete(s) find(prefix) -> string[]\n",
-  "tests": [
-    {
-      "name": "basic",
-      "in": {
-        "ops": [
-          {
-            "op": "insert",
-            "sargs": [
-              "foo"
-            ]
-          },
-          {
-            "op": "insert",
-            "sargs": [
-              "fool"
-            ]
-          },
-          {
-            "op": "insert",
-            "sargs": [
-              "foolish"
-            ]
-          },
-          {
-            "op": "insert",
-            "sargs": [
-              "bar"
-            ]
-          },
-          {
-            "op": "find",
-            "sargs": [
-              "fo"
-            ]
-          },
-          {
-            "op": "delete",
-            "sargs": [
-              "fool"
-            ]
-          },
-          {
-            "op": "find",
-            "sargs": [
-              "fo"
-            ]
-          }
-        ]
-      },
-      "out": [
-        [
-          "foo",
-          "fool",
-          "foolish"
-        ],
-        [
-          "foo",
-          "foolish"
-        ]
-      ]
-    }
-  ],
-  "id": "trie"
+  "id": "trie",
+  "cpp": {
+    "class": "Trie",
+    "methods": []
+  }
 }

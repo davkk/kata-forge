@@ -3,123 +3,14 @@
   "shape": "commands",
   "description": "Set of ints: add, remove, contains. length is distinct count.\n",
   "interface": "add(k) remove(k) contains(k) -> bool\nlength() -> int\n",
-  "tests": [
-    {
-      "name": "basic",
-      "in": {
-        "ops": [
-          {
-            "op": "length"
-          },
-          {
-            "op": "contains",
-            "args": [
-              1
-            ]
-          },
-          {
-            "op": "add",
-            "args": [
-              1
-            ]
-          },
-          {
-            "op": "add",
-            "args": [
-              2
-            ]
-          },
-          {
-            "op": "contains",
-            "args": [
-              1
-            ]
-          },
-          {
-            "op": "contains",
-            "args": [
-              3
-            ]
-          },
-          {
-            "op": "length"
-          },
-          {
-            "op": "add",
-            "args": [
-              2
-            ]
-          },
-          {
-            "op": "length"
-          },
-          {
-            "op": "remove",
-            "args": [
-              2
-            ]
-          },
-          {
-            "op": "contains",
-            "args": [
-              2
-            ]
-          },
-          {
-            "op": "length"
-          },
-          {
-            "op": "remove",
-            "args": [
-              1
-            ]
-          },
-          {
-            "op": "contains",
-            "args": [
-              1
-            ]
-          },
-          {
-            "op": "length"
-          },
-          {
-            "op": "add",
-            "args": [
-              100
-            ]
-          },
-          {
-            "op": "add",
-            "args": [
-              200
-            ]
-          },
-          {
-            "op": "add",
-            "args": [
-              300
-            ]
-          },
-          {
-            "op": "length"
-          }
-        ]
-      },
-      "out": [
-        0,
-        false,
-        true,
-        false,
-        2,
-        2,
-        false,
-        1,
-        false,
-        0,
-        3
-      ]
-    }
-  ],
-  "id": "hash_set"
+  "id": "hash_set",
+  "cpp": {
+    "class": "HashSet",
+    "methods": [
+      "void add(int x)",
+      "void remove(int x)",
+      "bool has(int x)",
+      "int size()"
+    ]
+  }
 }

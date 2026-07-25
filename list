@@ -10,11 +10,9 @@ def main():
     if not katas:
         print("no katas in catalog/")
         return
-    width = max(len(k["id"]) for k in katas)
     for k in katas:
-        shape = k.get("shape", "?")
         title = k.get("title", "")
-        print(f"{k['id']:<{width}}  {shape:<14}  {title}")
+        print(f"{k['id']:<30}  {title}")
 
 if __name__ == "__main__":
     main()

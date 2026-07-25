@@ -3,71 +3,9 @@
   "shape": "list_lists",
   "description": "All permutations of distinct ints (order-insensitive judge).\n",
   "interface": "permutations(nums) -> int[][]\n",
-  "tests": [
-    {
-      "name": "three",
-      "in": {
-        "arr": [
-          1,
-          2,
-          3
-        ]
-      },
-      "out": [
-        [
-          1,
-          2,
-          3
-        ],
-        [
-          1,
-          3,
-          2
-        ],
-        [
-          2,
-          1,
-          3
-        ],
-        [
-          2,
-          3,
-          1
-        ],
-        [
-          3,
-          1,
-          2
-        ],
-        [
-          3,
-          2,
-          1
-        ]
-      ]
-    },
-    {
-      "name": "empty",
-      "in": {
-        "arr": []
-      },
-      "out": [
-        []
-      ]
-    },
-    {
-      "name": "one",
-      "in": {
-        "arr": [
-          1
-        ]
-      },
-      "out": [
-        [
-          1
-        ]
-      ]
-    }
-  ],
-  "id": "permutations"
+  "id": "permutations",
+  "cpp": {
+    "fn": "vector<vector<int64_t>> subsets(const vector<int64_t>& a)",
+    "hint": "// return list of lists (order-insensitive)"
+  }
 }

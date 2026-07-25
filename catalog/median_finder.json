@@ -3,78 +3,9 @@
   "shape": "commands",
   "description": "Online median: insert values, getMedian (avg of two middles if even).\n",
   "interface": "insert(x) getMedian() -> float\nlength()\n",
-  "tests": [
-    {
-      "name": "basic",
-      "in": {
-        "ops": [
-          {
-            "op": "insert",
-            "args": [
-              5
-            ]
-          },
-          {
-            "op": "getMedian"
-          },
-          {
-            "op": "length"
-          },
-          {
-            "op": "insert",
-            "args": [
-              10
-            ]
-          },
-          {
-            "op": "getMedian"
-          },
-          {
-            "op": "length"
-          },
-          {
-            "op": "insert",
-            "args": [
-              2
-            ]
-          },
-          {
-            "op": "getMedian"
-          },
-          {
-            "op": "length"
-          },
-          {
-            "op": "insert",
-            "args": [
-              1
-            ]
-          },
-          {
-            "op": "getMedian"
-          },
-          {
-            "op": "insert",
-            "args": [
-              100
-            ]
-          },
-          {
-            "op": "getMedian"
-          }
-        ]
-      },
-      "out": [
-        5,
-        1,
-        7.5,
-        2,
-        5,
-        3,
-        3.5,
-        5
-      ]
-    }
-  ],
-  "id": "median_finder"
+  "id": "median_finder",
+  "cpp": {
+    "class": "MedianFinder",
+    "methods": []
+  }
 }

@@ -4,82 +4,14 @@
   "description": "LIFO stack. push/pop/peek at the top. All ops O(1).\n",
   "interface": "push(x: int) -> void\npop() -> int | null\npeek() -> int | null\nlength() -> int\n",
   "example": "push 5,7,9; pop \u2192 9",
-  "tests": [
-    {
-      "name": "basic_lifo",
-      "in": {
-        "ops": [
-          {
-            "op": "push",
-            "args": [
-              5
-            ]
-          },
-          {
-            "op": "push",
-            "args": [
-              7
-            ]
-          },
-          {
-            "op": "push",
-            "args": [
-              9
-            ]
-          },
-          {
-            "op": "pop"
-          },
-          {
-            "op": "length"
-          },
-          {
-            "op": "push",
-            "args": [
-              11
-            ]
-          },
-          {
-            "op": "pop"
-          },
-          {
-            "op": "pop"
-          },
-          {
-            "op": "peek"
-          },
-          {
-            "op": "pop"
-          },
-          {
-            "op": "pop"
-          },
-          {
-            "op": "push",
-            "args": [
-              69
-            ]
-          },
-          {
-            "op": "peek"
-          },
-          {
-            "op": "length"
-          }
-        ]
-      },
-      "out": [
-        9,
-        2,
-        11,
-        7,
-        5,
-        5,
-        "empty",
-        69,
-        1
-      ]
-    }
-  ],
-  "id": "stack"
+  "id": "stack",
+  "cpp": {
+    "class": "Stack",
+    "methods": [
+      "void push(int x)",
+      "optional<int> pop()",
+      "optional<int> peek()",
+      "int size()"
+    ]
+  }
 }

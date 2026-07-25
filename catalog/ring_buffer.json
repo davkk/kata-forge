@@ -3,96 +3,14 @@
   "shape": "commands",
   "description": "Fixed-capacity circular buffer. push, pop, get(idx from head).\n",
   "interface": "push(x) pop() get(i) length()\n",
-  "tests": [
-    {
-      "name": "basic",
-      "in": {
-        "init": [
-          3
-        ],
-        "ops": [
-          {
-            "op": "push",
-            "args": [
-              5
-            ]
-          },
-          {
-            "op": "pop"
-          },
-          {
-            "op": "pop"
-          },
-          {
-            "op": "push",
-            "args": [
-              42
-            ]
-          },
-          {
-            "op": "push",
-            "args": [
-              9
-            ]
-          },
-          {
-            "op": "pop"
-          },
-          {
-            "op": "pop"
-          },
-          {
-            "op": "pop"
-          },
-          {
-            "op": "push",
-            "args": [
-              42
-            ]
-          },
-          {
-            "op": "push",
-            "args": [
-              9
-            ]
-          },
-          {
-            "op": "push",
-            "args": [
-              12
-            ]
-          },
-          {
-            "op": "get",
-            "args": [
-              2
-            ]
-          },
-          {
-            "op": "get",
-            "args": [
-              1
-            ]
-          },
-          {
-            "op": "get",
-            "args": [
-              0
-            ]
-          }
-        ]
-      },
-      "out": [
-        5,
-        "empty",
-        42,
-        9,
-        "empty",
-        12,
-        9,
-        42
-      ]
-    }
-  ],
-  "id": "ring_buffer"
+  "id": "ring_buffer",
+  "cpp": {
+    "class": "RingBuffer",
+    "methods": [
+      "void push(int x)",
+      "optional<int> pop()",
+      "optional<int> get(int i)",
+      "int size()"
+    ]
+  }
 }

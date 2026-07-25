@@ -3,65 +3,9 @@
   "shape": "coin",
   "description": "Min coins to make amount. -1 if impossible.\n",
   "interface": "coin_change(amount: int, coins: int[]) -> int\n",
-  "tests": [
-    {
-      "name": "a",
-      "in": {
-        "amount": 5,
-        "coins": [
-          1,
-          2,
-          5
-        ]
-      },
-      "out": 1
-    },
-    {
-      "name": "b",
-      "in": {
-        "amount": 3,
-        "coins": [
-          2
-        ]
-      },
-      "out": -1
-    },
-    {
-      "name": "c",
-      "in": {
-        "amount": 0,
-        "coins": [
-          1,
-          2,
-          5
-        ]
-      },
-      "out": 0
-    },
-    {
-      "name": "d",
-      "in": {
-        "amount": 11,
-        "coins": [
-          1,
-          2,
-          5
-        ]
-      },
-      "out": 3
-    },
-    {
-      "name": "e",
-      "in": {
-        "amount": 100,
-        "coins": [
-          1,
-          10,
-          25
-        ]
-      },
-      "out": 4
-    }
-  ],
-  "id": "coin_change"
+  "id": "coin_change",
+  "cpp": {
+    "fn": "int64_t solve(int64_t amount, const vector<int>& coins)",
+    "hint": "// return min coins (or -1)"
+  }
 }

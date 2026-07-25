@@ -3,60 +3,9 @@
   "shape": "topo",
   "description": "Kahn topo sort. edges are [from,to] directed. Return [] if cycle. Deterministic: always pop smallest ready node.\n",
   "interface": "topological_sort(n, edges) -> int[]\n",
-  "tests": [
-    {
-      "name": "basic",
-      "in": {
-        "n": 4,
-        "edges": [
-          [
-            0,
-            1
-          ],
-          [
-            1,
-            2
-          ],
-          [
-            3,
-            0
-          ]
-        ]
-      },
-      "out": [
-        3,
-        0,
-        1,
-        2
-      ]
-    },
-    {
-      "name": "cycle",
-      "in": {
-        "n": 2,
-        "edges": [
-          [
-            0,
-            1
-          ],
-          [
-            1,
-            0
-          ]
-        ]
-      },
-      "out": []
-    },
-    {
-      "name": "single",
-      "in": {
-        "n": 1,
-        "edges": []
-      },
-      "out": [
-        0
-      ]
-    }
-  ],
-  "id": "topological_sort"
+  "id": "topological_sort",
+  "cpp": {
+    "fn": "vector<int> solve(int n, const vector<pair<int64_t,int64_t>>& edges)",
+    "hint": "// return topological order"
+  }
 }

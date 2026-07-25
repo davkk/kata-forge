@@ -4,112 +4,14 @@
   "description": "FIFO queue. enqueue at the tail, deque from the head, peek the head\nwithout removing. All operations should be O(1).\n",
   "interface": "enqueue(x: int) -> void\ndeque() -> int | null\npeek() -> int | null\nlength() -> int\n",
   "example": "enqueue 5,7,9; deque \u2192 5; length \u2192 2",
-  "tests": [
-    {
-      "name": "basic_fifo",
-      "in": {
-        "ops": [
-          {
-            "op": "enqueue",
-            "args": [
-              5
-            ]
-          },
-          {
-            "op": "enqueue",
-            "args": [
-              7
-            ]
-          },
-          {
-            "op": "enqueue",
-            "args": [
-              9
-            ]
-          },
-          {
-            "op": "deque"
-          },
-          {
-            "op": "length"
-          },
-          {
-            "op": "enqueue",
-            "args": [
-              11
-            ]
-          },
-          {
-            "op": "deque"
-          },
-          {
-            "op": "deque"
-          },
-          {
-            "op": "peek"
-          },
-          {
-            "op": "deque"
-          },
-          {
-            "op": "deque"
-          },
-          {
-            "op": "length"
-          },
-          {
-            "op": "enqueue",
-            "args": [
-              69
-            ]
-          },
-          {
-            "op": "peek"
-          },
-          {
-            "op": "length"
-          }
-        ]
-      },
-      "out": [
-        5,
-        2,
-        7,
-        9,
-        11,
-        11,
-        "empty",
-        0,
-        69,
-        1
-      ]
-    },
-    {
-      "name": "empty_deque",
-      "in": {
-        "ops": [
-          {
-            "op": "deque"
-          }
-        ]
-      },
-      "out": [
-        "empty"
-      ]
-    },
-    {
-      "name": "empty_peek",
-      "in": {
-        "ops": [
-          {
-            "op": "peek"
-          }
-        ]
-      },
-      "out": [
-        "empty"
-      ]
-    }
-  ],
-  "id": "queue"
+  "id": "queue",
+  "cpp": {
+    "class": "Queue",
+    "methods": [
+      "void push(int x)",
+      "optional<int> pop()",
+      "optional<int> front()",
+      "int size()"
+    ]
+  }
 }
