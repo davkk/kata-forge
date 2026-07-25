@@ -7,7 +7,7 @@ A binary tree with the ordering invariant: for every node, **every** value in it
 - The invariant applies to whole **subtrees, not just direct children** — checking only `left->value < node->value < right->value` is the classic validate-BST bug.
 - Search and insert are the same walk: each comparison discards half the remaining tree, exactly like binary search on a sorted array.
 - All operations are O(h); h = log n only if the tree stays balanced. Sorted input builds a linked list and everything degrades to O(n) — the shape depends entirely on insertion order, which is why self-balancing variants exist.
-- In-order traversal yields the values sorted — many BST problems reduce to that fact. See bt_in_order.
+- In-order traversal yields the values sorted — many BST problems reduce to that fact.
 
 ## Operations
 

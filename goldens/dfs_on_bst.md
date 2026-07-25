@@ -49,6 +49,6 @@ bool dfs(Node* curr, int needle) {
 
 ## Cousins & contrasts
 
-- **Full tree DFS** (pre/in/post-order): explores everything, O(n); the right tool when the tree has no ordering to exploit. See bt_pre_order.
+- **Full tree DFS** (pre/in/post-order): explores everything, O(n); the right tool when the tree has no ordering to exploit.
 - **BFS on a tree**: still O(n) and pointless for search in a BST — ordering beats breadth. See bt_bfs.
 - **Binary search on a sorted array**: the same halving logic on indices instead of pointers; the array is a flattened balanced BST.

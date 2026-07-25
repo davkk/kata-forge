@@ -9,7 +9,7 @@ Needs `python3` (stdlib only — no pip packages) and a C++17 compiler (`c++` / 
 ### Workflow
 
 ```bash
-./pick --katas bubble_sort,queue   # or: ./pick --count 5
+./pick --katas queue,stack   # or: ./pick --count 5
 ./generate                         # → sessions/sessionN/<id>.cpp stubs
 # edit sessions/sessionN/<id>.cpp
 ./test

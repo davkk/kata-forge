@@ -45,6 +45,6 @@ bool bfs(Node* root, int needle) {
 
 ## Cousins & contrasts
 
-- **DFS (pre/in/post-order)**: dives to a leaf with a stack or recursion, O(h) space; better for structure-preserving walks and bottom-up aggregation. See bt_pre_order, bt_in_order, bt_post_order.
+- **DFS (pre/in/post-order)**: dives to a leaf with a stack or recursion, O(h) space; better for structure-preserving walks and bottom-up aggregation.
 - **Graph BFS**: same queue plus a `visited` set — trees need none since they have no cycles.
 - **Dijkstra**: BFS generalized to weighted graphs — the FIFO queue becomes a min-heap on distance.
