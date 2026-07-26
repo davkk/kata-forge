@@ -37,13 +37,7 @@ C++ DSA practice forge. Compile-time assertions replace wire formats and I/O pip
 2. `goldens/<id>.md` reference write-up.
 3. If using a new shape, add its function signature + input builder + assertion logic in `kf_common.py` (shape sigs, input builders).
 
-## Adding a language
-
-Not supported — v1 is C++ only.
-
 ## Do not
 
-- Add pip dependencies / PyYAML.
-- Put sessions or state under XDG.
-- Use I/O piping, wire formats, or shape-encoding in the test pipeline.
+- Add pip dependencies.
 - Make stub comments or goldens verbose.

@@ -5,5 +5,6 @@ __pycache__/
 *.o
 a.out
 .active.json
+.fsrs.json
 sessions/session*/
 
