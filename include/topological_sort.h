@@ -2,4 +2,4 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-vector<int> solve(int n, const vector<pair<int64_t,int64_t>>& edges);
+vector<int> topological_sort(int n, const vector<pair<int64_t,int64_t>>& edges);

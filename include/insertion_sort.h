@@ -2,4 +2,4 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-void solve(vector<int>& a);
+void insertion_sort(vector<int>& a);

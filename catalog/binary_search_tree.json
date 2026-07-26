@@ -6,6 +6,11 @@
   "id": "binary_search_tree",
   "cpp": {
     "class": "BinarySearchTree",
-    "methods": []
+    "methods": [
+      "void insert(int val)",
+      "void remove(int val)",
+      "optional<int> find(int val)",
+      "int size()"
+    ]
   }
 }

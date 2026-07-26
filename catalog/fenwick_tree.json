@@ -6,6 +6,10 @@
   "id": "fenwick_tree",
   "cpp": {
     "class": "FenwickTree",
-    "methods": []
+    "methods": [
+      "void add(int idx, int delta)",
+      "int sum(int idx)",
+      "int size()"
+    ]
   }
 }

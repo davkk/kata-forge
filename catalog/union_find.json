@@ -6,6 +6,11 @@
   "id": "union_find",
   "cpp": {
     "class": "UnionFind",
-    "methods": []
+    "methods": [
+      "int find(int x)",
+      "bool unite(int x, int y)",
+      "bool connected(int x, int y)",
+      "int size()"
+    ]
   }
 }

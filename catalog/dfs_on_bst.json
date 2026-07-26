@@ -5,7 +5,7 @@
   "interface": "dfs(root, needle) -> bool\n",
   "id": "dfs_on_bst",
   "cpp": {
-    "fn": "bool solve(Node* root, int64_t needle)",
+    "fn": "bool dfs(Node* root, int64_t needle)",
     "structs": [
       "struct Node { int val; Node* left; Node* right; };"
     ],

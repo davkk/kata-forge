@@ -2,4 +2,4 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-vector<int> solve(const vector<int>& a, int64_t k);
+vector<int> max_sliding_window(const vector<int>& a, int64_t k);

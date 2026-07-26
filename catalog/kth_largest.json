@@ -5,7 +5,7 @@
   "interface": "kth_largest(nums: int[], k: int) -> int\n",
   "id": "kth_largest",
   "cpp": {
-    "fn": "int64_t solve(const vector<int>& a, int64_t k)",
+    "fn": "int64_t kth_largest(const vector<int>& a, int64_t k)",
     "hint": "// return scalar from list + k"
   }
 }

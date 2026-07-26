@@ -5,7 +5,7 @@
   "interface": "permutations(nums) -> int[][]\n",
   "id": "permutations",
   "cpp": {
-    "fn": "vector<vector<int64_t>> subsets(const vector<int64_t>& a)",
+    "fn": "vector<vector<int64_t>> permutations(const vector<int64_t>& a)",
     "hint": "// return list of lists (order-insensitive)"
   }
 }

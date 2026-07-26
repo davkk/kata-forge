@@ -5,7 +5,7 @@
   "interface": "kruskals(graph) -> graph | null\n",
   "id": "kruskals",
   "cpp": {
-    "fn": "optional<vector<vector<Edge>>> prim(const vector<vector<Edge>>& g)",
+    "fn": "optional<vector<vector<Edge>>> kruskals(const vector<vector<Edge>>& g)",
     "structs": [
       "struct Edge { int to; int64_t weight; };"
     ],

@@ -5,7 +5,7 @@
   "interface": "merge_ranges(intervals: [int,int][]) -> [int,int][]\n",
   "id": "merge_ranges",
   "cpp": {
-    "fn": "vector<pair<int64_t,int64_t>> solve(vector<pair<int64_t,int64_t>> a)",
+    "fn": "vector<pair<int64_t,int64_t>> merge_ranges(vector<pair<int64_t,int64_t>> a)",
     "hint": "// return transformed pairs"
   }
 }

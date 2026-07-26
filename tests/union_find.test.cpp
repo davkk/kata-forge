@@ -2,29 +2,30 @@
 #include <optional>
 
 int main() { TEST("basic");
-    auto _inst0 = Impl{{10}};
-    // unknown op: length
-    // unknown op: connected
-    // unknown op: union
-    // unknown op: connected
-    // unknown op: union
-    // unknown op: union
-    // unknown op: union
-    // unknown op: connected
-    // unknown op: connected
-    // unknown op: union
-    // unknown op: connected
-    // unknown op: connected
+    auto _inst0 = UnionFind{{10}};
+    CHECK(_inst0.size() == 10);
+    CHECK(!_inst0.connected(0, 1));
+    _inst0.unite(0, 1);
+    CHECK(_inst0.connected(0, 1));
+    _inst0.unite(1, 2);
+    _inst0.unite(3, 4);
+    _inst0.unite(5, 6);
+    CHECK(_inst0.connected(0, 2));
+    CHECK(!_inst0.connected(0, 4));
+    _inst0.unite(2, 4);
+    CHECK(_inst0.connected(0, 4));
+    CHECK(!_inst0.connected(3, 5));
 
     // find_same_component
-    auto _inst1 = Impl{{10}};
-    // unknown op: union
-    // unknown op: union
-    // unknown op: union
-    // unknown op: union
-    // unknown op: union
-    // unknown op: connected
-    // unknown op: connected
+    {   auto _inst1 = UnionFind{{10}};
+        _inst1.unite(1, 2);
+        _inst1.unite(3, 4);
+        _inst1.unite(5, 6);
+        _inst1.unite(7, 8);
+        _inst1.unite(2, 3);
+        CHECK(_inst1.connected(1, 4));
+        CHECK(!_inst1.connected(1, 7));
+    }
 
     return 0;
 }

@@ -2,10 +2,10 @@
   "title": "Maze Solver",
   "shape": "maze",
   "description": "Find a path from start to end. wall char blocks cells. Return list of points.\n",
-  "interface": "solve(maze, wall, start, end) -> Point[]\n",
+  "interface": "solve_maze(maze, wall, start, end) -> Point[]\n",
   "id": "maze_solver",
   "cpp": {
-    "fn": "vector<Point> solve(const vector<string>& maze, const string& wall, Point start, Point end)",
+    "fn": "vector<Point> solve_maze(const vector<string>& maze, const string& wall, Point start, Point end)",
     "structs": [
       "struct Point { int x, y; };"
     ],

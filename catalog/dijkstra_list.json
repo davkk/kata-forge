@@ -5,7 +5,7 @@
   "interface": "dijkstra(graph, source, sink) -> int[]\n",
   "id": "dijkstra_list",
   "cpp": {
-    "fn": "optional<vector<int>> dfs(const vector<vector<Edge>>& g, int source, int sink)",
+    "fn": "optional<vector<int>> dijkstra(const vector<vector<Edge>>& g, int source, int sink)",
     "structs": [
       "struct Edge { int to; int64_t weight; };"
     ],

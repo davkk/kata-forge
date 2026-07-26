@@ -37,7 +37,7 @@ static bool walk(const vector<string>& maze, char wall, Point cur, Point end,
     return false;
 }
 
-vector<Point> solve(const vector<string>& maze, char wall, Point start, Point end) {
+vector<Point> solve_maze(const vector<string>& maze, char wall, Point start, Point end) {
     vector<vector<bool>> seen(maze.size(), vector<bool>(maze[0].size(), false));
     vector<Point> path;
     walk(maze, wall, start, end, seen, path);

@@ -6,7 +6,7 @@
   "example": "arr = [9,3,7,4,69,420,42] \u2192 [3,4,7,9,42,69,420]",
   "id": "insertion_sort",
   "cpp": {
-    "fn": "void solve(vector<int>& a)",
+    "fn": "void insertion_sort(vector<int>& a)",
     "hint": "// in-place sort of a"
   }
 }

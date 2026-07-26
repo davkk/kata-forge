@@ -6,6 +6,10 @@
   "id": "median_finder",
   "cpp": {
     "class": "MedianFinder",
-    "methods": []
+    "methods": [
+      "void insert(int val)",
+      "double getMedian()",
+      "int size()"
+    ]
   }
 }

@@ -41,6 +41,27 @@ struct UnionFind {
 - Negative parent = root + stores size: `-p[root]` = number of elements in the set. Useful for component-size queries.
 - `unite` returns `true` if a merge happened. Useful in Kruskal for counting edges added.
 
+### Optimization details
+
+- **Why both are essential**: Path compression alone does not keep trees shallow — a chain of `unite` calls builds a tall tree, and compression only flattens paths traversed by `find`. Union by size alone guarantees O(log n) height. Together they achieve amortized α(n). Each node's parent changes at most O(log n) times across all operations; after that, path compression keeps it one hop from the root.
+
+- **Iterative find (no recursion)**: Recursion risks stack overflow on deep pre-compression trees. Two-pass form — walk up to root, then walk again setting parents:
+
+  ```cpp
+  int find(int x) {
+      int r = x;
+      while (p[r] >= 0) r = p[r];
+      while (p[x] >= 0) { int nxt = p[x]; p[x] = r; x = nxt; }
+      return r;
+  }
+  ```
+
+- **Path halving / splitting**: Alternatives that compress during ascent, avoiding a second pass. Halving: `p[x] = p[p[x]]; x = p[x];`. Splitting: `int nxt = p[x]; p[x] = p[nxt]; x = nxt;`. Same α(n) bound; splitting often benchmarks best.
+
+- **Cache & memory**: If n fits in 16 bits, `int16_t` halves the `p` array cache footprint — matters in tight loops over millions of nodes. The single-vector layout (negative for root size, non-negative for parent) already minimizes indirection.
+
+- **Payload merging**: When each set carries extra data (e.g., string list in accounts merge), merge the smaller set's payload into the larger set's. Same union-by-size principle applied to data — total moves stay O(n log n).
+
 ## Where it shows up
 
 - Kruskal's MST (cycle detection), as above.

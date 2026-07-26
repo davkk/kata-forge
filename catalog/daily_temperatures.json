@@ -5,7 +5,7 @@
   "interface": "daily_temperatures(t: int[]) -> int[]\n",
   "id": "daily_temperatures",
   "cpp": {
-    "fn": "vector<int> solve(const vector<int>& a)",
+    "fn": "vector<int> daily_temperatures(const vector<int>& a)",
     "hint": "// return list from list"
   }
 }

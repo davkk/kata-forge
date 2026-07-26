@@ -2,4 +2,4 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-int64_t solve(const string& a, const string& b);
+int64_t kmp(const string& a, const string& b);

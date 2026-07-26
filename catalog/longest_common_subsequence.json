@@ -5,7 +5,7 @@
   "interface": "lcs(a: string, b: string) -> int\n",
   "id": "longest_common_subsequence",
   "cpp": {
-    "fn": "int64_t solve(const string& a, const string& b)",
+    "fn": "int64_t longest_common_subsequence(const string& a, const string& b)",
     "hint": "// return scalar from two strings"
   }
 }

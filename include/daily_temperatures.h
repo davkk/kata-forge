@@ -2,4 +2,4 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-vector<int> solve(const vector<int>& a);
+vector<int> daily_temperatures(const vector<int>& a);

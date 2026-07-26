@@ -6,6 +6,10 @@
   "id": "trie",
   "cpp": {
     "class": "Trie",
-    "methods": []
+    "methods": [
+      "void insert(const string& word)",
+      "void remove(const string& word)",
+      "vector<string> find(const string& prefix)"
+    ]
   }
 }
