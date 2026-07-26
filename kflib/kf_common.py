@@ -6,23 +6,21 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent
-CATALOG_DIR = ROOT / "catalog"
-SESSIONS_DIR = ROOT / "sessions"
-TESTS_DIR = ROOT / "tests"
-ACTIVE_PATH = ROOT / ".active.json"
+TOOL_ROOT = Path(__file__).resolve().parent.parent
+CATALOG_DIR = TOOL_ROOT / "catalog"
+TESTS_DIR = TOOL_ROOT / "tests"
 
 
 def sessions_dir() -> Path:
-    return SESSIONS_DIR
+    return Path.cwd() / "sessions"
 
 
 def active_path() -> Path:
-    return ACTIVE_PATH
+    return Path.cwd() / ".active.json"
 
 
 def ensure_sessions_dir() -> None:
-    SESSIONS_DIR.mkdir(parents=True, exist_ok=True)
+    sessions_dir().mkdir(parents=True, exist_ok=True)
 
 
 def load_catalog(path: Path) -> dict:
@@ -73,8 +71,9 @@ def latest_session() -> Path | None:
 
 def new_session_id() -> str:
     ensure_sessions_dir()
+    sd = sessions_dir()
     nums = []
-    for p in SESSIONS_DIR.iterdir():
+    for p in sd.iterdir():
         if p.is_dir() and p.name.startswith("session"):
             suffix = p.name[len("session") :]
             if suffix.isdigit():
@@ -154,6 +153,3 @@ def render_stub(kata: dict) -> str:
         parts.append("}")
 
     return "\n".join(parts) + "\n"
-
-
-

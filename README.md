@@ -1,64 +1,86 @@
 # kata-forge
 
-Multi-language DSA practice. Catalog is language-neutral; v1 ships a **C++** helper lib.
+C++ DSA practice forge. Compile-time assertions replace wire formats and I/O piping.
 
 ### Setup
 
-Needs `python3` (stdlib only — no pip packages) and a C++17 compiler (`c++` / `g++` / `clang++`).
+Python 3 (stdlib only — no pip) and a C++17 compiler (`c++` / `g++` / `clang++`).
 
 ### Workflow
 
-```bash
-./pick --katas queue,stack   # or: ./pick --count 5
-./generate                         # → sessions/sessionN/<id>.cpp stubs
-# edit sessions/sessionN/<id>.cpp
-./test
 ```
-
-Everything stays in the repo: `sessions/sessionN/`, `.active.json`.  
-`./generate` writes C++ files with a short `/* ... */` problem block plus empty `solve` + `main` wired to the shape helper.  
-Catalog has 50+ katas ported from kata-machine (sorts, lists, trees, graphs, DP, …).
+./kf pick          → pick 4 katas via FSRS, write to .active.json
+./kf pick 6        → pick 6 katas
+./kf generate      → create sessions/sessionN/ with stubs
+# edit *.cpp stubs in sessions/sessionN/
+./kf test          → compile & run test harnesses
+./kf grade         → rate each kata from latest session (1=again .. 4=easy)
+```
 
 ### Commands
 
 | Command | Description |
 |---------|-------------|
-| `./list` | List catalog katas |
-| `./pick [--count N]` | Random pick → `.active.json` |
-| `./pick --katas a,b` | Explicit pick |
-| `./generate` | New `sessions/sessionN/` with commented `.cpp` stubs |
-| `./test` | Compile `*.cpp` in latest session and run shape I/O tests |
-| `./test --kata ID --cmd '...'` | Judge any command that speaks the shape wire format |
+| `./kf list` | List all catalog katas |
+| `./kf pick [N]` | FSRS picks N katas (default 4) into `.active.json` |
+| `./kf pick --katas a,b` | Explicitly select katas |
+| `./kf pick --random [N]` | Randomly pick N katas |
+| `./kf generate` | Create `sessions/sessionN/` with stubs |
+| `./kf test [session]` | Compile & run tests for a session (default: latest) |
+| `./kf grade` | Interactive rating for latest session |
+| `./kf grade --rate <kata> <grade>` | Rate a single kata |
+| `./kf grade --state` | Show FSRS state for all reviewed katas |
 
-### C++ solutions
+### FSRS Scheduling
 
-```cpp
-#include "kata.hpp"
+Default `./kf pick` uses **FSRS-5** spaced repetition. It shuffles all katas then sorts by **ascending retrievability** (lowest recall probability first), so you practice what you're about to forget.
 
-static void solve(std::vector<std::int64_t>& a) {
-    // ...
-}
+Katas reviewed within the last 3 days get R=1.0 and sort to the end.
 
-int main() {
-    return kata::run_list_inplace(solve);
-}
-```
+### Rating
 
-`./test` compiles with `-I lib/cpp`. See `shapes.md` and `lib/cpp/kata.hpp` for every shape’s `run_*` helper.
+After `./kf test`, run `./kf grade` to rate each kata:
+
+| Grade | Meaning |
+|-------|---------|
+| 1 | Again (forgot) |
+| 2 | Hard |
+| 3 | Good |
+| 4 | Easy |
+
+Ratings update the FSRS card state (difficulty, stability, lapses) in `.fsrs.json`.
+
+### FSRS State (`./kf grade --state`)
+
+| Column | Meaning |
+|--------|---------|
+| **D** | Difficulty (1–10, higher = harder) |
+| **S** | Stability in days (half-life analog) |
+| **R** | Retrievability — estimated probability (0–1) you'd recall today |
+| revs | Number of reviews |
+| lapses | Number of times graded "again" |
 
 ### Layout
 
 ```
-catalog/          one JSON file per kata (source of truth)
-lib/cpp/kata.hpp  shape I/O helpers
-goldens/*.md      reference write-ups (code structure + use cases)
-sessions/         your practice sessions
-.active.json      current pick list
-shapes.md         wire formats
+kf              single entrypoint
+cli/            subcommand scripts
+kflib/          Python library (kf_common, fsrs)
+catalog/        one JSON per kata (meta, interface, tests)
+sessions/       your practice sessions (sessionN/<id>.cpp)
+goldens/        teaching write-ups
+tests/          test harnesses
+include/        C++ headers
+.fsrs.json      FSRS card state
+.active.json    current pick list
 ```
 
-### Adding a language later
+### Adding a kata
 
-1. Add `lib/<lang>/` with the same helpers (`run_list_inplace`, `run_commands`, …)
-2. Teach `./test` how to invoke that language’s files
-3. Catalog and wire formats stay unchanged
+1. `catalog/<id>.json` — shape + named tests
+2. `goldens/<id>.md` — teaching tutorial
+3. If using a new shape, add its signature + harness logic in `kflib/kf_common.py`
+
+### Stubs
+
+Each stub includes `<bits/stdc++.h>` + `using namespace std;` + type definitions + function signature. No `main()`, no framework header. Fill in the function body.

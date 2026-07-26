@@ -7,18 +7,18 @@ C++ DSA practice forge. Compile-time assertions replace wire formats and I/O pip
 - **Catalog** `catalog/<id>.json` — one file per kata: meta, description, interface, named tests (`in`/`out`).
 - **Sessions** live in-repo: `sessions/sessionN/`. Pick list: `.active.json`.
 - **Goldens** `goldens/<id>.md` — teaching tutorials (intuition, code, alternatives, where it shows up, cousins & contrasts).
-- **CLIs** (repo root, Python 3 **stdlib only**): `list`, `pick`, `generate`, `test`.
+- **CLIs** (`cli/`, Python 3 **stdlib only**, entrypoint `./kf`): `list`, `pick`, `generate`, `test`, `grade`, `reset`.
 
 ## How testing works
 
 - Each `.cpp` in a session defines types + a `solve` (or named) function. No `main()`, no framework header.
-- `./test` generates a C++ harness that `#include`s the solution file, builds test inputs from catalog JSON as C++ objects, calls the function, and `assert`s results.
+- `./kf test` generates a C++ harness that `#include`s the solution file, builds test inputs from catalog JSON as C++ objects, calls the function, and `assert`s results.
 - Compilation catches type errors; assertion failures identify wrong answers. No I/O piping, no wire format.
 - Command katas (stack, heap, LRU, …) are tested by instantiating a class and calling methods directly.
 
 ## Stubs
 
-- `./generate` writes `sessions/sessionN/<id>.cpp`.
+- `./kf generate` writes `sessions/sessionN/<id>.cpp`.
 - Every stub includes `<bits/stdc++.h>` + `using namespace std;` + the type definitions and function signature.
 - Problem text in a short `/* ... */` block: title, description, interface.
 - User fills in the function body.
@@ -35,9 +35,10 @@ C++ DSA practice forge. Compile-time assertions replace wire formats and I/O pip
 
 1. `catalog/<id>.json` with `shape` + named tests. Shape determines the calling convention (function signature + how the harness builds inputs).
 2. `goldens/<id>.md` reference write-up.
-3. If using a new shape, add its function signature + input builder + assertion logic in `kf_common.py` (shape sigs, input builders).
+3. If using a new shape, add its function signature + input builder + assertion logic in `kflib/kf_common.py` (shape sigs, input builders).
 
 ## Do not
 
 - Add pip dependencies.
 - Make stub comments or goldens verbose.
+- **Never** remove or modify user sessions (`sessions/sessionN/`). Session data is untracked by git and irrecoverable.

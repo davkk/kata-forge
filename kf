@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+"""Single entrypoint: kf <command> [args...]"""
+import os
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent
+CLI_DIR = ROOT / "cli"
+
+NAME = Path(sys.argv[0]).name
+
+COMMANDS = sorted(
+    p.name for p in CLI_DIR.iterdir()
+    if p.is_file() and not p.name.startswith(".")
+)
+
+
+def main():
+    if len(sys.argv) < 2 or sys.argv[1] in ("-h", "--help"):
+        print(f"usage: {NAME} <command> [args...]")
+        print()
+        print("commands:")
+        for cmd in COMMANDS:
+            print(f"  {cmd}")
+        sys.exit(0 if len(sys.argv) < 2 else 1)
+
+    cmd = sys.argv[1]
+    if cmd == "help" and len(sys.argv) > 2:
+        script = CLI_DIR / sys.argv[2]
+        if script.is_file():
+            os.execvp(str(script), [f"{NAME} {sys.argv[2]}", "--help"])
+        print(f"error: unknown command: {sys.argv[2]}", file=sys.stderr)
+        sys.exit(1)
+
+    script = CLI_DIR / cmd
+    if not script.is_file():
+        print(f"error: unknown command: {cmd}", file=sys.stderr)
+        sys.exit(1)
+
+    os.execvp(str(script), [f"{NAME} {cmd}"] + sys.argv[2:])
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+import argparse
+import random
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from kflib.kf_common import list_katas, write_json, active_path
+from kflib.fsrs import retrievability_of
+
+
+def cmd_pick(args, all_katas, by_id):
+    if args.katas:
+        picks = [s.strip() for s in args.katas.split(",") if s.strip()]
+        unknown = [p for p in picks if p not in by_id]
+        if unknown:
+            print(f"error: unknown katas: {', '.join(unknown)}", file=sys.stderr)
+            sys.exit(1)
+    else:
+        n = max(1, min(args.count or 4, len(all_katas)))
+        if args.random:
+            ids = [k["id"] for k in all_katas]
+            random.shuffle(ids)
+            picks = ids[:n]
+        else:
+            today = datetime.now(timezone.utc).date()
+            ids = [k["id"] for k in all_katas]
+            random.shuffle(ids)
+            ids.sort(key=lambda kid: retrievability_of(kid, today, min_interval=3))
+            picks = ids[:n]
+
+    write_json(active_path(), picks)
+    print(f"Picked {len(picks)} katas: {', '.join(picks)}")
+    print(f"active → {active_path()}")
+
+
+def main():
+    ap = argparse.ArgumentParser(description="Pick katas for a session")
+    ap.add_argument("count", nargs="?", type=int, default=4,
+                    help="number of katas to pick (default 4)")
+    ap.add_argument("--katas", type=str, default=None, help="comma-separated ids")
+    ap.add_argument("--random", action="store_true", help="random pick (default is FSRS)")
+
+    args = ap.parse_args()
+
+    all_katas = list_katas()
+    by_id = {k["id"]: k for k in all_katas}
+
+    if not all_katas:
+        print("error: catalog is empty", file=sys.stderr)
+        sys.exit(1)
+
+    cmd_pick(args, all_katas, by_id)
+
+
+if __name__ == "__main__":
+    main()

@@ -16,7 +16,7 @@ W = [
 
 DECAY = -0.5
 FACTOR = 19 / 81
-FSRS_PATH = Path(__file__).resolve().parent / ".fsrs.json"
+FSRS_PATH = Path.cwd() / ".fsrs.json"
 
 
 def _clamp(v: float, lo: float = 1.0, hi: float = 10.0) -> float:

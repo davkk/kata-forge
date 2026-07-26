@@ -6,16 +6,16 @@ import subprocess
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from kf_common import (
-    ROOT,
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from kflib.kf_common import (
+    TOOL_ROOT,
     TESTS_DIR,
     kata_by_id,
     latest_session,
     sessions_dir,
 )
 
-INCLUDE_DIR = ROOT / "include"
+INCLUDE_DIR = TOOL_ROOT / "include"
 
 TIMEOUT_S = 2.0
 CXX = os.environ.get("CXX", "c++")

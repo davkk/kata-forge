@@ -2,8 +2,8 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from kf_common import list_katas
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from kflib.kf_common import list_katas
 
 def main():
     katas = list_katas()
