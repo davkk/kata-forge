@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from kf_common import list_katas, write_json, active_path
+from kf_common import list_katas, write_json, active_path, latest_session, read_json
 from fsrs import load_state, save_state, get_card, review, retrievability_of
 
 
@@ -63,6 +63,33 @@ def cmd_state():
               f"{c['review_count']:>4} {c['lapses']:>6}  {lr}")
 
 
+def cmd_rate_session():
+    session = latest_session()
+    if not session:
+        print("error: no sessions (run ./generate first)", file=sys.stderr)
+        sys.exit(1)
+    meta = read_json(session / "meta.json", {})
+    kids = meta.get("katas") or sorted(p.stem for p in session.glob("*.cpp"))
+    if not kids:
+        print("error: no katas in session", file=sys.stderr)
+        sys.exit(1)
+    print(f"Rating session {session.name}  (1=again, 2=hard, 3=good, 4=easy, blank=skip)\n")
+    for kid in kids:
+        inp = input(f"  {kid}: ").strip()
+        if not inp:
+            print("    skipped\n")
+            continue
+        try:
+            grade = int(inp)
+        except ValueError:
+            print("    invalid, skipped\n")
+            continue
+        if grade not in (1, 2, 3, 4):
+            print("    invalid, skipped\n")
+            continue
+        card = review(kid, grade)
+        print(f"    D={card['difficulty']:.3f}  S={card['stability']:.3f}\n")
+
 def main():
     ap = argparse.ArgumentParser(description="Pick katas for a session")
     ap.add_argument("--count", type=int, default=5)
@@ -70,6 +97,8 @@ def main():
     ap.add_argument("--random", action="store_true", help="random pick (default is FSRS)")
     ap.add_argument("--rate", nargs=2, metavar=("KATA", "GRADE"),
                     help="record a review grade (1-4) for a kata")
+    ap.add_argument("--rate-session", action="store_true",
+                    help="interactively rate all katas in the latest session")
     ap.add_argument("--state", action="store_true", help="show FSRS state")
     args = ap.parse_args()
 
@@ -82,6 +111,10 @@ def main():
 
     if args.rate:
         cmd_rate(args.rate[0], int(args.rate[1]))
+        return
+
+    if args.rate_session:
+        cmd_rate_session()
         return
 
     if args.state:
