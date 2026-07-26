@@ -15,6 +15,8 @@ from kf_common import (
     sessions_dir,
 )
 
+INCLUDE_DIR = ROOT / "include"
+
 TIMEOUT_S = 2.0
 CXX = os.environ.get("CXX", "c++")
 TMP_BIN = Path("/tmp") / "kata-forge-test"
@@ -27,6 +29,7 @@ def compile_with_include(src: Path, include_path: Path, out_bin: Path) -> tuple[
         "-O2",
         "-Wall",
         f"-include", str(include_path.resolve()),
+        f"-I{INCLUDE_DIR}",
         str(src.resolve()),
         "-o",
         str(out_bin),
@@ -98,7 +101,7 @@ def test_session(session: Path, filter_kid: str | None = None) -> int:
 
         bin_path = TMP_BIN / kid
         bin_path.parent.mkdir(parents=True, exist_ok=True)
-        ntests = test_src.read_text().count("assert(")
+        ntests = test_src.read_text().count("CHECK(")
 
         ok, err = compile_with_include(test_src, src, bin_path)
         if not ok:

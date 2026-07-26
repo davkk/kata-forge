@@ -2,7 +2,7 @@
   "title": "Dijkstra (List)",
   "shape": "graph_path",
   "description": "Shortest weighted path source\u2192sink on adj list. Return node path.\n",
-  "interface": "dijkstra(source, sink, graph) -> int[]\n",
+  "interface": "dijkstra(graph, source, sink) -> int[]\n",
   "id": "dijkstra_list",
   "cpp": {
     "fn": "optional<vector<int>> dfs(const vector<vector<Edge>>& g, int source, int sink)",

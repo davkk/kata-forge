@@ -1,53 +1,53 @@
-#include <cassert>
+#include "kata_test.h"
 
 int main() {
-    { // a
+    { TEST("standard_match");
         string _a = "abcxabcdabcdabcy";
         string _b = "abcdabcy";
         auto _r = solve(_a, _b);
-        assert(_r == 8);
+        CHECK(_r == 8);
     }
 
-    { // b
+    { TEST("suffix_match");
         string _a = "hello world";
         string _b = "world";
         auto _r = solve(_a, _b);
-        assert(_r == 6);
+        CHECK(_r == 6);
     }
 
-    { // c
+    { TEST("no_match");
         string _a = "hello world";
         string _b = "xyz";
         auto _r = solve(_a, _b);
-        assert(_r == -1);
+        CHECK(_r == -1);
     }
 
-    { // d
+    { TEST("empty_text");
         string _a = "";
         string _b = "a";
         auto _r = solve(_a, _b);
-        assert(_r == -1);
+        CHECK(_r == -1);
     }
 
-    { // e
+    { TEST("empty_pattern");
         string _a = "a";
         string _b = "";
         auto _r = solve(_a, _b);
-        assert(_r == 0);
+        CHECK(_r == 0);
     }
 
-    { // f
+    { TEST("repeated_chars_match");
         string _a = "mississippi";
         string _b = "issip";
         auto _r = solve(_a, _b);
-        assert(_r == 4);
+        CHECK(_r == 4);
     }
 
-    { // g
+    { TEST("prefix_repeated");
         string _a = "aaaaab";
         string _b = "aaab";
         auto _r = solve(_a, _b);
-        assert(_r == 2);
+        CHECK(_r == 2);
     }
 
     return 0;

@@ -1,32 +1,32 @@
-#include <cassert>
+#include "kata_test.h"
 
 int main() {
-    { // a
+    { TEST("unsorted_k2");
         vector<int> _arr = {3, 2, 1, 5, 6, 4};
         int64_t _k = 2;
         auto _r = solve(_arr, _k);
-        assert(_r == 5);
+        CHECK(_r == 5);
     }
 
-    { // b
+    { TEST("duplicates_k4");
         vector<int> _arr = {3, 2, 3, 1, 2, 4, 5, 5, 6};
         int64_t _k = 4;
         auto _r = solve(_arr, _k);
-        assert(_r == 4);
+        CHECK(_r == 4);
     }
 
-    { // c
+    { TEST("single_element");
         vector<int> _arr = {1};
         int64_t _k = 1;
         auto _r = solve(_arr, _k);
-        assert(_r == 1);
+        CHECK(_r == 1);
     }
 
-    { // d
+    { TEST("two_elements");
         vector<int> _arr = {2, 1};
         int64_t _k = 1;
         auto _r = solve(_arr, _k);
-        assert(_r == 2);
+        CHECK(_r == 2);
     }
 
     return 0;

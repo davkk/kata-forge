@@ -1,34 +1,34 @@
-#include <cassert>
+#include "kata_test.h"
 
 int main() {
-    { // a
+    { TEST("standard_mixed");
         vector<int> _arr = {-2, 1, -3, 4, -1, 2, 1, -5, 4};
         auto _r = solve(_arr);
-        assert(_r == 6);
+        CHECK(_r == 6);
     }
 
-    { // b
+    { TEST("single_positive");
         vector<int> _arr = {1};
         auto _r = solve(_arr);
-        assert(_r == 1);
+        CHECK(_r == 1);
     }
 
-    { // c
+    { TEST("all_positive_with_dip");
         vector<int> _arr = {5, 4, -1, 7, 8};
         auto _r = solve(_arr);
-        assert(_r == 23);
+        CHECK(_r == 23);
     }
 
-    { // d
+    { TEST("single_negative");
         vector<int> _arr = {-1};
         auto _r = solve(_arr);
-        assert(_r == -1);
+        CHECK(_r == -1);
     }
 
-    { // e
+    { TEST("all_negative");
         vector<int> _arr = {-2, -1};
         auto _r = solve(_arr);
-        assert(_r == -1);
+        CHECK(_r == -1);
     }
 
     return 0;

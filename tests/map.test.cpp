@@ -1,8 +1,7 @@
-#include <cassert>
+#include "kata_test.h"
 #include <optional>
 
-int main() {
-    // basic
+int main() { TEST("basic");
     HashMap _inst0;
     _inst0.set("foo", 55);
     // unknown op: size
@@ -12,13 +11,13 @@ int main() {
     // unknown op: size
     _inst0.set("bar", 69);
     // unknown op: size
-    { auto _v = _inst0.get("bar"); assert(_v.has_value() && *_v == 1); }
-    { auto _v = _inst0.get("blaz"); assert(_v.has_value() && *_v == 2); }
+    { auto _v = _inst0.get("bar"); CHECK(_v.has_value() && *_v == 1); }
+    { auto _v = _inst0.get("blaz"); CHECK(_v.has_value() && *_v == 2); }
     _inst0.remove("barblabr");
     // unknown op: size
     _inst0.remove("bar");
     // unknown op: size
-    { auto _v = _inst0.get("bar"); assert(_v.has_value() && *_v == 3); }
+    { auto _v = _inst0.get("bar"); CHECK(_v.has_value() && *_v == 3); }
 
     return 0;
 }

@@ -1,34 +1,34 @@
-#include <cassert>
+#include "kata_test.h"
 
 int main() {
-    { // a
+    { TEST("rotated_at_mid");
         vector<int> _arr = {3, 4, 5, 1, 2};
         auto _r = solve(_arr);
-        assert(_r == 1);
+        CHECK(_r == 1);
     }
 
-    { // b
+    { TEST("rotated_at_end");
         vector<int> _arr = {4, 5, 6, 7, 0, 1, 2};
         auto _r = solve(_arr);
-        assert(_r == 0);
+        CHECK(_r == 0);
     }
 
-    { // c
+    { TEST("not_rotated");
         vector<int> _arr = {11, 13, 15, 17};
         auto _r = solve(_arr);
-        assert(_r == 11);
+        CHECK(_r == 11);
     }
 
-    { // d
+    { TEST("single_element");
         vector<int> _arr = {1};
         auto _r = solve(_arr);
-        assert(_r == 1);
+        CHECK(_r == 1);
     }
 
-    { // e
+    { TEST("two_elements_rotated");
         vector<int> _arr = {2, 1};
         auto _r = solve(_arr);
-        assert(_r == 1);
+        CHECK(_r == 1);
     }
 
     return 0;

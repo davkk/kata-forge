@@ -1,44 +1,44 @@
-#include <cassert>
+#include "kata_test.h"
 
 int main() {
-    { // no_cycle
+    { TEST("no_cycle");
         auto _n0 = new ListNode{1}; _n0->next = _n1;
         auto _n1 = new ListNode{2}; _n1->next = _n2;
         auto _n2 = new ListNode{3};
         ListNode* _head = _n0;
         auto _r = has_cycle(_head);
-        assert(_r == false);
+        CHECK(_r == false);
     }
 
-    { // cycle
+    { TEST("cycle");
         auto _n0 = new ListNode{1}; _n0->next = _n1;
         auto _n1 = new ListNode{2}; _n1->next = _n2;
         auto _n2 = new ListNode{3};
         ListNode* _head = _n0;
         _n2->next = _n0;
         auto _r = has_cycle(_head);
-        assert(_r == true);
+        CHECK(_r == true);
     }
 
-    { // empty
+    { TEST("empty");
         ListNode* _head = nullptr;
         auto _r = has_cycle(_head);
-        assert(_r == false);
+        CHECK(_r == false);
     }
 
-    { // single
+    { TEST("single");
         auto _n0 = new ListNode{1};
         ListNode* _head = _n0;
         auto _r = has_cycle(_head);
-        assert(_r == false);
+        CHECK(_r == false);
     }
 
-    { // self
+    { TEST("self");
         auto _n0 = new ListNode{1};
         ListNode* _head = _n0;
         _n0->next = _n0;
         auto _r = has_cycle(_head);
-        assert(_r == true);
+        CHECK(_r == true);
     }
 
     return 0;

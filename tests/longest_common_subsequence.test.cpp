@@ -1,39 +1,39 @@
-#include <cassert>
+#include "kata_test.h"
 
 int main() {
-    { // a
+    { TEST("noncontiguous_match");
         string _a = "abcde";
         string _b = "ace";
         auto _r = solve(_a, _b);
-        assert(_r == 3);
+        CHECK(_r == 3);
     }
 
-    { // b
+    { TEST("identical_strings");
         string _a = "abc";
         string _b = "abc";
         auto _r = solve(_a, _b);
-        assert(_r == 3);
+        CHECK(_r == 3);
     }
 
-    { // c
+    { TEST("no_common");
         string _a = "abc";
         string _b = "def";
         auto _r = solve(_a, _b);
-        assert(_r == 0);
+        CHECK(_r == 0);
     }
 
-    { // d
+    { TEST("empty_string");
         string _a = "";
         string _b = "abc";
         auto _r = solve(_a, _b);
-        assert(_r == 0);
+        CHECK(_r == 0);
     }
 
-    { // e
+    { TEST("standard_example");
         string _a = "AGGTAB";
         string _b = "GXTXAYB";
         auto _r = solve(_a, _b);
-        assert(_r == 4);
+        CHECK(_r == 4);
     }
 
     return 0;
