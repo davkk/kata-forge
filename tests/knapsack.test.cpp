@@ -1,7 +1,7 @@
 #include "kata_test.h"
 
 int main() {
-    { TEST("cap_10_mixed_weights");
+    { TEST("mixed_weights");
         int _cap = 10;
         vector<int> _w = {5, 4, 6, 3};
         vector<int> _v = {10, 40, 30, 50};
@@ -9,7 +9,7 @@ int main() {
         CHECK(_r == 90);
     }
 
-    { TEST("cap_5_small_set");
+    { TEST("small_set");
         int _cap = 5;
         vector<int> _w = {2, 3, 4};
         vector<int> _v = {3, 4, 5};
@@ -25,7 +25,7 @@ int main() {
         CHECK(_r == 0);
     }
 
-    { TEST("cap_50_standard");
+    { TEST("standard_items");
         int _cap = 50;
         vector<int> _w = {10, 20, 30};
         vector<int> _v = {60, 100, 120};

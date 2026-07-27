@@ -27,8 +27,25 @@ int coin_change(int amount, const vector<int>& coins) {
 }
 ```
 
+### Walkthrough
+
+On `coins = [1, 3, 4]`, `amount = 6`:
+- dp[0]=0; INF=7
+- dp[1]: min(dp[0]+1)=1
+- dp[2]: dp[1]+1=2
+- dp[3]: min(dp[2]+1, dp[0]+1)=2
+- dp[4]: min(dp[3]+1, dp[1]+1, dp[0]+1)=2
+- dp[5]: min(dp[4]+1, dp[2]+1, dp[1]+1)=3
+- dp[6]: min(dp[5]+1, dp[3]+1, dp[2]+1)=2 (3+3 -- greedy's 4+1+1 gives 3)
+- return 2
+
 - Sentinel `amount + 1` beats `INT_MAX` to dodge `+1` overflow; no solution ever needs more than `amount` coins (all 1s).
 - Always guard `c <= a` before indexing `dp[a - c]`.
+
+## Complexity
+
+- Time: O(amount * #coins).
+- Space: O(amount).
 
 ## Approach 2 -- top-down recursion with memoization
 
@@ -57,11 +74,6 @@ int coin_change(int amount, const vector<int>& coins) {
 - Repeatedly take the biggest coin <= remaining amount; O(n log n) after sorting.
 - Correct only for **canonical** coin systems (US 1/5/10/25). Fails on {1, 3, 4} at amount 6: greedy picks 4+1+1 (3 coins), optimal is 3+3 (2).
 - Fine as a fast heuristic when canonicity is proven; DP is the safe default.
-
-## Complexity
-
-- Time: O(amount * #coins).
-- Space: O(amount).
 
 ## Usage
 

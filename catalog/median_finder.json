@@ -10,7 +10,7 @@
     "methods": [
       "void insert(int val)",
       "double getMedian()",
-      "int size()"
+      "int length()"
     ]
   }
 }

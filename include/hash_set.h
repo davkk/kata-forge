@@ -3,8 +3,9 @@
 using namespace std;
 
 struct HashSet {
+    vector<vector<int>> buckets;
     void add(int x);
     void remove(int x);
-    bool has(int x);
-    int size();
+    bool contains(int x);
+    int length();
 };

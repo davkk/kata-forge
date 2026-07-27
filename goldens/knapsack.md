@@ -23,8 +23,22 @@ int knapsack(int capacity, const vector<int>& weights, const vector<int>& values
 }
 ```
 
+### Walkthrough
+
+On `weights = [2, 3, 4]`, `values = [3, 4, 5]`, `capacity = 5`:
+- dp = [0, 0, 0, 0, 0, 0]
+- Item 0 (w=2, v=3): w=5..2: dp[5]=max(0, dp[3]+3)=3, dp[4]=3, dp[3]=3, dp[2]=3
+- Item 1 (w=3, v=4): w=5..3: dp[5]=max(3, dp[2]+4)=7, dp[4]=max(3, dp[1]+4)=4, dp[3]=max(3, dp[0]+4)=4
+- Item 2 (w=4, v=5): w=5..4: dp[5]=max(7, dp[1]+5)=5 (skip -- take 2 items 0+1 = 7 wins), dp[4]=max(4, dp[0]+5)=5
+- return dp[5] = 7 (items 0+1, total weight 5, total value 7)
+
 - This compresses the 2D origin: `dp[i][w]` reads only row `i - 1`, so one rolling row suffices.
 - **Backwards `w` is the whole point**: descending means `dp[w - wi]` still holds the *previous* item's row, so item `i` enters at most once. Ascending re-reads cells already updated by item `i` and the same item gets taken repeatedly -- accidental unbounded knapsack.
+
+## Complexity
+
+- Time: O(n * capacity).
+- Space: O(capacity) for the 1D version; O(n * capacity) for the 2D recursive form.
 
 ## Approach 2 -- top-down recursion with memoization
 
@@ -55,11 +69,6 @@ int knapsack(int capacity, const vector<int>& weights, const vector<int>& values
 - Split items into two halves of size n/2; enumerate all 2^(n/2) subsets of each, recording `(weight, value)` pairs.
 - Sort one half by weight, drop dominated pairs (higher weight, lower value), then for each pair in the other half binary-search the best compatible value.
 - Brings the runtime down from O(n * capacity) to O(2^(n/2) * n) -- exponential in n, but n can be ~40 instead of ~20.
-
-## Complexity
-
-- Time: O(n * capacity).
-- Space: O(capacity) for the 1D version; O(n * capacity) for the 2D recursive form.
 
 ## Usage
 

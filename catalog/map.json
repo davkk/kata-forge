@@ -1,16 +1,19 @@
 {
   "title": "Map",
   "shape": "commands",
-  "description": "Hash map string\u2192int: get, set, delete, size.\n",
-  "interface": "set(k,v) get(k) delete(k) size()\n",
+  "description": "Hash map string\u2192int: get, set, erase, size.\n",
+  "interface": "set(k,v) get(k) erase(k) size()\n",
   "id": "map",
   "cpp": {
     "class": "Map",
-    "members": ["struct KV { string key; int val; }", "vector<vector<KV>> buckets"],
+    "members": [
+      "struct KV { string key; int val; }",
+      "vector<vector<KV>> buckets"
+    ],
     "methods": [
       "void set(const string& k, int v)",
       "optional<int> get(const string& k)",
-      "void remove(const string& k)",
+      "void erase(const string& k)",
       "int size()"
     ]
   }

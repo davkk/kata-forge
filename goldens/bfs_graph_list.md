@@ -46,9 +46,24 @@ optional<vector<int>> bfs(const vector<vector<Edge>>& g, int source, int sink) {
 }
 ```
 
+### Walkthrough
+
+Graph edges: 0-1, 0-2, 1-3, 2-3, 3-4. BFS from `source=0` to `sink=4`:
+- pop 0: enqueue 1 (prev=0), enqueue 2 (prev=0); seen=[T,T,T,F,F]; queue=[1,2]
+- pop 1: 3 unseen -> enqueue 3 (prev=1); seen=[T,T,T,T,F]; queue=[2,3]
+- pop 2: 3 already seen, skip
+- pop 3: 4 unseen -> enqueue 4 (prev=3); seen=[T,T,T,T,T]; queue=[4]
+- pop 4: u==sink, break
+- reconstruct: 4 <- 3 <- 1 <- 0 -> reverse -> [0, 1, 3, 4] (4 edges, the shortest path)
+
 - `seen[neighbor] = true` **inside the for loop** before pushing to the queue -- always.
 - The early break on `u == sink` is safe: the first time the dequeue reaches the sink, it found it at minimum depth.
 - Path reconstruction walks `prev` backwards from sink to source. Returns empty vector if no path exists.
+
+## Complexity
+
+- Time: O(V+E).
+- Space: O(V) for the queue, seen, and prev arrays.
 
 ## Alternative -- 0-1 BFS (edge weights 0 or 1)
 
@@ -59,11 +74,6 @@ optional<vector<int>> bfs(const vector<vector<Edge>>& g, int source, int sink) {
 
 - Run BFS from both source and sink, alternating one layer at a time. Stop when the two frontiers meet.
 - Cuts the explored space from `b^d` to roughly `2 * b^(d/2)` -- exponential win when the branching factor is large.
-
-## Complexity
-
-- Time: O(V+E).
-- Space: O(V) for the queue, seen, and prev arrays.
 
 ## Usage
 

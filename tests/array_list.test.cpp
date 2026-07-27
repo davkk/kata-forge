@@ -1,7 +1,7 @@
 #include "kata_test.h"
 #include <optional>
 
-int main() { TEST("list_ops");
+int main() { TEST("append_remove_prepend_get_size");
     auto _inst0 = ArrayList{{3}};
     _inst0.append(5);
     _inst0.append(7);

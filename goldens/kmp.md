@@ -40,9 +40,30 @@ int kmp(const string& text, const string& pattern) {
 }
 ```
 
+### Walkthrough
+
+Search `pattern = "aabaab"` in `text = "aabaabaab"`:
+- Build lps = [0,1,0,1,2,3] (each entry is the longest prefix that is also a suffix for the prefix ending at that index)
+- Scan: i=0..5 all match -> j=6, full match at i=6 -> return i - j = 0
+- (A more interesting trace: pattern = "aab" in text = "aacaab")
+  - lps = [0,1,0]
+  - i=0 (a), j=0: match, j=1
+  - i=1 (a), j=1: match, j=2
+  - i=2 (c), j=2: mismatch; j = lps[1] = 1
+  - i=2 (c), j=1: mismatch; j = lps[0] = 0
+  - i=2 (c), j=0: mismatch; j==0 -> i=3
+  - i=3 (a), j=0: match, j=1
+  - i=4 (a), j=1: match, j=2
+  - i=5 (b), j=2: match, j=3 -> full match at i=3
+
 - The lps build is a mini-KMP: the pattern matches against its own prefixes with the same fall-back trick. Getting this right is the hard half.
 - The fallback loops are amortized -- j shrinks only as many times as it grew, keeping the scan linear.
 - Trace lps on `"aaab"` -> `[0,1,2,0]`; index-math bugs hide here, not in the scan.
+
+## Complexity
+
+- Time: O(n + m).
+- Space: O(m) for the lps array.
 
 ## Alternative -- Z-algorithm (often simpler)
 
@@ -59,11 +80,6 @@ int kmp(const string& text, const string& pattern) {
 
 - Compare right-to-left; on a mismatch jump past the bad character and the bad suffix.
 - Sublinear on large alphabets with sparse matches; the practical choice for `grep`-style search.
-
-## Complexity
-
-- Time: O(n + m).
-- Space: O(m) for the lps array.
 
 ## Usage
 

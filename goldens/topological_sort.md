@@ -40,9 +40,27 @@ vector<int> topological_sort(int n, const vector<pair<int,int>>& edges) {
 }
 ```
 
+### Walkthrough
+
+Edges: 5->2, 5->0, 4->0, 4->1, 2->3, 3->1 (6 nodes 0..5):
+- Build in-degrees: indeg=[2, 2, 1, 1, 0, 0]
+- Initial ready set (indeg==0): {4, 5}
+- pop 4: emit 4; relax 4->0 (indeg[0]=1), 4->1 (indeg[1]=1) -- not zero yet
+- pop 5: emit 5; relax 5->2 (indeg[2]=0 -> push), 5->0 (indeg[0]=0 -> push)
+- pop 2: emit 2; relax 2->3 (indeg[3]=0 -> push)
+- pop 0: emit 0; no outgoing
+- pop 3: emit 3; relax 3->1 (indeg[1]=0 -> push)
+- pop 1: emit 1
+- return [4, 5, 2, 0, 3, 1] (one of many valid orderings)
+
 - Decrement `indeg[v]` before checking if it reached 0 -- never after, or you may skip a node.
 - A plain `queue` yields a valid topological order; the min-heap guarantees determinism when the spec requires smallest-first.
 - Cycle detection: `result.size() < n` implies a cycle prevented some nodes from reaching indegree 0.
+
+## Complexity
+
+- Time: O(V+E).
+- Space: O(V+E) for the adjacency list and in-degree / recursion stack.
 
 ## Approach 2 -- DFS post-order
 
@@ -70,11 +88,6 @@ return result;
 
 - Run Tarjan's algorithm to get strongly connected components, then topologically sort the condensation DAG.
 - Useful when the input might have cycles and you want the SCC structure anyway.
-
-## Complexity
-
-- Time: O(V+E).
-- Space: O(V+E) for the adjacency list and in-degree / recursion stack.
 
 ## Usage
 

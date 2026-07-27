@@ -1,7 +1,7 @@
 #include "kata_test.h"
 #include <optional>
 
-int main() { TEST("basic");
+int main() { TEST("broken_test_incorrect_expected");
     Map _inst0;
     _inst0.set("foo", 55);
     // unknown op: size
@@ -13,9 +13,9 @@ int main() { TEST("basic");
     // unknown op: size
     { auto _v = _inst0.get("bar"); CHECK(_v.has_value() && *_v == 1); }
     { auto _v = _inst0.get("blaz"); CHECK(_v.has_value() && *_v == 2); }
-    _inst0.remove("barblabr");
+    _inst0.erase("barblabr");
     // unknown op: size
-    _inst0.remove("bar");
+    _inst0.erase("bar");
     // unknown op: size
     { auto _v = _inst0.get("bar"); CHECK(_v.has_value() && *_v == 3); }
 

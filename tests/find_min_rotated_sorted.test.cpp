@@ -1,13 +1,13 @@
 #include "kata_test.h"
 
 int main() {
-    { TEST("rotated_at_mid");
+    { TEST("rotation_near_middle");
         vector<int> _arr = {3, 4, 5, 1, 2};
         auto _r = find_min_rotated(_arr);
         CHECK(_r == 1);
     }
 
-    { TEST("rotated_at_end");
+    { TEST("rotation_near_end");
         vector<int> _arr = {4, 5, 6, 7, 0, 1, 2};
         auto _r = find_min_rotated(_arr);
         CHECK(_r == 0);
@@ -25,7 +25,7 @@ int main() {
         CHECK(_r == 1);
     }
 
-    { TEST("two_elements_rotated");
+    { TEST("two_elements");
         vector<int> _arr = {2, 1};
         auto _r = find_min_rotated(_arr);
         CHECK(_r == 1);

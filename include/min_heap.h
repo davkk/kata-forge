@@ -3,7 +3,8 @@
 using namespace std;
 
 struct MinHeap {
-    void push(int x);
-    optional<int> pop();
-    int size();
+    vector<int> data;
+    void insert(int x);
+    optional<int> deleteMin();
+    int length();
 };

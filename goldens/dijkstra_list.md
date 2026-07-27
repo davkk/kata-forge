@@ -45,9 +45,24 @@ optional<vector<int>> dijkstra(const vector<vector<Edge>>& g, int source, int si
 }
 ```
 
+### Walkthrough
+
+4 nodes, edges (u, v, w): 0-1:4, 0-2:1, 1-3:1, 2-1:2, 2-3:5, 3-(none). Source=0, sink=3:
+- dist=[0, INF, INF, INF], seen=[F,F,F,F]
+- settle u=0 (dist=0): relax 0->1 (dist[1]=4, prev=0), 0->2 (dist[2]=1, prev=0)
+- settle u=2 (dist=1): relax 2->1 (1+2=3 < 4 -> dist[1]=3, prev=2), 2->3 (1+5=6 -> dist[3]=6, prev=2)
+- settle u=1 (dist=3): relax 1->3 (3+1=4 < 6 -> dist[3]=4, prev=1)
+- settle u=3 (dist=4): u==sink, break
+- reconstruct: 3 <- 1 <- 2 <- 0 -> reverse -> [0, 2, 1, 3] (total weight 4)
+
 - Early exit at `u == sink` is safe: sink is settled the moment it becomes the minimum.
 - Pitfall: never relax *into* a settled node; the `seen` check enforces it.
 - Pitfall: `dist[u] + e.weight` overflows if `dist[u] == INT_MAX` -- the `u == -1` break guards it here.
+
+## Complexity
+
+- Time: O(V^2) with a linear scan, O(E log V) with a min-heap.
+- Space: O(V) for dist/prev/seen plus the heap.
 
 ## Approach 2 -- O(E log V) lazy min-heap (better on sparse graphs)
 
@@ -75,11 +90,6 @@ while (!pq.empty()) {
 
 - Same relaxation loop plus an admissible heuristic `h(u)` that estimates distance to the sink; priority becomes `dist[u] + h(u)`.
 - With a perfect heuristic, search goes straight to the sink; with `h = 0`, A* is Dijkstra.
-
-## Complexity
-
-- Time: O(V^2) with a linear scan, O(E log V) with a min-heap.
-- Space: O(V) for dist/prev/seen plus the heap.
 
 ## Usage
 

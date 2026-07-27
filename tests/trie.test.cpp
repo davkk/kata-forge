@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-int main() { TEST("basic");
+int main() { TEST("insert_find_remove_prefix");
     Trie _inst0;
     _inst0.insert("hello");
     _inst0.insert("help");

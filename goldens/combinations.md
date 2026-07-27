@@ -37,9 +37,31 @@ vector<vector<int>> combine(int n, int k) {
 }
 ```
 
+### Walkthrough
+
+`combine(4, 2)` should produce C(4, 2) = 6 results:
+- backtrack(n=4, k=2, start=1, curr=[]):
+  - curr.size=0 + (4-1+1)=4 >= 2 -> try i=1: push 1
+    - start=2, curr=[1]: try i=2: push 2 -> record [1,2]; pop
+    - i=3: push 3 -> record [1,3]; pop
+    - i=4: push 4 -> record [1,4]; pop
+  - pop 1
+  - try i=2: push 2
+    - i=3: push 3 -> record [2,3]; pop
+    - i=4: push 4 -> record [2,4]; pop
+  - i=3: push 3
+    - i=4: 1 + (4-4+1)=2 >= 2 -> push 4 -> record [3,4]; pop
+  - (i=4 would not fit since curr=[3] has 1 slot left and only 1 value remains)
+- return [[1,2], [1,3], [1,4], [2,3], [2,4], [3,4]]
+
 - `k == 0` yields one empty combination -- falls out of the base case naturally.
 - Pass `i + 1`, not `start + 1`; loop bound is `<= n` since values are `1..n`.
 - The prune is a `break`, not `continue`: as `i` grows, the remaining count only shrinks.
+
+## Complexity
+
+- Time: O(k * C(n, k)) -- output copies dominate.
+- Space: O(k) recursion depth plus output.
 
 ## Approach 2 -- bitmask enumeration (small n)
 
@@ -67,11 +89,6 @@ vector<vector<int>> combine(int n, int k) {
 
 - Same code but recurse with `i` instead of `i + 1`: each level may pick the same value again. Produces C(n + k - 1, k) combinations.
 - Models "k items drawn from n types with replacement" -- multiset selections, dice sum outcomes.
-
-## Complexity
-
-- Time: O(k * C(n, k)) -- output copies dominate.
-- Space: O(k) recursion depth plus output.
 
 ## Usage
 

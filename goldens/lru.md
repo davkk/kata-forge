@@ -62,10 +62,25 @@ void update(LRU& c, const string& k, int v) {
 }
 ```
 
+### Walkthrough
+
+`cap = 2`, ops in order:
+- put("a",1): map={a:1}, list=head=[a:1]<-tail
+- put("b",2): map={a:1,b:2}, list=[b:2]<->[a:1] (b is newest -> head)
+- get("a") -> 1: detach [a:1] from tail, prepend to head; list=[a:1]<->[b:2]
+- put("c",3): cap full, evict tail [b:2] from map and list, prepend [c:3]; map={a:1,c:3}, list=[c:3]<->[a:1]
+- get("b") -> -1 (not found, was evicted)
+- get("a") -> 1: touch; list=[a:1]<->[c:3]
+
 - Touching = `detach` + `prepend` -- write these two helpers once and every op becomes trivial.
 - Eviction must erase from the map *and* the list; forgetting `m.erase` leaves a dangling pointer that a later get will follow.
 - Pitfall: read `tail->key` before `delete dead`, and don't touch when the map misses (`get` on absent key changes nothing).
 - Single-node edge cases fall out naturally if detach/prepend handle `head == tail == n`.
+
+## Complexity
+
+- Time: O(1) per get and update.
+- Space: O(capacity).
 
 ## Alternative -- std::list + map of iterators (interview shorthand)
 
@@ -78,11 +93,6 @@ void update(LRU& c, const string& k, int v) {
 - For a small, fixed key set, store entries in an array indexed by hash and use a per-slot timestamp (counter) for LRU.
 - No allocation, no pointer chasing; wins on cache misses for the entire cache.
 - Loses to the linked list when capacity varies or eviction must be exact.
-
-## Complexity
-
-- Time: O(1) per get and update.
-- Space: O(capacity).
 
 ## Usage
 

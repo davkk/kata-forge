@@ -26,8 +26,19 @@ bool search(const vector<int>& a, int target) {
 }
 ```
 
+### Walkthrough
+
+Search for `7` in `a = [1, 3, 5, 7, 9, 11, 13]`:
+- lo=0, hi=7: mid=3, a[3]=7 == 7 -> return true (3 comparisons vs 7 for a linear scan)
+- If target were 8: mid=3 (a[3]=7 < 8) -> lo=4; mid=5 (a[5]=11 > 8) -> hi=5; mid=4 (a[4]=9 > 8) -> hi=4; lo==hi -> return false
+
 - `mid = lo + (hi - lo) / 2`, never `(lo + hi) / 2` -- the latter overflows for large indices.
 - The loop needs nothing but a monotone predicate: "is `a[i]` still too small?"
+
+## Complexity
+
+- Time: O(log n).
+- Space: O(1).
 
 ## Approach 2 -- lower bound (insertion point)
 
@@ -52,11 +63,6 @@ int lower_bound_(const vector<int>& a, int target) {
 - "Minimum ship capacity to make D days", "smallest k such that predicate(k) is true" -- the feasibility predicate is monotone, so search the answer space, not the input.
 - Same code, applied to `[lo, hi] = [min_possible_answer, max_possible_answer]` instead of array indices.
 - This is the trick that turns "find the threshold" problems into O(log n).
-
-## Complexity
-
-- Time: O(log n).
-- Space: O(1).
 
 ## Usage
 

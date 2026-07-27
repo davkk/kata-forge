@@ -1,7 +1,7 @@
 #include "kata_test.h"
 
 int main() {
-    { TEST("basic");
+    { TEST("unsorted_mixed");
         vector<int> _arr = {9, 3, 7, 4, 69, 420, 42};
         quick_sort(_arr);
         { auto _exp = vector<int>{3, 4, 7, 9, 42, 69, 420}; CHECK(_arr == _exp); }
@@ -19,7 +19,7 @@ int main() {
         { auto _exp = vector<int>{1, 2, 3, 4, 5}; CHECK(_arr == _exp); }
     }
 
-    { TEST("single");
+    { TEST("single_element");
         vector<int> _arr = {42};
         quick_sort(_arr);
         { auto _exp = vector<int>{42}; CHECK(_arr == _exp); }

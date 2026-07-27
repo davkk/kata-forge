@@ -6,7 +6,7 @@
 
 static const char* _kata_test_name = "";
 
-#define TEST(name) do { _kata_test_name = name; } while (0)
+#define TEST(name) do { _kata_test_name = name; std::cout << "  " << name << "\n" << std::flush; } while (0)
 
 #define CHECK(cond)                                                         \
     do {                                                                    \

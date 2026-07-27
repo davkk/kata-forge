@@ -36,9 +36,24 @@ double getMedian() {
 int length() { return (int)(lo.size() + hi.size()); }
 ```
 
+### Walkthrough
+
+Streaming `[1, 2, 3, 4, 5]` and asking the median after each insert:
+- insert 1: lo=[1], hi=[] -> median = 1.0
+- insert 2: 2 > lo.top()=1 -> hi=[2]; sizes equal -> median = (1+2)/2 = 1.5
+- insert 3: 3 > 1 -> hi=[2,3]; lo.size()=1 < hi.size()=2 -> rebalance: lo=[1,2], hi=[3] -> median = 2.0
+- insert 4: 4 > 2 -> hi=[3,4]; lo=1 < hi=2 -> rebalance: lo=[1,2,4], hi=[3] -> median = 2.0
+- insert 5: 5 > 4 -> hi=[3,4,5]; lo=3 > hi=3+1=2 -> median = lo.top() = 3.0
+- final state: lo=[1,2,4] (top 4), hi=[3,5] (top 3) -> median = 3.0 (true median of 1..5)
+
 - Rebalancing moves only a root, and the root is by definition the boundary element -- the invariant survives every move.
 - Decide which heap receives `x` by comparing with `lo.top()` *before* inserting; comparing against the wrong side silently breaks the invariant.
 - `/2.0`, not `/2` -- integer division throws away the .5 on even counts.
+
+## Complexity
+
+- Time: O(log n) per insert, O(1) per getMedian.
+- Space: O(n) for both heaps combined.
 
 ## Alternative -- balanced BST / order-statistics tree
 
@@ -53,11 +68,6 @@ int length() { return (int)(lo.size() + hi.size()); }
 
 - If values are integers in a small range, a Fenwick with cumulative counts can find the median in O(log V).
 - O(V) space, but median query is O(1) amortized; wins for repeated percentile queries on a fixed range.
-
-## Complexity
-
-- Time: O(log n) per insert, O(1) per getMedian.
-- Space: O(n) for both heaps combined.
 
 ## Usage
 

@@ -25,19 +25,26 @@ vector<int> two_sum(const vector<int>& a, int target) {
 }
 ```
 
+### Walkthrough
+
+On `a = [2, 7, 11, 15]`, `target = 9`:
+- l=0, r=3: 2+15=17 > 9 -> r-- -> (0, 2)
+- l=0, r=2: 2+11=13 > 9 -> r-- -> (0, 1)
+- l=0, r=1: 2+7=9 == 9 -> return {1, 2}
+
 - Return `{l + 1, r + 1}` because the problem contract is 1-indexed.
 - The discards depend entirely on sortedness; the same moves on an unsorted array would skip valid pairs.
+
+## Complexity
+
+- Time: O(n) -- each index is visited at most once.
+- Space: O(1) -- only the two pointers.
 
 ## Alternative -- hash map (unsorted input)
 
 - Walk once, storing each value's index in `unordered_map<int, int>`. For each `a[i]`, check if `target - a[i]` is already in the map -- first hit gives the pair.
 - O(n) time with O(n) space, no sorting required. This is the general-purpose form; the two-pointer version above wins whenever the input is already sorted or sorting is acceptable.
 - A third option -- sort the input first, then two-pointer -- costs O(n log n) and changes indices (the original positions are lost unless you keep a parallel index array).
-
-## Complexity
-
-- Time: O(n) -- each index is visited at most once.
-- Space: O(1) -- only the two pointers.
 
 ## Usage
 

@@ -1,7 +1,7 @@
 #include "kata_test.h"
 
 int main() {
-    { TEST("1_coin_to_make_5");
+    { TEST("exact_coin_match");
         int _amount = 5;
         vector<int> _coins = {1, 2, 5};
         auto _r = coin_change(_amount, _coins);
@@ -22,14 +22,14 @@ int main() {
         CHECK(_r == 0);
     }
 
-    { TEST("optimal_3_coins_for_11");
+    { TEST("multi_coin_optimal");
         int _amount = 11;
         vector<int> _coins = {1, 2, 5};
         auto _r = coin_change(_amount, _coins);
         CHECK(_r == 3);
     }
 
-    { TEST("greedy_works_4_coins_for_100");
+    { TEST("greedy_optimal");
         int _amount = 100;
         vector<int> _coins = {1, 10, 25};
         auto _r = coin_change(_amount, _coins);

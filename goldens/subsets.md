@@ -33,8 +33,28 @@ vector<vector<int>> subsets(const vector<int>& nums) {
 }
 ```
 
+### Walkthrough
+
+On `nums = [1, 2, 3]`:
+- Call with start=0, curr=[]: record [], recurse
+  - i=0, push 1: record [1], recurse
+    - i=1, push 2: record [1,2], recurse
+      - i=2, push 3: record [1,2,3] -> pop 3
+    - pop 2
+  - pop 1
+  - i=1, push 2: record [2], recurse
+    - i=2, push 3: record [2,3] -> pop 3
+  - pop 2
+  - i=2, push 3: record [3] -> pop 3
+- return [[], [1], [1,2], [1,2,3], [1,3], [2], [2,3], [3]] -- all 2^3 = 8 subsets
+
 - Push `curr` *before* the loop: the empty set comes for free.
 - Pass `i + 1`, not `start + 1` -- the next level continues after the item just chosen.
+
+## Complexity
+
+- Time: O(n * 2^n) -- output dominates.
+- Space: O(n) recursion depth plus O(n * 2^n) for the output itself.
 
 ## Approach 2 -- bitmask enumeration (n <= 20-ish)
 
@@ -62,11 +82,6 @@ vector<vector<int>> subsets(const vector<int>& nums) {
 
 - Sort first, then at each level skip values equal to the one just tried: `if (i > start && nums[i] == nums[i-1]) continue;`.
 - Same skeleton, one extra guard, prevents the same subset from appearing with permuted duplicates.
-
-## Complexity
-
-- Time: O(n * 2^n) -- output dominates.
-- Space: O(n) recursion depth plus O(n * 2^n) for the output itself.
 
 ## Usage
 

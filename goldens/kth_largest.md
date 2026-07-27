@@ -24,8 +24,29 @@ int kth_largest(const vector<int>& a, int k) {
 }
 ```
 
+### Walkthrough
+
+On `a = [3, 2, 1, 5, 6, 4]`, `k = 2` (heap form):
+- Push 3 -> [3]
+- Push 2 -> [2, 3]
+- Push 1 -> [1, 3, 2]; size 3 > 2 -> pop 1 -> [2, 3]
+- Push 5 -> [2, 3, 5]; pop 2 -> [3, 5]
+- Push 6 -> [3, 5, 6]; pop 3 -> [5, 6]
+- Push 4 -> [4, 6, 5]; pop 4 -> [5, 6]
+- return heap.top() = 5 (the 2nd largest)
+
+Quickselect on the same input (target index = 4, since n - k = 4):
+- Pick pivot 6, partition: [3, 2, 1, 5, 4] | 6 -> pivot index 5, > 4, recurse left
+- Pick pivot 4, partition: [3, 2, 1] | 4 | 5 -> pivot index 3, < 4, recurse right
+- Pick pivot 5, partition: [3, 2, 1, 4] | 5 -> pivot index 4 == target -> return 5
+
 - The heap never exceeds k, so each step costs O(log k), not O(log n).
 - Pop-when-full is the correctness core: once k larger elements exist, a smaller one can never re-enter the top k.
+
+## Complexity
+
+- Time: O(n log k) heap, O(n) average / O(n^2) worst quickselect, O(n log n) sort.
+- Space: O(k) heap, O(1) quickselect, O(n) sort.
 
 ## Approach 2 -- quickselect (average O(n), mutates input)
 
@@ -59,11 +80,6 @@ int kth_largest(vector<int>& nums, int k) {
 
 - O(log n) kth queries on a *changing* set, at the cost of maintaining a balanced BST with subtree sizes.
 - Overkill when the array is static and you only need one query -- this kata's heap/quickselect pair wins.
-
-## Complexity
-
-- Time: O(n log k) heap, O(n) average / O(n^2) worst quickselect, O(n log n) sort.
-- Space: O(k) heap, O(1) quickselect, O(n) sort.
 
 ## Usage
 

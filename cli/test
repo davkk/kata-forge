@@ -110,11 +110,14 @@ def test_session(session: Path, filter_kid: str | None = None) -> int:
             continue
 
         rc, stdout, stderr = run_bin(bin_path)
+        if stdout:
+            sys.stdout.write(stdout)
         if rc == -1:
-            print(f"  FAIL (timeout)\n")
+            print(f"  FAIL (timeout)")
             total_t += ntests or 1
             if stderr:
                 print(f"    {stderr}")
+            print()
             continue
         if rc == 0:
             print(f"  ok  {ntests}/{ntests} passed")
@@ -123,13 +126,8 @@ def test_session(session: Path, filter_kid: str | None = None) -> int:
         else:
             total_t += ntests or 1
             print(f"  FAIL (exit {rc})")
-            if stdout.strip():
-                print(f"    {stdout.strip()}")
             if stderr.strip():
                 print(f"    {stderr.strip()}")
-            if stdout.strip():
-                for line in stdout.strip().splitlines()[-3:]:
-                    print(f"    > {line}")
 
         print()
 

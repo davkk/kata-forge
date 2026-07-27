@@ -29,9 +29,27 @@ vector<int> daily_temperatures(const vector<int>& t) {
 }
 ```
 
+### Walkthrough
+
+On `t = [73, 74, 75, 71, 69, 72, 76, 73]`:
+- i=0: stack [], push 0 -> [0]
+- i=1: t[0]=73 < 74 -> pop 0, out[0]=1; push 1 -> [1]
+- i=2: pop 1, out[1]=1; push 2 -> [2]
+- i=3: 75 not > 71, push 3 -> [2, 3]
+- i=4: 75 not > 69, push 4 -> [2, 3, 4]
+- i=5 (72): pop 4 (out[4]=1), pop 3 (out[3]=2); push 5 -> [2, 5]
+- i=6 (76): pop 5 (out[5]=1), pop 2 (out[2]=4); push 6 -> [6]
+- i=7 (73): push 7 -> [6, 7]
+- return out = [1, 1, 4, 2, 1, 1, 0, 0]
+
 - Push **indices, not temperatures** -- the answer is a distance `i - idx`, not a value.
 - Strict `<` in the pop condition: equal temperatures don't resolve (the question asks for *warmer*, not "at least as warm").
 - Indices left on the stack never see a warmer day -- their 0 defaults are already correct, so no cleanup pass is needed.
+
+## Complexity
+
+- Time: O(n) -- amortized, each index pushed and popped at most once.
+- Space: O(n) for the stack in the worst case.
 
 ## Alternative -- brute force
 
@@ -42,11 +60,6 @@ vector<int> daily_temperatures(const vector<int>& t) {
 
 - Walk right-to-left. For each day, skip ahead to the next warmer day using a separate "next warmer" array filled during the same pass.
 - Same O(n) time and O(n) space, no stack discipline to maintain. Reads less naturally but is a useful "no-stack" version of the same idea.
-
-## Complexity
-
-- Time: O(n) -- amortized, each index pushed and popped at most once.
-- Space: O(n) for the stack in the worst case.
 
 ## Usage
 

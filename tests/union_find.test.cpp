@@ -1,7 +1,7 @@
 #include "kata_test.h"
 #include <optional>
 
-int main() { TEST("basic");
+int main() { TEST("unite_and_query_connectivity");
     auto _inst0 = UnionFind{{10}};
     CHECK(_inst0.size() == 10);
     CHECK(!_inst0.connected(0, 1));

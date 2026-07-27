@@ -5,7 +5,7 @@ static bool eq_edge(const Edge& a, const Edge& b) {
 }
 
 int main() {
-    { TEST("mst_on_7_node_graph");
+    { TEST("mst_on_weighted_graph");
         vector<vector<Edge>> _g = {{{1, 3}, {2, 1}}, {{0, 3}, {2, 4}, {4, 1}}, {{1, 4}, {3, 7}, {0, 1}}, {{2, 7}, {4, 5}, {6, 1}}, {{1, 1}, {3, 5}, {5, 2}}, {{6, 1}, {4, 2}, {2, 18}}, {{3, 1}, {5, 1}}};
         auto _r = prims(_g);
         CHECK(_r.has_value());

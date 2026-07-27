@@ -1,7 +1,7 @@
 #include "kata_test.h"
 
 int main() {
-    { TEST("standard_k3");
+    { TEST("standard_window");
         vector<int> _arr = {1, 3, -1, -3, 5, 3, 6, 7};
         int _k = 3;
         auto _r = max_sliding_window(_arr, _k);
@@ -15,21 +15,21 @@ int main() {
         { auto _exp = vector<int>{1}; CHECK(_r == _exp); }
     }
 
-    { TEST("two_elements_k1");
+    { TEST("two_elements");
         vector<int> _arr = {1, -1};
         int _k = 1;
         auto _r = max_sliding_window(_arr, _k);
         { auto _exp = vector<int>{1, -1}; CHECK(_r == _exp); }
     }
 
-    { TEST("increasing_k2");
+    { TEST("increasing_input");
         vector<int> _arr = {9, 11};
         int _k = 2;
         auto _r = max_sliding_window(_arr, _k);
         { auto _exp = vector<int>{11}; CHECK(_r == _exp); }
     }
 
-    { TEST("decreasing_k2");
+    { TEST("decreasing_input");
         vector<int> _arr = {4, -2};
         int _k = 2;
         auto _r = max_sliding_window(_arr, _k);

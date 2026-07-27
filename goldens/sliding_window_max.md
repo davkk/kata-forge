@@ -31,10 +31,28 @@ vector<int> max_sliding_window(const vector<int>& a, int k) {
 }
 ```
 
+### Walkthrough
+
+On `a = [1, 3, -1, -3, 5, 3, 6, 7]`, `k = 3`:
+- i=0 (1): dq=[0]; no emit
+- i=1 (3): pop 0, push 1 -> dq=[1]; no emit
+- i=2 (-1): push 2 -> dq=[1,2]; emit a[1]=3
+- i=3 (-3): push 3 -> dq=[1,2,3]; emit a[1]=3
+- i=4 (5): pop 3, 2, 1 -> dq=[]; push 4 -> dq=[4]; emit a[4]=5
+- i=5 (3): push 5 -> dq=[4,5]; emit a[4]=5
+- i=6 (6): pop 5, 4 -> dq=[]; push 6 -> dq=[6]; emit a[6]=6
+- i=7 (7): pop 6 -> dq=[]; push 7 -> dq=[7]; emit a[7]=7
+- return [3, 3, 5, 5, 6, 7]
+
 - Store **indices, not values** -- window expiry (`i - k`) cannot be checked from values alone. This is the classic bug.
 - Order matters: evict from the back *before* pushing, check expiry *before* emitting.
 - `<` (not `<=`) when evicting keeps duplicates; `<=` collapses equal values onto the newer index -- both are correct.
 - The first `k - 1` iterations only warm the deque; output starts at `i == k - 1`.
+
+## Complexity
+
+- Time: O(n) amortized.
+- Space: O(k) for the deque.
 
 ## Alternative -- max-heap per window
 
@@ -45,11 +63,6 @@ vector<int> max_sliding_window(const vector<int>& a, int k) {
 
 - Range-max on *arbitrary* ranges after O(n log n) build -- overkill when every range has the same length k.
 - Wins only when the kata also asks for arbitrary window sizes or point updates between windows.
-
-## Complexity
-
-- Time: O(n) amortized.
-- Space: O(k) for the deque.
 
 ## Usage
 

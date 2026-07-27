@@ -38,9 +38,29 @@ void merge_sort(vector<int>& a) {
 }
 ```
 
+### Walkthrough
+
+On `a = [5, 2, 4, 6, 1, 3]`:
+- msort([0,6)): split at 3 -> msort([0,3)) and msort([3,6))
+  - msort([0,3)): split at 1 -> msort([0,1))=[5] and msort([1,3))
+    - msort([1,3)): split at 2 -> [2] and [4]; merge [2,4]
+  - merge [5] and [2,4] -> [2,4,5]
+  - msort([3,6)): split at 4 -> [6] and [1,3]
+    - msort([4,6)): split at 5 -> [1] and [3]; merge [1,3]
+  - merge [6] and [1,3] -> [1,3,6]
+- merge [2,4,5] and [1,3,6] -> [1,2,3,4,5,6]
+- return [1,2,3,4,5,6]
+
+The merge step on `[2,4,5]` and `[1,3,6]`: i=0, j=0 -> take 1 (j=1); take 2 (i=1); take 3 (j=2); take 4 (i=2); take 5 (i=3, i exhausted); drain rest -> [1,3,6] -> [1,2,3,4,5,6].
+
 - Half-open `[lo, hi)` intervals: `mid` is a clean split point and the base case is `hi - lo <= 1`.
 - Allocate the buffer once up front -- per-call allocation wrecks the constant factor.
 - The split phase does zero comparisons; all the work happens in the merge.
+
+## Complexity
+
+- Time: O(n log n) in all cases (best, average, worst).
+- Space: O(n) for the buffer, O(log n) recursion stack.
 
 ## Approach 2 -- bottom-up (iterative)
 
@@ -61,11 +81,6 @@ void merge_sort(vector<int>& a) {
 
 - An O(1) extra-space merge is possible but the constant factor is brutal -- a real-world merge sort always uses a buffer.
 - Linked-list merge sort needs no extra memory: the merge relinks nodes instead of copying.
-
-## Complexity
-
-- Time: O(n log n) in all cases (best, average, worst).
-- Space: O(n) for the buffer, O(log n) recursion stack.
 
 ## Usage
 

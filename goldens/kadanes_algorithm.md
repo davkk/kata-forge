@@ -25,8 +25,27 @@ int kadane(const vector<int>& a) {
 }
 ```
 
+### Walkthrough
+
+On `a = [-2, 1, -3, 4, -1, 2, 1, -5, 4]`:
+- i=0: best=-2, cur=-2
+- i=1 (1): cur=max(1, -2+1)=1; best=1 (restart, since -2+1 < 1)
+- i=2 (-3): cur=max(-3, 1-3)=-2; best=1
+- i=3 (4): cur=max(4, -2+4)=4; best=4 (restart)
+- i=4 (-1): cur=max(-1, 4-1)=3; best=4
+- i=5 (2): cur=max(2, 3+2)=5; best=5
+- i=6 (1): cur=max(1, 5+1)=6; best=6
+- i=7 (-5): cur=max(-5, 6-5)=1; best=6
+- i=8 (4): cur=max(4, 1+4)=5; best=6
+- return 6 (subarray [4, -1, 2, 1] at indices 3-6)
+
 - The `max(a[i], cur + a[i])` line *is* the restart decision: when `cur < 0`, adding `a[i]` only drags it down, so a fresh start at `a[i]` is better.
 - `best` and `cur` are the only state -- no need to keep the whole `dp` array.
+
+## Complexity
+
+- Time: O(n).
+- Space: O(1).
 
 ## Alternative -- return the subarray indices
 
@@ -44,11 +63,6 @@ for (int i = 1; i < n; ++i) {
 
 - The "what is the subarray, not just its sum" variant -- a few extra scalars, no asymptotic cost.
 - Divide and conquer also works: max of left half, right half, and the best subarray crossing the middle. O(n log n) and strictly dominated by Kadane; only the crossing-sum pattern is worth remembering.
-
-## Complexity
-
-- Time: O(n).
-- Space: O(1).
 
 ## Usage
 

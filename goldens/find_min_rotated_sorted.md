@@ -25,10 +25,23 @@ int find_min_rotated(const vector<int>& a) {
 }
 ```
 
+### Walkthrough
+
+On `a = [4, 5, 6, 7, 0, 1, 2]` (rotated by 4):
+- lo=0, hi=6: mid=3, a[3]=7 > a[6]=2 -> lo=4
+- lo=4, hi=6: mid=5, a[5]=1 <= a[6]=2 -> hi=5
+- lo=4, hi=5: mid=4, a[4]=0 <= a[5]=1 -> hi=4
+- lo==hi=4 -> return a[4] = 0
+
 - `hi = mid`, never `mid - 1`: mid itself might be the minimum -- don't discard it. Symmetrically, `lo = mid + 1` is only safe in the `>` branch, where mid provably isn't the min.
 - Already-sorted input: `a[mid] <= a[hi]` every time, so `hi` marches straight to 0 -- still O(log n), still correct.
 - Comparing against `a[hi]` works because the right end always bounds the right run; comparing against `a[lo]` needs an extra is-sorted check.
 - **Duplicates break the halving**: with `a[mid] == a[hi]` you can't tell which run mid is in -- the only fix (`--hi`) degrades the worst case to O(n).
+
+## Complexity
+
+- Time: O(log n) for distinct elements; O(n) worst case with duplicates.
+- Space: O(1).
 
 ## Alternative -- linear scan
 
@@ -39,11 +52,6 @@ int find_min_rotated(const vector<int>& a) {
 
 - Find the pivot with this file's approach, then binary-search the correct run. O(log n) total.
 - The single-pass fused version is also possible: after shrinking to the side that *might* contain the target, compare `a[lo] <= target <= a[mid]` to decide.
-
-## Complexity
-
-- Time: O(log n) for distinct elements; O(n) worst case with duplicates.
-- Space: O(1).
 
 ## Usage
 

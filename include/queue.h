@@ -3,8 +3,10 @@
 using namespace std;
 
 struct Queue {
-    void push(int x);
-    optional<int> pop();
-    optional<int> front();
-    int size();
+    struct Node { int val; Node* next; };
+    Node *head, *tail;
+    void enqueue(int x);
+    optional<int> deque();
+    optional<int> peek();
+    int length();
 };

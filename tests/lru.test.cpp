@@ -1,7 +1,7 @@
 #include "kata_test.h"
 #include <optional>
 
-int main() { TEST("basic");
+int main() { TEST("evict_lru_on_overflow");
     auto _inst0 = LRU{{3}};
     { auto _v = _inst0.get("foo"); CHECK(!_v.has_value()); }
     _inst0.update("foo", 69);

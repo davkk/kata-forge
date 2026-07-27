@@ -1,9 +1,9 @@
 #include "kata_test.h"
 #include <optional>
 
-int main() { TEST("basic");
+int main() { TEST("range_sum_after_point_update");
     auto _inst0 = SegmentTree{{1, 3, 5, 7, 9, 11}};
-    CHECK(_inst0.size() == 6);
+    CHECK(_inst0.length() == 6);
     CHECK(_inst0.query(0, 2) == 9);
     CHECK(_inst0.query(3, 5) == 27);
     CHECK(_inst0.query(0, 5) == 36);

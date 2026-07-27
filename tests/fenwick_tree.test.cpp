@@ -1,9 +1,9 @@
 #include "kata_test.h"
 #include <optional>
 
-int main() { TEST("basic");
+int main() { TEST("prefix_sum_after_point_update");
     auto _inst0 = FenwickTree{{5}};
-    CHECK(_inst0.size() == 5);
+    CHECK(_inst0.length() == 5);
     _inst0.add(1, 1);
     _inst0.add(2, 2);
     _inst0.add(3, 3);
