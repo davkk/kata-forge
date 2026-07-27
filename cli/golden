@@ -1,0 +1,57 @@
+#!/usr/bin/env python3
+import argparse
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from kflib.kf_common import TOOL_ROOT, kata_by_id, list_katas
+from kflib.md_render import render, wants_color
+
+
+def resolve_kid(token: str) -> str:
+    if kata_by_id(token):
+        return token
+    matches = [k["id"] for k in list_katas() if k["id"].startswith(token)]
+    if len(matches) == 1:
+        return matches[0]
+    if len(matches) > 1:
+        print(
+            f"error: '{token}' is ambiguous; matches: {', '.join(sorted(matches))}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    return token
+
+
+def main():
+    ap = argparse.ArgumentParser(description="Print the golden tutorial for a kata")
+    ap.add_argument("kata", help="kata id, prefix, or .cpp filename (e.g. stack, dij, stack.cpp)")
+    ap.add_argument("--raw", action="store_true",
+                    help="print the source markdown verbatim, no rendering")
+    ap.add_argument("--no-color", action="store_true",
+                    help="render with markup stripped but no ANSI")
+    args = ap.parse_args()
+
+    kid = Path(args.kata).stem if args.kata.endswith(".cpp") else args.kata
+    kid = resolve_kid(kid)
+
+    if not kata_by_id(kid):
+        print(f"error: unknown kata: {kid}", file=sys.stderr)
+        sys.exit(1)
+
+    path = TOOL_ROOT / "goldens" / f"{kid}.md"
+    if not path.exists():
+        print(f"error: no golden for {kid} (missing {path})", file=sys.stderr)
+        sys.exit(1)
+
+    md = path.read_text(encoding="utf-8")
+    if args.raw:
+        sys.stdout.write(md)
+        return
+
+    color = not args.no_color and wants_color()
+    sys.stdout.write(render(md, color=color))
+
+
+if __name__ == "__main__":
+    main()
