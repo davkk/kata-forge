@@ -1,16 +1,15 @@
 # Longest Common Subsequence
 
-Length of the longest subsequence common to two strings — same order, **not necessarily contiguous**. The two-string DP that a whole family of problems is a variant of.
+Length of the longest subsequence common to two strings -- same relative order, **not necessarily contiguous**. The two-string DP that a whole family of problems is built on.
 
 ## Intuition
 
-- DP recipe: define state, write recurrence, set base cases, choose iteration order.
-- State: `dp[i][j]` = LCS length of prefixes `a[0..i)` and `b[0..j)`. Row/col 0 are the empty-prefix base cases (0).
-- Recurrence: if `a[i-1] == b[j-1]`, extend a common subsequence: `dp[i-1][j-1] + 1`. On a mismatch, drop one char from either side: `max(dp[i-1][j], dp[i][j-1])`.
-- Why "drop from either" is safe: on a mismatch the two last chars can't both be used, so at least one is absent from any common subsequence — discarding `a`'s last *or* `b`'s last never kills the optimum, and `max` covers both cases.
-- Fill row by row; each cell reads up, left, and up-left. O(m·n) time and space.
+- State: `dp[i][j]` = LCS length of the prefixes `a[0..i)` and `b[0..j)`. The extra row and column make empty prefixes cost 0 without special cases.
+- Recurrence: if `a[i-1] == b[j-1]`, extend a common subsequence: `dp[i-1][j-1] + 1`. On a mismatch, drop the last char from either side: `max(dp[i-1][j], dp[i][j-1])`.
+- The mismatch rule is safe: at least one of the two last chars is absent from any common subsequence, so discarding `a`'s last *or* `b`'s last cannot kill the optimum, and `max` covers both.
+- Fill row by row; each cell reads up, left, and up-left.
 
-## Full table
+## Approach 1 -- full 2D table
 
 ```cpp
 using namespace std;
@@ -28,24 +27,51 @@ int longest_common_subsequence(const string& a, const string& b) {
 }
 ```
 
-- Mind the 1-index shift: `dp[i][j]` talks about `a[i-1]` / `b[j-1]` — the extra row/col makes empty prefixes free instead of special-cased.
-- Answer is `dp[m][n]`, not the max over the table.
+- The 1-index shift is intentional: `dp[i][j]` talks about `a[i-1]` and `b[j-1]`, so empty prefixes become free.
+- The answer is `dp[m][n]`, not the maximum over the table.
 
-## Alternative: two rows + path reconstruction
+## Approach 2 -- top-down recursion with memoization
 
-- Row `i` reads only row `i - 1` — two rolling rows of size n+1 give the length in O(n) space.
-- To recover the actual subsequence, walk the full table from `(m, n)`: on a match take the char and go up-left; on a mismatch move toward the larger neighbor. Needs the full table (or checkpointed), so it doesn't combine with the rolling-row trick.
-- Hirschberg's algorithm recovers the string in O(n) space via divide & conquer, if you need both.
+```cpp
+using namespace std;
 
-## Where it shows up
+int longest_common_subsequence(const string& a, const string& b) {
+    int m = (int)a.size(), n = (int)b.size();
+    vector<vector<int>> memo(m + 1, vector<int>(n + 1, -1));
+    function<int(int,int)> go = [&](int i, int j) -> int {
+        if (i == 0 || j == 0) return 0;
+        if (memo[i][j] != -1) return memo[i][j];
+        if (a[i-1] == b[j-1]) return memo[i][j] = 1 + go(i-1, j-1);
+        return memo[i][j] = max(go(i-1, j), go(i, j-1));
+    };
+    return go(m, n);
+}
+```
 
-- Diff tools (`git diff` with lines as characters), file synchronization.
-- DNA/protein sequence alignment in bioinformatics, plagiarism detection.
-- Skeleton for the two-string DP family: edit distance, shortest common supersequence, longest repeated subsequence.
+- Mirrors the recurrence directly: same branching on match / mismatch, memoized to keep the work at O(m*n).
+- More readable for irregular cases; the bottom-up form is leaner for the simple length-only problem.
+
+## Alternative -- two rolling rows + path reconstruction
+
+- Row `i` reads only row `i - 1`, so two rolling rows of size n+1 give the length in O(n) space.
+- To recover the actual subsequence, walk the full table from `(m, n)`: on a match take the char and go up-left, on a mismatch move toward the larger neighbor. Needs the full table (or checkpointed), so it does not combine with the rolling-row trick.
+- Hirschberg's algorithm recovers the string in O(n) space via divide and conquer, if both matter.
+
+## Complexity
+
+- Time: O(m*n).
+- Space: O(m*n) for the 2D table; O(min(m, n)) if only the length is needed (rolling rows).
+
+## Usage
+
+- Diff tools (`git diff` with lines as characters) and file synchronization.
+- DNA and protein sequence alignment in bioinformatics, plagiarism detection.
+- Skeleton for the entire two-string DP family: edit distance, shortest common supersequence, longest repeated subsequence.
+- Any "how much do these two sequences have in common" question, from version control to speech recognition.
 
 ## Cousins & contrasts
 
-- **Edit distance**: same table shape, different recurrence — mismatch costs `1 + min` of insert/delete/substitute instead of max-of-drops.
-- **Longest common substring**: contiguity required → reset to 0 on mismatch, answer is the max cell, not `dp[m][n]`.
-- **LIS**: with distinct elements, LCS of a sequence against its sorted self gives the longest increasing subsequence.
+- **Edit distance**: same table shape, different recurrence -- mismatch costs `1 + min` of insert/delete/substitute instead of `max`-of-drops.
+- **Longest common substring**: contiguity required -> reset to 0 on mismatch, answer is the max cell, not `dp[m][n]`.
+- **Longest increasing subsequence**: with distinct elements, LCS of a sequence against its sorted self.
 - **Longest palindromic subsequence**: LCS of `s` against `reverse(s)`.

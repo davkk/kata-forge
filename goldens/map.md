@@ -1,15 +1,15 @@
 # Hash Map
 
-A key→value dictionary with O(1) average get/set/delete. Same hashing core as a hash set — bucket nodes just carry a value next to the key, and `set` on an existing key **replaces its value instead of being a no-op**.
+A key to value dictionary with O(1) average get/set/delete. Same hashing core as a hash set -- bucket nodes just carry a value next to the key, and `set` on an existing key **replaces its value instead of being a no-op**.
 
 ## Intuition
 
-- `index = hash(key) % capacity`, one linked list per bucket for collisions (separate chaining), rehash at load factor ≈ 0.75 — see the hash set golden; nothing changes.
+- `index = hash(key) % capacity`, one linked list per bucket for collisions (separate chaining), rehash at load factor ~= 0.75 -- see the hash set golden; nothing changes.
 - The one new move: every bucket walk compares keys, and on a match either reads (`get`), overwrites (`set`), or unlinks (`delete`) the node it found.
-- Average O(1) per op for the same reason: uniform hash ⇒ expected chain length is the small constant load factor.
-- String keys: a polynomial rolling hash (`h = h*31 + c`) mixes position into the hash, so anagrams don't all collide — a plain character sum would.
+- Average O(1) per op for the same reason: uniform hash implies expected chain length is the small constant load factor.
+- String keys: a polynomial rolling hash (`h = h*31 + c`) mixes position into the hash, so anagrams don't all collide -- a plain character sum would.
 
-## Separate chaining with key/value nodes
+## Approach -- separate chaining with key/value nodes
 
 ```cpp
 using namespace std;
@@ -71,25 +71,38 @@ void erase(HashMap& m, const string& k) {
 }
 ```
 
-- `set` checks for the key *before* inserting: found → overwrite; missing → prepend a new node. That distinction is what keeps `count` honest.
-- Pitfall: recompute `idx` after rehashing — the old index points into a resized array.
+- `set` checks for the key *before* inserting: found -> overwrite; missing -> prepend a new node. That distinction is what keeps `count` honest.
+- Pitfall: recompute `idx` after rehashing -- the old index points into a resized array.
 - Pitfall: `get` needs a found/missing signal separate from the value (here via out-param + bool); a sentinel like 0 can't express "stored 0".
 - `Node** pp` again: unlinking through a pointer-to-pointer handles the bucket head with no special case.
 
-## Alternative: balanced BST (`std::map`)
+## Alternative -- balanced BST (`std::map`)
 
-- Keep keys in a red-black tree: every op is O(log n) *worst case*, not just average — no hash function to go wrong.
+- Keep keys in a red-black tree: every op is O(log n) *worst case*, not just average -- no hash function to go wrong.
 - You also get ordered iteration and range queries (`lower_bound`, "all keys in [a, b]") for free; a hash map gives none.
-- Pay with a bigger constant factor and no O(1) average — pick it when order matters or adversarial input is a threat.
+- Pay with a bigger constant factor and no O(1) average -- pick it when order matters or adversarial input is a threat.
 
-## Where it shows up
+## Alternative -- open addressing
+
+- Same idea as the hash set alternative: no pointers per entry, all in one array, probe on collision.
+- Tombs for deletion, linear/quadratic/double hashing for probing, worst-case behavior on heavy load.
+- The choice for cache-sensitive workloads (database buffer pools, hot in-memory indexes).
+
+## Complexity
+
+- Time: O(1) average for get/set/erase, O(n) worst case with a hostile hash.
+- Space: O(n).
+
+## Usage
 
 - Associative arrays and object/dict literals in every dynamic language; JSON objects under the hood.
 - Memoization caches, frequency counting, index-of-x tables, grouping records by a field.
-- Two-sum and friends: complement lookup turns an O(n²) pair search into one pass.
+- Two-sum and friends: complement lookup turns an O(n^2) pair search into one pass.
+- Any "look up by key, insert, delete" workload that needs to stay fast under growth.
 
 ## Cousins & contrasts
 
 - **`std::unordered_map` vs `std::map`**: chained hashing (O(1) average, unordered) vs red-black tree (O(log n) worst, ordered). In interviews, say which you want and why.
-- **Hash set**: this file minus the `val` field — a set is just a map with ignored values.
+- **Hash set**: this file minus the `val` field -- a set is just a map with ignored values.
 - **Multimap**: allows duplicate keys; bucket nodes (or tree) hold one entry per pair instead of replacing.
+- **Trie**: structure-of-prefixes alternative when keys are strings and prefix queries matter.

@@ -1,27 +1,27 @@
 # Daily Temperatures
 
-For each day, how many days until a warmer temperature (0 if none). Solved in O(n) with a **monotonic stack** of unresolved days.
+For each day, how many days until a warmer temperature -- 0 if none. Solved in O(n) with a **monotonic stack** of unresolved days.
 
 ## Intuition
 
-- Keep a stack of indices whose temperatures are **decreasing** — days still waiting for a warmer day.
+- Keep a stack of indices whose temperatures are **strictly decreasing** -- days still waiting for a warmer one.
 - When day `i` is warmer than the stack top, it is *the* answer for that top: pop and record `i - idx`. One warm day can resolve a whole run of colder pending days.
 - Then push `i` itself: it now waits for its own warmer day.
-- Amortized O(n): each index is pushed once and popped at most once → at most 2n stack operations. Space O(n) for the stack.
-- Why it works: the decreasing invariant means the stack top is always the *nearest unresolved day that `i` can resolve* — deeper entries are colder still and must keep waiting.
+- The decreasing invariant means the stack top is always the *nearest unresolved day that `i` can resolve* -- deeper entries are colder still and must keep waiting.
+- Amortized O(n): each index is pushed once and popped at most once -> at most 2n stack operations.
 
-## Monotonic stack
+## Approach -- monotonic stack of indices
 
 ```cpp
 using namespace std;
 
 vector<int> daily_temperatures(const vector<int>& t) {
-    vector<int> out(t.size(), 0);               // 0 = no warmer day ever
-    vector<int> st;                             // stack of indices, temps decreasing
+    vector<int> out(t.size(), 0);
+    vector<int> st;
     for (int i = 0; i < (int)t.size(); ++i) {
         while (!st.empty() && t[st.back()] < t[i]) {
             int idx = st.back(); st.pop_back();
-            out[idx] = i - idx;                 // i is idx's first warmer day
+            out[idx] = i - idx;
         }
         st.push_back(i);
     }
@@ -29,23 +29,35 @@ vector<int> daily_temperatures(const vector<int>& t) {
 }
 ```
 
-- Push **indices, not temperatures** — the answer is a distance `i - idx`, not a value.
+- Push **indices, not temperatures** -- the answer is a distance `i - idx`, not a value.
 - Strict `<` in the pop condition: equal temperatures don't resolve (the question asks for *warmer*, not "at least as warm").
-- Indices left on the stack never see a warmer day — their 0 defaults are already correct, so no cleanup pass is needed.
+- Indices left on the stack never see a warmer day -- their 0 defaults are already correct, so no cleanup pass is needed.
 
-## Contrast: brute force
+## Alternative -- brute force
 
-- Naive: from each day, scan right until something warmer appears — O(n²) worst case (strictly decreasing input never resolves early).
+- From each day, scan right until something warmer appears -- O(n^2) worst case (strictly decreasing input never resolves early).
 - The stack is the same search with memory: every "known colder" day is parked by position and resolved in O(1) when its answer arrives.
 
-## Where it shows up
+## Alternative -- reverse pass (no stack)
+
+- Walk right-to-left. For each day, skip ahead to the next warmer day using a separate "next warmer" array filled during the same pass.
+- Same O(n) time and O(n) space, no stack discipline to maintain. Reads less naturally but is a useful "no-stack" version of the same idea.
+
+## Complexity
+
+- Time: O(n) -- amortized, each index pushed and popped at most once.
+- Space: O(n) for the stack in the worst case.
+
+## Usage
 
 - The entire "next greater element" family: stock span, next-higher price, signal-peak distances.
-- Weather/climate analytics literally as posed.
-- Building block for largest-rectangle-in-histogram and trapping-rain-water style problems.
+- Weather and climate analytics, literally as posed.
+- Building block for largest-rectangle-in-histogram and trapping-rain-water.
+- Anywhere a stream of values needs "how far ahead until the next one that beats me".
 
 ## Cousins & contrasts
 
-- **sliding_window_max**: the deque sibling — monotonic *queue* for a moving-window max, versus a monotonic *stack* for next-greater distances. Same push/pop-at-most-once argument.
-- **Largest rectangle in histogram**: monotonic *increasing* stack, resolves on a *shorter* bar — the mirror image of this one.
-- **Next greater element II (circular array)**: same stack, just iterate the array twice and take indices mod n.
+- **Sliding window maximum**: the deque sibling -- monotonic *queue* for a moving-window max, versus a monotonic *stack* for next-greater distances. Same push/pop-at-most-once argument.
+- **Largest rectangle in histogram**: monotonic *increasing* stack, resolves on a *shorter* bar -- the mirror image of this one.
+- **Next greater in a circular array**: same stack, iterate the array twice and take indices mod n.
+- **Brute force scan**: O(n^2) -- the baseline the monotonic stack replaces.

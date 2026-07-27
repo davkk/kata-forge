@@ -1,14 +1,14 @@
-# Two Sum (Sorted Array)
+# Two Sum (Sorted)
 
-Find the 1-indexed pair of indices whose values sum to a target in a **sorted** array. Sortedness buys O(n) time and O(1) space via two pointers at opposite ends.
+Find the 1-indexed pair of indices whose values sum to a target in a **sorted** array. Sortedness unlocks the optimal O(n) two-pointer scan.
 
 ## Intuition
 
-- Put `l` at the smallest element, `r` at the largest. Their sum brackets the target: too small → advance `l`; too big → retreat `r`.
-- Why no pair is ever skipped: if `a[l] + a[r] < target`, then `a[l]` is too small against the *largest* available partner — so it's too small against everything and can be discarded forever. Symmetric argument for `a[r]` when the sum is too large.
-- Each step eliminates one index, so at most n steps: O(n) time, O(1) space.
+- Place `l` at the smallest element and `r` at the largest. Their sum brackets the target: too small -> push `l` right, too big -> pull `r` left.
+- A discard is safe only because the input is sorted: if `a[l] + a[r] < target`, then `a[l]` is too small against the *largest* available partner, so it is too small against *every* partner and can be abandoned. Symmetric for `a[r]` when the sum is too large.
+- Each iteration removes one index, so at most n steps. `l < r` guarantees termination -- pointers cross only when no pair remains.
 
-## Two pointers
+## Approach -- two pointers
 
 ```cpp
 using namespace std;
@@ -17,27 +17,38 @@ vector<int> two_sum(const vector<int>& a, int target) {
     int l = 0, r = (int)a.size() - 1;
     while (l < r) {
         int sum = a[l] + a[r];
-        if (sum == target) return {l + 1, r + 1};  // 1-indexed
-        if (sum < target) ++l;                     // need a bigger left
-        else              --r;                     // need a smaller right
+        if (sum == target) return {l + 1, r + 1};
+        if (sum < target) ++l;
+        else              --r;
     }
     return {-1, -1};
 }
 ```
 
-- Return `{l + 1, r + 1}` — 1-indexed per the problem contract.
-- The discards are justified only by sortedness; on unsorted input the same moves would skip valid pairs.
-- Termination guaranteed by `l < r` — pointers cross only when no pair remains.
+- Return `{l + 1, r + 1}` because the problem contract is 1-indexed.
+- The discards depend entirely on sortedness; the same moves on an unsorted array would skip valid pairs.
 
-## Where it shows up
+## Alternative -- hash map (unsorted input)
 
-- Budget/pairing queries on sorted data: two prices summing to a budget, two trades netting to zero.
-- Inner loop of 3Sum / 4Sum: fix one element, two-pointer the rest.
-- The squeeze-from-both-ends pattern behind pair-with-difference and container-with-most-water problems.
+- Walk once, storing each value's index in `unordered_map<int, int>`. For each `a[i]`, check if `target - a[i]` is already in the map -- first hit gives the pair.
+- O(n) time with O(n) space, no sorting required. This is the general-purpose form; the two-pointer version above wins whenever the input is already sorted or sorting is acceptable.
+- A third option -- sort the input first, then two-pointer -- costs O(n log n) and changes indices (the original positions are lost unless you keep a parallel index array).
+
+## Complexity
+
+- Time: O(n) -- each index is visited at most once.
+- Space: O(1) -- only the two pointers.
+
+## Usage
+
+- Pair-summing queries on sorted data: prices hitting a budget, trade offsets netting to zero.
+- The inner loop of 3-element and 4-element sum katas: fix one element, two-pointer the rest.
+- The squeeze-from-both-ends pattern behind container-with-most-water and pair-with-difference problems.
+- Two-sum itself is the prototype of "sortedness buys both time and space".
 
 ## Cousins & contrasts
 
-- **Two sum (unsorted)**: hash map value → index, one O(n) pass but O(n) space; sorting first costs O(n log n) and enables this file's O(1)-space version.
-- **3Sum**: sort, fix each element, run this two-pointer scan on the remainder — O(n²) total.
-- **Binary search per element**: for each `a[i]` search `target - a[i]`; O(n log n), more moving parts, dominated by two pointers once sorted.
-- **Sliding window**: same two indices, but both move right — for windowed predicates, not pair sums.
+- **Two sum on an unsorted array**: hash map value to index, one O(n) pass but O(n) space -- the alternative above.
+- **Binary search per element**: for each `a[i]` search `target - a[i]` in O(log n); total O(n log n). Always dominated by the two-pointer scan once the input is sorted.
+- **3-element sum katas**: sort, fix one element, run this two-pointer scan on the remainder -- O(n^2) total.
+- **Sliding window**: also two indices, but both move right -- for windowed predicates, not pair sums.

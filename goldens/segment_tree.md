@@ -4,12 +4,12 @@ Full binary tree over an array: leaves = elements, internal nodes = aggregate (s
 
 ## Intuition
 
-- Each node owns segment `[lo, hi]`; children split at mid. A query range decomposes into ≤ **2 nodes per level**, so O(log n) nodes total.
+- Each node owns segment `[lo, hi]`; children split at mid. A query range decomposes into <= **2 nodes per level**, so O(log n) nodes total.
 - Point update walks one root-to-leaf path: change the leaf, recompute every ancestor on the way back up.
-- Works with any associative op with an identity: sum (0), min (∞), max, gcd. Only the combine function changes.
-- Complexity: build O(n), query/update O(log n), O(4n) array is the safe bound.
+- Works with any associative op with an identity: sum (0), min (infinity), max, gcd. Only the combine function changes.
+- O(n) build, O(log n) query/update, O(4n) array is the safe bound.
 
-## Recursive struct (sum)
+## Approach 1 -- recursive struct (sum)
 
 ```cpp
 using namespace std;
@@ -53,22 +53,40 @@ static void update_(vector<int>& t, int v, int lo, int hi, int i, int val) {
 ```
 
 - Nodes 1-indexed (root = 1, children `2v` / `2v+1`); keeps array small, arithmetic obvious.
-- The `mid` split must be identical in all three functions — mismatched partitions are the classic index bug.
+- The `mid` split must be identical in all three functions -- mismatched partitions are the classic index bug.
 - Early exits: full containment returns immediately, full disjointness returns identity. Partial overlap recurses both ways.
 
-## Alternative: lazy propagation (for range updates)
+## Approach 2 -- iterative bottom-up
+
+- Build leaves at indices `[n, 2n)`, internal nodes at `[1, n)`. Parent = `i/2`, children = `2i` and `2i+1`.
+- Query walks up two chains (one for the left bound, one for the right) and combines; update walks from a leaf to the root.
+- Faster constants than the recursive form, no stack depth, and easier to extend with lazy propagation.
+
+## Alternative -- lazy propagation (for range updates)
 
 - To add x to a whole *range*, tag the node: apply `x * range_size` to `t[v]` now, record x in a parallel `lazy[v]`, don't touch children yet.
 - Push down on demand: whenever a later query/update descends past `v`, flush `lazy[v]` into both children and clear it. Work stays O(log n) per range update instead of O(k log n).
 
-## Where it shows up
+## Alternative -- sparse segment tree (only touched ranges)
+
+- Use a hash map (`unordered_map`) for the tree nodes; only allocate nodes that are actually visited.
+- O(K log N) memory where K is the number of point updates; perfect for offline problems with huge coordinate ranges and few updates.
+
+## Complexity
+
+- Time: O(n) build, O(log n) query and update.
+- Space: O(n), or O(4n) for the safe array bound.
+
+## Usage
 
 - Range sum/min/max with updates: stock prices over time windows, leaderboard scores, sensor aggregates.
-- CP staple — the default answer to "updates + range queries, op isn't invertible".
+- The default answer to "updates + range queries, op isn't associative-with-inverse" in competitive programming.
 - Interval scheduling with counts: sweep events over coordinates, query/update coverage counts per segment.
+- Any "what is the aggregate over this index range, where values change over time" question.
 
 ## Cousins & contrasts
 
-- **Fenwick tree**: prefix-only special case — ~n memory, iterative, ~2× faster constant — but needs invertible op (sum yes, min no) and can't do lazy range updates.
+- **Fenwick tree**: prefix-only special case -- ~n memory, iterative, ~2x faster constant -- but needs invertible op (sum yes, min no) and can't do lazy range updates.
 - **Sparse table**: static data only; O(n log n) build, O(1) RMQ via overlapping power-of-two intervals. No updates.
-- **Sqrt decomposition**: √n blocks, O(√n) everything — crude but flexible and easy to improvise under pressure.
+- **Sqrt decomposition**: sqrt(n) blocks, O(sqrt(n)) everything -- crude but flexible and easy to improvise under pressure.
+- **Lazy propagation**: the range-update extension; turns the segment tree into a full interval-arithmetic engine.

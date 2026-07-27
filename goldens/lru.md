@@ -1,17 +1,17 @@
 # LRU Cache
 
-A fixed-capacity cache that evicts the **least recently used** entry, with O(1) get and update. Neither a hash map nor a linked list alone can do this — the classic composite structure.
+A fixed-capacity cache that evicts the **least recently used** entry, with O(1) get and update. Neither a hash map nor a linked list alone can do this -- the classic composite structure.
 
 ## Intuition
 
-- Hash map alone: O(1) lookup, but no notion of "oldest" — finding the evict victim costs O(n).
+- Hash map alone: O(1) lookup, but no notion of "oldest" -- finding the evict victim costs O(n).
 - Linked list alone: O(1) reorder and eviction at the ends, but finding a key costs O(n).
 - Composite: `unordered_map<key, Node*>` answers *where* in O(1); the doubly linked list holds nodes in recency order and answers *what to evict / how to reorder* in O(1).
 - Invariant: **head = most recently used, tail = evict victim**. Every access (get *and* update) moves its node to the head.
-- Doubly linked (not singly) because detaching an arbitrary node needs its predecessor — with `prev` pointers it's O(1).
+- Doubly linked (not singly) because detaching an arbitrary node needs its predecessor -- with `prev` pointers it is O(1).
 - All ops O(1): a constant number of pointer swaps and one hash lookup; space O(capacity).
 
-## Hash map + doubly linked list
+## Approach -- hash map + doubly linked list
 
 ```cpp
 using namespace std;
@@ -62,18 +62,29 @@ void update(LRU& c, const string& k, int v) {
 }
 ```
 
-- Touching = `detach` + `prepend` — write these two helpers once and every op becomes trivial.
+- Touching = `detach` + `prepend` -- write these two helpers once and every op becomes trivial.
 - Eviction must erase from the map *and* the list; forgetting `m.erase` leaves a dangling pointer that a later get will follow.
 - Pitfall: read `tail->key` before `delete dead`, and don't touch when the map misses (`get` on absent key changes nothing).
 - Single-node edge cases fall out naturally if detach/prepend handle `head == tail == n`.
 
-## Alternative: std::list + map of iterators (interview shorthand)
+## Alternative -- std::list + map of iterators (interview shorthand)
 
 - `list<pair<K,V>>` (front = MRU) plus `unordered_map<K, list<...>::iterator>`; list iterators stay valid across moves, so no raw-pointer surgery.
-- Touch is `l.splice(l.begin(), l, it->second)` — O(1), no detach code at all.
+- Touch is `l.splice(l.begin(), l, it->second)` -- O(1), no detach code at all.
 - Same complexity, far less code; the handwritten version above is what interviewers probe for when they say "no library list".
 
-## Where it shows up
+## Alternative -- array + timestamps (low-overhead bounded cache)
+
+- For a small, fixed key set, store entries in an array indexed by hash and use a per-slot timestamp (counter) for LRU.
+- No allocation, no pointer chasing; wins on cache misses for the entire cache.
+- Loses to the linked list when capacity varies or eviction must be exact.
+
+## Complexity
+
+- Time: O(1) per get and update.
+- Space: O(capacity).
+
+## Usage
 
 - Browser and CDN caches, database buffer pools, Redis (`allkeys-lru`), OS page-replacement approximations.
 - Bounding memory of memoization: cache the last k results, evict the rest.
@@ -81,7 +92,7 @@ void update(LRU& c, const string& k, int v) {
 
 ## Cousins & contrasts
 
-- **FIFO cache**: evicts the oldest *insertion*, never reorders on get — simpler (a queue suffices) but punishes popular old keys.
+- **FIFO cache**: evicts the oldest *insertion*, never reorders on get -- simpler (a queue suffices) but punishes popular old keys.
 - **LFU cache**: evicts least *frequently* used; needs per-key counters plus min-tracking, noticeably more machinery.
 - **Second chance / clock**: FIFO + a reference bit, the OS-friendly approximation of LRU with no list surgery.
-- **Direct-mapped CPU cache**: eviction by hash collision, not recency — the hardware cousin with O(1) everything and no policy at all.
+- **Direct-mapped CPU cache**: eviction by hash collision, not recency -- the hardware cousin with O(1) everything and no policy at all.
