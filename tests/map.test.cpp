@@ -2,7 +2,7 @@
 #include <optional>
 
 int main() { TEST("basic");
-    HashMap _inst0;
+    Map _inst0;
     _inst0.set("foo", 55);
     // unknown op: size
     _inst0.set("fool", 75);

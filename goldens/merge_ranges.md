@@ -14,14 +14,14 @@ Merge all overlapping `[start, end]` intervals into a minimal set of disjoint in
 ```cpp
 using namespace std;
 
-vector<vector<int>> merge_ranges(vector<vector<int>>& intervals) {
-    sort(intervals.begin(), intervals.end());          // by start, then end
-    vector<vector<int>> out;
-    for (auto& iv : intervals) {
-        if (!out.empty() && iv[0] <= out.back()[1])
-            out.back()[1] = max(out.back()[1], iv[1]); // extend current run
+vector<pair<int,int>> merge_ranges(vector<pair<int,int>> a) {
+    sort(a.begin(), a.end());                          // by start, then end
+    vector<pair<int,int>> out;
+    for (auto& iv : a) {
+        if (!out.empty() && iv.first <= out.back().second)
+            out.back().second = max(out.back().second, iv.second);
         else
-            out.push_back(iv);                         // open a new interval
+            out.push_back(iv);
     }
     return out;
 }

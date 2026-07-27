@@ -3,6 +3,7 @@
 using namespace std;
 
 struct ArrayList {
+    int cap;
     void append(int x);
     void prepend(int x);
     void insertAt(int i, int x);

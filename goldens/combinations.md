@@ -23,13 +23,13 @@ static void backtrack(int n, int k, int start,
     }
     for (int i = start; i <= n; ++i) {
         if ((int)curr.size() + (n - i + 1) < k) break;  // prune
-        curr.push_back(i);                     // choose
-        backtrack(n, k, i + 1, curr, out);     // explore
-        curr.pop_back();                       // unchoose
+        curr.push_back(i);                         // choose
+        backtrack(n, k, i + 1, curr, out);         // explore
+        curr.pop_back();                           // unchoose
     }
 }
 
-vector<vector<int>> combinations(int n, int k) {
+vector<vector<int>> combine(int n, int k) {
     vector<vector<int>> out;
     vector<int> curr;
     backtrack(n, k, 1, curr, out);

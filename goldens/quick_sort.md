@@ -30,7 +30,7 @@ void qs(vector<int>& a, int lo, int hi) {
     qs(a, p + 1, hi);
 }
 
-void sort(vector<int>& a) { qs(a, 0, (int)a.size() - 1); }
+void quick_sort(vector<int>& a) { qs(a, 0, (int)a.size() - 1); }
 ```
 
 - `store` advances only on ≤ pivot: everything left of it is certified small, everything in `[store, i)` certified large.

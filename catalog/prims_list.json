@@ -7,7 +7,7 @@
   "cpp": {
     "fn": "optional<vector<vector<Edge>>> prims(const vector<vector<Edge>>& g)",
     "structs": [
-      "struct Edge { int to; int64_t weight; };"
+      "struct Edge { int to; int weight; };"
     ],
     "hint": "// return MST adjacency or nullopt"
   }

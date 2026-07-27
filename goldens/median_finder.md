@@ -15,8 +15,8 @@ Running median of a stream: insert values one at a time, report the median in O(
 ```cpp
 using namespace std;
 
-priority_queue<int> lo;                                // max-heap: lower half
-priority_queue<int, vector<int>, greater<>> hi;        // min-heap: upper half
+priority_queue<int> lo;                            // max-heap: lower half
+priority_queue<int, vector<int>, greater<>> hi;// min-heap: upper half
 
 void insert(int x) {
     if (lo.empty() || x <= lo.top()) lo.push(x);

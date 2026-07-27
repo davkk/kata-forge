@@ -14,14 +14,14 @@ A sorted array of **distinct** values, rotated by an unknown offset: find the mi
 ```cpp
 using namespace std;
 
-int find_min_rotated(const vector<int>& nums) {
-    int lo = 0, hi = (int)nums.size() - 1;
+int find_min_rotated(const vector<int>& a) {
+    int lo = 0, hi = (int)a.size() - 1;
     while (lo < hi) {
         int mid = lo + (hi - lo) / 2;
-        if (nums[mid] > nums[hi]) lo = mid + 1;
-        else                      hi = mid;
+        if (a[mid] > a[hi]) lo = mid + 1;
+        else                hi = mid;
     }
-    return nums[lo];
+    return a[lo];
 }
 ```
 

@@ -7,6 +7,7 @@
   "id": "array_list",
   "cpp": {
     "class": "ArrayList",
+    "init": "int cap",
     "methods": [
       "void append(int x)",
       "void prepend(int x)",

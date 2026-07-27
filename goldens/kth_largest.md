@@ -14,9 +14,9 @@ Return the k-th largest element of an unsorted array (1-based k). Two canonical 
 ```cpp
 using namespace std;
 
-int kth_largest(vector<int>& nums, int k) {
+int kth_largest(const vector<int>& a, int k) {
     priority_queue<int, vector<int>, greater<>> heap;  // min-heap
-    for (int x : nums) {
+    for (int x : a) {
         heap.push(x);
         if ((int)heap.size() > k) heap.pop();          // evict smallest
     }

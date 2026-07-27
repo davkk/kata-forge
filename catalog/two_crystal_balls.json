@@ -5,7 +5,7 @@
   "interface": "two_crystal_balls(breaks: int[] /*0/1*/) -> int\n",
   "id": "two_crystal_balls",
   "cpp": {
-    "fn": "int64_t two_crystal_balls(const vector<int>& a)",
+    "fn": "int two_crystal_balls(const vector<int>& a)",
     "hint": "// return scalar from list"
   }
 }

@@ -2,7 +2,7 @@
 
 int main() {
     { TEST("three");
-        vector<int64_t> _arr = {1, 2, 3};
+        vector<int> _arr = {1, 2, 3};
         auto _r = subsets(_arr);
         auto _exp_r = {{}, {1}, {2}, {3}, {1, 2}, {1, 3}, {2, 3}, {1, 2, 3}};
         sort(_exp_r.begin(), _exp_r.end());
@@ -11,7 +11,7 @@ int main() {
     }
 
     { TEST("empty");
-        vector<int64_t> _arr = {};
+        vector<int> _arr = {};
         auto _r = subsets(_arr);
         auto _exp_r = {{}};
         sort(_exp_r.begin(), _exp_r.end());
@@ -20,7 +20,7 @@ int main() {
     }
 
     { TEST("one");
-        vector<int64_t> _arr = {1};
+        vector<int> _arr = {1};
         auto _r = subsets(_arr);
         auto _exp_r = {{}, {1}};
         sort(_exp_r.begin(), _exp_r.end());

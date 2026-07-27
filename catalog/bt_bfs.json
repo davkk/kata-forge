@@ -5,7 +5,7 @@
   "interface": "bfs(root, needle) -> bool\n",
   "id": "bt_bfs",
   "cpp": {
-    "fn": "bool bfs(Node* root, int64_t needle)",
+    "fn": "bool bfs(Node* root, int needle)",
     "structs": [
       "struct Node { int val; Node* left; Node* right; };"
     ],

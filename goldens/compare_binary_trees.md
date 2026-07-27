@@ -13,12 +13,12 @@ Structural and value equality: both trees have the same shape and same values at
 ```cpp
 using namespace std;
 
-struct Node { int value; Node* left; Node* right; };
+struct Node { int val; Node* left; Node* right; };
 
 bool compare(Node* a, Node* b) {
     if (!a && !b) return true;
     if (!a || !b) return false;
-    if (a->value != b->value) return false;
+    if (a->val != b->val) return false;
     return compare(a->left, b->left) && compare(a->right, b->right);
 }
 ```

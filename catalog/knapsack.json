@@ -5,7 +5,7 @@
   "interface": "knapsack(capacity, weights, values) -> int\n",
   "id": "knapsack",
   "cpp": {
-    "fn": "int64_t knapsack(int64_t capacity, const vector<int>& weights, const vector<int>& values)",
+    "fn": "int knapsack(int capacity, const vector<int>& weights, const vector<int>& values)",
     "hint": "// return max value"
   }
 }

@@ -15,9 +15,9 @@ Single-source shortest paths on a weighted graph with **non-negative** edge weig
 ```cpp
 using namespace std;
 
-struct Edge { int to, weight; };
+struct Edge { int to; int weight; };
 
-vector<int> dijkstra(int source, int sink, const vector<vector<Edge>>& g) {
+optional<vector<int>> dijkstra(const vector<vector<Edge>>& g, int source, int sink) {
     int n = (int)g.size();
     vector<int>  dist(n, INT_MAX), prev(n, -1);
     vector<bool> seen(n, false);
@@ -37,10 +37,12 @@ vector<int> dijkstra(int source, int sink, const vector<vector<Edge>>& g) {
             }
     }
 
+    if (prev[sink] == -1 && source != sink) return nullopt;
+
     vector<int> path;                                // rebuild sink→source
     for (int at = sink; at != -1; at = prev[at]) path.push_back(at);
     reverse(path.begin(), path.end());
-    return path;                                     // [source..sink] or garbage if unreachable — check dist
+    return path;
 }
 ```
 

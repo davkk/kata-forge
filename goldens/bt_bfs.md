@@ -14,7 +14,7 @@ Breadth-first traversal visits the tree **level by level, left to right**, using
 ```cpp
 using namespace std;
 
-struct Node { int value; Node* left; Node* right; };
+struct Node { int val; Node* left; Node* right; };
 
 bool bfs(Node* root, int needle) {
     if (!root) return false;
@@ -24,7 +24,7 @@ bool bfs(Node* root, int needle) {
         int level_size = (int)q.size();          // nodes on this level
         for (int i = 0; i < level_size; ++i) {
             Node* curr = q.front(); q.pop();
-            if (curr->value == needle) return true;
+            if (curr->val == needle) return true;
             if (curr->left)  q.push(curr->left);
             if (curr->right) q.push(curr->right);
         }

@@ -14,34 +14,34 @@ A binary tree with the ordering invariant: for every node, **every** value in it
 ```cpp
 using namespace std;
 
-struct Node { int value; Node* left; Node* right; };
+struct Node { int val; Node* left; Node* right; };
 
 Node* find(Node* root, int v) {
     while (root) {
-        if (v == root->value) return root;
-        root = v < root->value ? root->left : root->right;
+        if (v == root->val) return root;
+        root = v < root->val ? root->left : root->right;
     }
     return nullptr;
 }
 
 Node* insert(Node* root, int v) {               // returns subtree root
     if (!root) return new Node{v, nullptr, nullptr};
-    if (v < root->value) root->left  = insert(root->left, v);
-    else                 root->right = insert(root->right, v);
+    if (v < root->val) root->left  = insert(root->left, v);
+    else               root->right = insert(root->right, v);
     return root;
 }
 
 Node* erase(Node* root, int v) {                // returns subtree root
     if (!root) return nullptr;
-    if      (v < root->value) root->left  = erase(root->left, v);
-    else if (v > root->value) root->right = erase(root->right, v);
+    if      (v < root->val) root->left  = erase(root->left, v);
+    else if (v > root->val) root->right = erase(root->right, v);
     else {
         if (!root->left)  { Node* r = root->right; delete root; return r; }
         if (!root->right) { Node* l = root->left;  delete root; return l; }
         Node* succ = root->right;               // in-order successor:
         while (succ->left) succ = succ->left;   // min of right subtree
-        root->value = succ->value;
-        root->right = erase(root->right, succ->value);
+        root->val = succ->val;
+        root->right = erase(root->right, succ->val);
     }
     return root;
 }

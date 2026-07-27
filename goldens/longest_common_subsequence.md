@@ -15,7 +15,7 @@ Length of the longest subsequence common to two strings — same order, **not ne
 ```cpp
 using namespace std;
 
-int lcs(const string& a, const string& b) {
+int longest_common_subsequence(const string& a, const string& b) {
     int m = (int)a.size(), n = (int)b.size();
     vector<vector<int>> dp(m + 1, vector<int>(n + 1, 0));
     for (int i = 1; i <= m; ++i)

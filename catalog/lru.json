@@ -6,9 +6,10 @@
   "id": "lru",
   "cpp": {
     "class": "LRU",
+    "init": "int cap",
     "methods": [
-      "void update(const string& k, int64_t v)",
-      "optional<int64_t> get(const string& k)",
+      "void update(const string& k, int v)",
+      "optional<int> get(const string& k)",
       "int size()"
     ]
   }

@@ -15,17 +15,17 @@ Maximum of every contiguous window of size k, in O(n) total — a **monotonic de
 ```cpp
 using namespace std;
 
-vector<int> sliding_window_max(const vector<int>& nums, int k) {
+vector<int> max_sliding_window(const vector<int>& a, int k) {
     vector<int> out;
     deque<int> dq;                              // indices, values decreasing
-    for (int i = 0; i < (int)nums.size(); ++i) {
-        while (!dq.empty() && nums[dq.back()] < nums[i])
-            dq.pop_back();                      // beaten forever by nums[i]
+    for (int i = 0; i < (int)a.size(); ++i) {
+        while (!dq.empty() && a[dq.back()] < a[i])
+            dq.pop_back();                      // beaten forever by a[i]
         dq.push_back(i);
         if (dq.front() <= i - k)                // expired: outside window
             dq.pop_front();
         if (i >= k - 1)                         // window full → emit max
-            out.push_back(nums[dq.front()]);
+            out.push_back(a[dq.front()]);
     }
     return out;
 }

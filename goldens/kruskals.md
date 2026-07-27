@@ -14,7 +14,7 @@ Finds an MST by sorting all edges by weight and adding them one by one if they c
 ```cpp
 using namespace std;
 
-struct Edge { int to, weight; };
+struct Edge { int to; int weight; };
 
 struct UF {
     vector<int> p;
@@ -29,9 +29,9 @@ struct UF {
     }
 };
 
-vector<vector<Edge>> kruskals(const vector<vector<Edge>>& g) {
+optional<vector<vector<Edge>>> kruskals(const vector<vector<Edge>>& g) {
     int n = (int)g.size();
-    vector<tuple<int,int,int>> es;          // (weight, u, v)
+    vector<tuple<int,int,int>> es;      // (weight, u, v)
     for (int u = 0; u < n; ++u)
         for (auto& e : g[u])
             if (u < e.to)
@@ -44,12 +44,12 @@ vector<vector<Edge>> kruskals(const vector<vector<Edge>>& g) {
     int added = 0;
     for (auto& [w, u, v] : es) {
         if (!uf.unite(u, v)) continue;
-        mst[u].push_back({v, w});
-        mst[v].push_back({u, w});
+        mst[u].push_back({v, (int)w});
+        mst[v].push_back({u, (int)w});
         if (++added == n - 1) break;        // tree complete
     }
 
-    if (added != n - 1) return {};          // disconnected
+    if (added != n - 1) return nullopt;     // disconnected
     return mst;
 }
 ```

@@ -15,10 +15,10 @@ Largest sum of any **contiguous** subarray, in one O(n) pass with O(1) space.
 ```cpp
 using namespace std;
 
-int max_subarray(const vector<int>& nums) {
-    int best = nums[0], cur = nums[0];        // seed with a[0], NOT 0
-    for (int i = 1; i < (int)nums.size(); ++i) {
-        cur  = max(nums[i], cur + nums[i]);   // extend or restart
+int kadane(const vector<int>& a) {
+    int best = a[0], cur = a[0];          // seed with a[0], NOT 0
+    for (int i = 1; i < (int)a.size(); ++i) {
+        cur  = max(a[i], cur + a[i]);         // extend or restart
         best = max(best, cur);
     }
     return best;

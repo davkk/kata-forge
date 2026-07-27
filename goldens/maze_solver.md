@@ -18,11 +18,11 @@ struct Point { int x, y; };
 
 static const int DIRS[4][2] = {{-1,0}, {0,1}, {1,0}, {0,-1}};  // up right down left
 
-static bool walk(const vector<string>& maze, char wall, Point cur, Point end,
+static bool walk(const vector<string>& maze, const string& wall, Point cur, Point end,
                  vector<vector<bool>>& seen, vector<Point>& path) {
     int y = cur.y, x = cur.x;
     if (y < 0 || y >= (int)maze.size() || x < 0 || x >= (int)maze[y].size()) return false;
-    if (maze[y][x] == wall || seen[y][x]) return false;
+    if (wall.find(maze[y][x]) != string::npos || seen[y][x]) return false;
 
     seen[y][x] = true;
     path.push_back(cur);
@@ -37,7 +37,7 @@ static bool walk(const vector<string>& maze, char wall, Point cur, Point end,
     return false;
 }
 
-vector<Point> solve_maze(const vector<string>& maze, char wall, Point start, Point end) {
+vector<Point> solve_maze(const vector<string>& maze, const string& wall, Point start, Point end) {
     vector<vector<bool>> seen(maze.size(), vector<bool>(maze[0].size(), false));
     vector<Point> path;
     walk(maze, wall, start, end, seen, path);

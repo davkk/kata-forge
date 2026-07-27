@@ -5,7 +5,7 @@
   "interface": "max_subarray(nums: int[]) -> int\n",
   "id": "kadanes_algorithm",
   "cpp": {
-    "fn": "int64_t kadane(const vector<int>& a)",
+    "fn": "int kadane(const vector<int>& a)",
     "hint": "// return scalar from list"
   }
 }

@@ -15,10 +15,10 @@ Shortest path (by number of edges) on an unweighted graph. **Mark visited at enq
 ```cpp
 using namespace std;
 
-struct Edge { int to, weight; };
+struct Edge { int to; int weight; };
 
-vector<int> bfs(const vector<vector<Edge>>& graph, int source, int sink) {
-    int n = (int)graph.size();
+optional<vector<int>> bfs(const vector<vector<Edge>>& g, int source, int sink) {
+    int n = (int)g.size();
     vector<bool> seen(n, false);
     vector<int> prev(n, -1);
     queue<int> q;
@@ -28,7 +28,7 @@ vector<int> bfs(const vector<vector<Edge>>& graph, int source, int sink) {
     while (!q.empty()) {
         int u = q.front(); q.pop();
         if (u == sink) break;
-        for (auto& e : graph[u]) {
+        for (auto& e : g[u]) {
             if (seen[e.to]) continue;
             seen[e.to] = true;
             prev[e.to] = u;
@@ -36,7 +36,7 @@ vector<int> bfs(const vector<vector<Edge>>& graph, int source, int sink) {
         }
     }
 
-    if (prev[sink] == -1 && source != sink) return {};
+    if (prev[sink] == -1 && source != sink) return nullopt;
 
     vector<int> path;
     for (int at = sink; at != -1; at = prev[at])

@@ -32,7 +32,7 @@ void msort(vector<int>& a, vector<int>& buf, int lo, int hi) {  // [lo, hi)
     merge_halves(a, buf, lo, mid, hi);
 }
 
-void sort(vector<int>& a) {
+void merge_sort(vector<int>& a) {
     vector<int> buf(a.size());
     msort(a, buf, 0, (int)a.size());
 }
@@ -48,7 +48,7 @@ void sort(vector<int>& a) {
 - Natural merge sort (timsort's core) first scans for existing ascending runs — adaptive to pre-sorted data.
 
 ```cpp
-void sort(vector<int>& a) {
+void merge_sort(vector<int>& a) {
     vector<int> buf(a.size());
     int n = (int)a.size();
     for (int w = 1; w < n; w *= 2)

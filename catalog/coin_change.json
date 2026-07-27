@@ -5,7 +5,7 @@
   "interface": "coin_change(amount: int, coins: int[]) -> int\n",
   "id": "coin_change",
   "cpp": {
-    "fn": "int64_t coin_change(int64_t amount, const vector<int>& coins)",
+    "fn": "int coin_change(int amount, const vector<int>& coins)",
     "hint": "// return min coins (or -1)"
   }
 }

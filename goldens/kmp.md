@@ -25,7 +25,7 @@ static vector<int> build_lps(const string& pat) {
     return lps;
 }
 
-int kmp_search(const string& text, const string& pattern) {
+int kmp(const string& text, const string& pattern) {
     if (pattern.empty()) return 0;
     vector<int> lps = build_lps(pattern);
     int j = 0;

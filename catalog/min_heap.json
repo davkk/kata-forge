@@ -8,8 +8,8 @@
   "cpp": {
     "class": "MinHeap",
     "methods": [
-      "void push(int64_t x)",
-      "optional<int64_t> pop()",
+      "void push(int x)",
+      "optional<int> pop()",
       "int size()"
     ]
   }

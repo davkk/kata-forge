@@ -5,7 +5,7 @@
   "interface": "subsets(nums) -> int[][]\n",
   "id": "subsets",
   "cpp": {
-    "fn": "vector<vector<int64_t>> subsets(const vector<int64_t>& a)",
+    "fn": "vector<vector<int>> subsets(const vector<int>& a)",
     "hint": "// return list of lists (order-insensitive)"
   }
 }

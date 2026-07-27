@@ -3,4 +3,8 @@
 using namespace std;
 
 struct SegmentTree {
+    vector<int> a;
+    void update(int idx, int val);
+    int query(int left, int right);
+    int size();
 };

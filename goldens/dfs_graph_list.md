@@ -14,28 +14,28 @@ Depth-first search — explores as far as possible along each branch before back
 ```cpp
 using namespace std;
 
-struct Edge { int to, weight; };
+struct Edge { int to; int weight; };
 
-bool walk(const vector<vector<Edge>>& graph, int u, int sink,
+bool walk(const vector<vector<Edge>>& g, int u, int sink,
           vector<bool>& seen, vector<int>& prev) {
     if (u == sink) return true;
     seen[u] = true;
-    for (auto& e : graph[u]) {
+    for (auto& e : g[u]) {
         if (seen[e.to]) continue;
         prev[e.to] = u;
-        if (walk(graph, e.to, sink, seen, prev))
+        if (walk(g, e.to, sink, seen, prev))
             return true;
     }
     return false;
 }
 
-vector<int> dfs(const vector<vector<Edge>>& graph, int source, int sink) {
-    int n = (int)graph.size();
+optional<vector<int>> dfs(const vector<vector<Edge>>& g, int source, int sink) {
+    int n = (int)g.size();
     vector<bool> seen(n, false);
     vector<int> prev(n, -1);
 
-    if (!walk(graph, source, sink, seen, prev))
-        return {};
+    if (!walk(g, source, sink, seen, prev))
+        return nullopt;
 
     vector<int> path;
     for (int at = sink; at != -1; at = prev[at])
@@ -61,7 +61,7 @@ seen[source] = true;
 while (!st.empty()) {
     int u = st.top(); st.pop();
     if (u == sink) { /* found */ break; }
-    for (auto& e : graph[u])
+    for (auto& e : g[u])
         if (!seen[e.to]) { seen[e.to] = true; prev[e.to] = u; st.push(e.to); }
 }
 ```

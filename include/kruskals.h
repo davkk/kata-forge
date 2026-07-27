@@ -2,6 +2,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-struct Edge { int to; int64_t weight; };
+struct Edge { int to; int weight; };
 
-optional<vector<vector<Edge>>> prim(const vector<vector<Edge>>& g);
+optional<vector<vector<Edge>>> kruskals(const vector<vector<Edge>>& g);

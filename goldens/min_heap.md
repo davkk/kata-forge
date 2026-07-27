@@ -41,7 +41,7 @@ void insert(vector<int>& h, int x) {
     siftUp(h, (int)h.size() - 1);
 }
 
-int deleteMin(vector<int>& h) {          // call only when !h.empty()
+int deleteMin(vector<int>& h) {     // call only when !h.empty()
     int out = h[0];
     h[0] = h.back();
     h.pop_back();
