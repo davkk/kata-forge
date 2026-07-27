@@ -101,7 +101,7 @@ def test_session(session: Path, filter_kid: str | None = None) -> int:
 
         bin_path = TMP_BIN / kid
         bin_path.parent.mkdir(parents=True, exist_ok=True)
-        ntests = test_src.read_text().count("CHECK(")
+        ntests = test_src.read_text().count("TEST(")
 
         ok, err = compile_with_include(test_src, src, bin_path)
         if not ok:

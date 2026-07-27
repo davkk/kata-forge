@@ -15,9 +15,9 @@ int main() {
             {{6, 1}}, {{1, 1}, {5, 2}}, {{4, 2}, {6, 1}},
             {{5, 1}, {3, 1}}
         };
-        CHECK(_m.size() == _exp.size());
+        EQL(_exp.size(), _m.size());
         for (int i = 0; i < (int)_m.size(); ++i) {
-            CHECK(_m[i].size() == _exp[i].size());
+            EQL(_exp[i].size(), _m[i].size());
             for (int j = 0; j < (int)_m[i].size(); ++j)
                 CHECK(eq_edge(_m[i][j], _exp[i][j]));
         }

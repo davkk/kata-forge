@@ -6,7 +6,7 @@
   "id": "ring_buffer",
   "cpp": {
     "class": "RingBuffer",
-    "init": "int cap",
+    "members": ["int cap"],
     "methods": [
       "void push(int x)",
       "optional<int> pop()",

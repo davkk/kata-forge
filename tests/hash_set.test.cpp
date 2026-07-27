@@ -3,25 +3,25 @@
 
 int main() { TEST("add_dedup_remove_size");
     HashSet _inst0;
-    CHECK(_inst0.length() == 0);
-    CHECK(_inst0.contains(1) == false);
+    EQL(0, _inst0.length());
+    CHECK(!_inst0.contains(1));
     _inst0.add(1);
     _inst0.add(2);
-    CHECK(_inst0.contains(1) == true);
-    CHECK(_inst0.contains(3) == false);
-    CHECK(_inst0.length() == 2);
+    CHECK(_inst0.contains(1));
+    CHECK(!_inst0.contains(3));
+    EQL(2, _inst0.length());
     _inst0.add(2);
-    CHECK(_inst0.length() == 2);
+    EQL(2, _inst0.length());
     _inst0.remove(2);
-    CHECK(_inst0.contains(2) == false);
-    CHECK(_inst0.length() == 1);
+    CHECK(!_inst0.contains(2));
+    EQL(1, _inst0.length());
     _inst0.remove(1);
-    CHECK(_inst0.contains(1) == false);
-    CHECK(_inst0.length() == 0);
+    CHECK(!_inst0.contains(1));
+    EQL(0, _inst0.length());
     _inst0.add(100);
     _inst0.add(200);
     _inst0.add(300);
-    CHECK(_inst0.length() == 3);
+    EQL(3, _inst0.length());
 
     return 0;
 }

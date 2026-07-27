@@ -3,7 +3,7 @@
 using namespace std;
 
 struct FenwickTree {
-    int n;
+    FenwickTree(int n);
     void add(int idx, int delta);
     int sum(int idx);
     int length();

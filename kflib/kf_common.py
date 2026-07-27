@@ -128,10 +128,13 @@ def render_stub(kata: dict) -> str:
         parts.append(f"struct {cls} {{")
         for m in cpp.get("members", []):
             parts.append(f"    {m};")
-        init_member = cpp.get("init", "")
-        if init_member:
-            parts.append(f"    {init_member};")
-        if cpp.get("members") or init_member:
+        ctor_param = cpp.get("ctor", "")
+        if cpp.get("members") or ctor_param:
+            parts.append("")
+        if ctor_param:
+            parts.append(f"    {cls}({ctor_param}) {{")
+            parts.append("        // TODO")
+            parts.append("    }")
             parts.append("")
         for m in cpp.get("methods", []):
             ret, name, params = _split_fn(m)

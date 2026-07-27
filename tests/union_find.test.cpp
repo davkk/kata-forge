@@ -2,8 +2,8 @@
 #include <optional>
 
 int main() { TEST("unite_and_query_connectivity");
-    auto _inst0 = UnionFind{{10}};
-    CHECK(_inst0.size() == 10);
+    auto _inst0 = UnionFind{10};
+    EQL(10, _inst0.size());
     CHECK(!_inst0.connected(0, 1));
     _inst0.unite(0, 1);
     CHECK(_inst0.connected(0, 1));
@@ -17,7 +17,8 @@ int main() { TEST("unite_and_query_connectivity");
     CHECK(!_inst0.connected(3, 5));
 
     // find_same_component
-    {   auto _inst1 = UnionFind{{10}};
+    { TEST("multi_step_transitive_connectivity");
+        auto _inst1 = UnionFind{10};
         _inst1.unite(1, 2);
         _inst1.unite(3, 4);
         _inst1.unite(5, 6);

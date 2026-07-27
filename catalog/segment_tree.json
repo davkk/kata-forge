@@ -6,7 +6,7 @@
   "id": "segment_tree",
   "cpp": {
     "class": "SegmentTree",
-    "init": "vector<int> a",
+    "ctor": "vector<int> a",
     "methods": [
       "void update(int idx, int val)",
       "int query(int left, int right)",

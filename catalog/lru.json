@@ -6,7 +6,7 @@
   "id": "lru",
   "cpp": {
     "class": "LRU",
-    "init": "int cap",
+    "members": ["int cap"],
     "methods": [
       "void update(const string& k, int v)",
       "optional<int> get(const string& k)",

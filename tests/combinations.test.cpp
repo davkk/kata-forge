@@ -8,7 +8,7 @@ int main() {
         vector<vector<int>> _exp_r = {{1, 2}, {1, 3}, {1, 4}, {2, 3}, {2, 4}, {3, 4}};
         sort(_exp_r.begin(), _exp_r.end());
         sort(_r.begin(), _r.end());
-        CHECK(_r == _exp_r);
+        EQL(_exp_r, _r);
     }
 
     { TEST("full_selection");
@@ -18,7 +18,7 @@ int main() {
         vector<vector<int>> _exp_r = {{1, 2, 3, 4}};
         sort(_exp_r.begin(), _exp_r.end());
         sort(_r.begin(), _r.end());
-        CHECK(_r == _exp_r);
+        EQL(_exp_r, _r);
     }
 
     { TEST("empty_selection");
@@ -28,7 +28,7 @@ int main() {
         vector<vector<int>> _exp_r = {{}};
         sort(_exp_r.begin(), _exp_r.end());
         sort(_r.begin(), _r.end());
-        CHECK(_r == _exp_r);
+        EQL(_exp_r, _r);
     }
 
     return 0;

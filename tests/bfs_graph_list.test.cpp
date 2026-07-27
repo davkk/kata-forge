@@ -6,7 +6,7 @@ int main() {
         int _src = 0;
         int _sink = 6;
         auto _r = bfs(_g, _src, _sink);
-        { auto _exp = vector<int>{0, 1, 4, 5, 6}; CHECK(_r.has_value() && *_r == _exp); }
+        VAL(_r, (vector<int>{0, 1, 4, 5, 6}));
     }
 
     { TEST("unreachable_sink_returns_empty");

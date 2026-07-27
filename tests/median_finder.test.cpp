@@ -4,20 +4,20 @@
 int main() { TEST("streaming_medians");
     MedianFinder _inst0;
     _inst0.insert(5);
-    CHECK(_inst0.getMedian() == 5.0);
-    CHECK(_inst0.length() == 1);
+    EQL(5.0, _inst0.getMedian());
+    EQL(1, _inst0.length());
     _inst0.insert(10);
-    CHECK(_inst0.getMedian() == 7.5);
-    CHECK(_inst0.length() == 2);
+    EQL(7.5, _inst0.getMedian());
+    EQL(2, _inst0.length());
     _inst0.insert(3);
-    CHECK(_inst0.getMedian() == 5.0);
-    CHECK(_inst0.length() == 3);
+    EQL(5.0, _inst0.getMedian());
+    EQL(3, _inst0.length());
     _inst0.insert(8);
-    CHECK(_inst0.getMedian() == 6.5);
-    CHECK(_inst0.length() == 4);
+    EQL(6.5, _inst0.getMedian());
+    EQL(4, _inst0.length());
     _inst0.insert(1);
-    CHECK(_inst0.getMedian() == 5.0);
-    CHECK(_inst0.length() == 5);
+    EQL(5.0, _inst0.getMedian());
+    EQL(5, _inst0.length());
 
     return 0;
 }

@@ -6,7 +6,7 @@
   "id": "union_find",
   "cpp": {
     "class": "UnionFind",
-    "init": "int n",
+    "ctor": "int n",
     "methods": [
       "int find(int x)",
       "bool unite(int x, int y)",

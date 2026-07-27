@@ -4,31 +4,31 @@ int main() {
     { TEST("overlap_and_disjoint");
         vector<pair<int,int>> _pairs = {{1,3}, {2,6}, {8,10}, {15,18}};
         auto _r = merge_ranges(_pairs);
-        CHECK((_r == vector<pair<int,int>>{{1,6}, {8,10}, {15,18}}));
+        EQL((vector<pair<int,int>>{{1,6}, {8,10}, {15,18}}), _r);
     }
 
     { TEST("adjacent_touch");
         vector<pair<int,int>> _pairs = {{1,4}, {4,5}};
         auto _r = merge_ranges(_pairs);
-        CHECK((_r == vector<pair<int,int>>{{1,5}}));
+        EQL((vector<pair<int,int>>{{1,5}}), _r);
     }
 
     { TEST("disjoint");
         vector<pair<int,int>> _pairs = {{1,2}, {3,4}};
         auto _r = merge_ranges(_pairs);
-        CHECK((_r == vector<pair<int,int>>{{1,2}, {3,4}}));
+        EQL((vector<pair<int,int>>{{1,2}, {3,4}}), _r);
     }
 
     { TEST("empty_input");
         vector<pair<int,int>> _pairs = {};
         auto _r = merge_ranges(_pairs);
-        CHECK((_r == vector<pair<int,int>>{}));
+        EQL((vector<pair<int,int>>{}), _r);
     }
 
     { TEST("fully_contained");
         vector<pair<int,int>> _pairs = {{1,10}, {2,3}, {4,5}};
         auto _r = merge_ranges(_pairs);
-        CHECK((_r == vector<pair<int,int>>{{1,10}}));
+        EQL((vector<pair<int,int>>{{1,10}}), _r);
     }
 
     return 0;
