@@ -6,6 +6,7 @@
   "id": "trie",
   "cpp": {
     "class": "Trie",
+    "members": ["struct Node { Node* child[26]; bool isWord = false; }", "Node* root"],
     "methods": [
       "void insert(const string& word)",
       "void remove(const string& word)",

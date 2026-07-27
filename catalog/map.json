@@ -6,6 +6,7 @@
   "id": "map",
   "cpp": {
     "class": "Map",
+    "members": ["struct KV { string key; int val; }", "vector<vector<KV>> buckets"],
     "methods": [
       "void set(const string& k, int v)",
       "optional<int> get(const string& k)",

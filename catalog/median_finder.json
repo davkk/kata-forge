@@ -6,6 +6,7 @@
   "id": "median_finder",
   "cpp": {
     "class": "MedianFinder",
+    "members": ["priority_queue<int> lo", "priority_queue<int, vector<int>, greater<>> hi"],
     "methods": [
       "void insert(int val)",
       "double getMedian()",

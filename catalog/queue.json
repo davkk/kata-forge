@@ -7,6 +7,7 @@
   "id": "queue",
   "cpp": {
     "class": "Queue",
+    "members": ["struct Node { int val; Node* next; }", "Node *head, *tail"],
     "methods": [
       "void push(int x)",
       "optional<int> pop()",

@@ -6,6 +6,7 @@
   "id": "hash_set",
   "cpp": {
     "class": "HashSet",
+    "members": ["vector<vector<int>> buckets"],
     "methods": [
       "void add(int x)",
       "void remove(int x)",

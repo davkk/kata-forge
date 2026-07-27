@@ -6,6 +6,7 @@
   "id": "binary_search_tree",
   "cpp": {
     "class": "BinarySearchTree",
+    "members": ["struct Node { int val; Node *left, *right; }", "Node* root"],
     "methods": [
       "void insert(int val)",
       "void remove(int val)",

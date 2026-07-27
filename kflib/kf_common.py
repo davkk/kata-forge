@@ -126,9 +126,13 @@ def render_stub(kata: dict) -> str:
     if shape == "commands":
         cls = cpp["class"]
         parts.append(f"struct {cls} {{")
+        for m in cpp.get("members", []):
+            parts.append(f"    {m};")
         init_member = cpp.get("init", "")
         if init_member:
             parts.append(f"    {init_member};")
+        if cpp.get("members") or init_member:
+            parts.append("")
         for m in cpp.get("methods", []):
             ret, name, params = _split_fn(m)
             sig = f"{params}" if params else ""

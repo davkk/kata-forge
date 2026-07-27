@@ -7,6 +7,7 @@
   "id": "min_heap",
   "cpp": {
     "class": "MinHeap",
+    "members": ["vector<int> data"],
     "methods": [
       "void push(int x)",
       "optional<int> pop()",
