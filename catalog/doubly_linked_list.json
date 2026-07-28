@@ -2,7 +2,7 @@
   "title": "Doubly Linked List",
   "shape": "commands",
   "description": "Doubly linked list with head and tail.\n",
-  "interface": "prepend(x) append(x) insertAt(x,i)\nget(i) remove(x) removeAt(i) length()\n",
+  "interface": "prepend(x) append(x) insertAt(x,i)\nget(i) remove(x) removeAt(i) size()\n",
   "example": "append 5,7,9; get(2) \u2192 9",
   "id": "doubly_linked_list",
   "cpp": {

@@ -6,7 +6,7 @@ Tracks a partition of elements into disjoint sets. `find` locates a set's repres
 
 - Each element starts as its own root. `parent[x] < 0` means x is a root; the absolute value is the set size.
 - `find(x)` follows parent pointers to the root. **Path compression**: redirect every visited node directly to the root.
-- `unite(a,b)`: find both roots, attach the smaller tree under the larger one (union by size). Keeps trees shallow.
+- `unite(x, y)`: find both roots, attach the smaller tree under the larger one (union by size). Keeps trees shallow.
 - Without both optimizations, the tree can degrade to a linked list -- O(n) per operation.
 
 ## Approach -- compact implementation
@@ -16,22 +16,23 @@ using namespace std;
 
 struct UnionFind {
     vector<int> p;
+
     UnionFind(int n) : p(n, -1) {}
 
     int find(int x) {
         return p[x] < 0 ? x : (p[x] = find(p[x]));
     }
 
-    bool unite(int a, int b) {          // C++ keyword: use 'unite' instead of 'union'
-        a = find(a), b = find(b);
-        if (a == b) return false;
-        if (p[a] > p[b]) swap(a, b);    // a is the larger set (more negative)
-        p[a] += p[b];
-        p[b] = a;
+    bool unite(int x, int y) {
+        x = find(x), y = find(y);
+        if (x == y) return false;
+        if (p[x] > p[y]) swap(x, y);
+        p[x] += p[y];
+        p[y] = x;
         return true;
     }
 
-    bool connected(int a, int b) { return find(a) == find(b); }
+    bool connected(int x, int y) { return find(x) == find(y); }
     int size() { return (int)p.size(); }
 };
 ```

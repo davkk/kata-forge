@@ -2,7 +2,7 @@
   "title": "Stack",
   "shape": "commands",
   "description": "LIFO stack. push/pop/peek at the top. All ops O(1).\n",
-  "interface": "push(x: int) -> void\npop() -> int | null\npeek() -> int | null\nlength() -> int\n",
+  "interface": "push(x: int) -> void\npop() -> int | null\npeek() -> int | null\nsize() -> int\n",
   "example": "push 5,7,9; pop \u2192 9",
   "id": "stack",
   "cpp": {

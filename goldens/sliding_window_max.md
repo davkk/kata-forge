@@ -15,7 +15,7 @@ Maximum of every contiguous window of size k, in O(n) total -- a **monotonic deq
 ```cpp
 using namespace std;
 
-vector<int> max_sliding_window(const vector<int>& a, int k) {
+vector<int> sliding_window_max(const vector<int>& a, int k) {
     vector<int> out;
     deque<int> dq;
     for (int i = 0; i < (int)a.size(); ++i) {

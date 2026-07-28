@@ -15,20 +15,20 @@ All 2^n subsets of a list of **distinct** integers -- including the empty set. T
 ```cpp
 using namespace std;
 
-static void backtrack(const vector<int>& nums, int start,
+static void backtrack(const vector<int>& a, int start,
                       vector<int>& curr, vector<vector<int>>& out) {
     out.push_back(curr);
-    for (int i = start; i < (int)nums.size(); ++i) {
-        curr.push_back(nums[i]);
-        backtrack(nums, i + 1, curr, out);
+    for (int i = start; i < (int)a.size(); ++i) {
+        curr.push_back(a[i]);
+        backtrack(a, i + 1, curr, out);
         curr.pop_back();
     }
 }
 
-vector<vector<int>> subsets(const vector<int>& nums) {
+vector<vector<int>> subsets(const vector<int>& a) {
     vector<vector<int>> out;
     vector<int> curr;
-    backtrack(nums, 0, curr, out);
+    backtrack(a, 0, curr, out);
     return out;
 }
 ```
@@ -61,13 +61,13 @@ On `nums = [1, 2, 3]`:
 ```cpp
 using namespace std;
 
-vector<vector<int>> subsets(const vector<int>& nums) {
+vector<vector<int>> subsets(const vector<int>& a) {
     vector<vector<int>> out;
-    int n = (int)nums.size();
+    int n = (int)a.size();
     for (int mask = 0; mask < (1 << n); ++mask) {
         vector<int> curr;
         for (int j = 0; j < n; ++j)
-            if (mask & (1 << j)) curr.push_back(nums[j]);
+            if (mask & (1 << j)) curr.push_back(a[j]);
         out.push_back(curr);
     }
     return out;

@@ -2,7 +2,7 @@
   "title": "Binary Search Tree",
   "shape": "commands",
   "description": "BST with insert, erase, find (returns value or empty), length.\n",
-  "interface": "insert(v) erase(v) find(v) -> int|null\nlength()\n",
+  "interface": "insert(v) erase(v) find(v) -> int|null\nlength() -> int\n",
   "id": "binary_search_tree",
   "cpp": {
     "class": "BinarySearchTree",

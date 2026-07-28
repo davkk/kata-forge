@@ -15,8 +15,6 @@ Shortest path (by number of edges) on an unweighted graph. **Mark visited at enq
 ```cpp
 using namespace std;
 
-struct Edge { int to; int weight; };
-
 optional<vector<int>> bfs(const vector<vector<Edge>>& g, int source, int sink) {
     int n = (int)g.size();
     vector<bool> seen(n, false);

@@ -2,7 +2,7 @@
   "title": "LRU Cache",
   "shape": "commands",
   "description": "Least-recently-used cache, capacity via init. get/update by string key, int value.\n",
-  "interface": "update(k,v) get(k)\n",
+  "interface": "update(k,v) get(k) size()\n",
   "id": "lru",
   "cpp": {
     "class": "LRU",

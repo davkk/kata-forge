@@ -15,51 +15,54 @@ A tree where each edge is one character and a path from the root spells a word. 
 ```cpp
 using namespace std;
 
-struct Node {
-    Node* child[26] = {};     // all nullptr
-    bool isWord = false;
-};
+struct Trie {
+    struct Node {
+        Node* child[26] = {};
+        bool isWord = false;
+    };
+    Node* root = new Node();
 
-void insert(Node* root, const string& w) {
-    Node* n = root;
-    for (char c : w) {
-        int i = c - 'a';
-        if (!n->child[i]) n->child[i] = new Node();
-        n = n->child[i];
-    }
-    n->isWord = true;
-}
-
-void remove(Node* root, const string& w) {
-    Node* n = root;
-    for (char c : w) {
-        n = n->child[c - 'a'];
-        if (!n) return;                       // word was never inserted
-    }
-    n->isWord = false;                        // unmark; shared nodes stay
-}
-
-void collect(Node* n, string& prefix, vector<string>& out) {
-    if (n->isWord) out.push_back(prefix);
-    for (int i = 0; i < 26; ++i)
-        if (n->child[i]) {
-            prefix.push_back('a' + i);
-            collect(n->child[i], prefix, out);
-            prefix.pop_back();                // backtrack
+    void insert(const string& word) {
+        Node* n = root;
+        for (char c : word) {
+            int i = c - 'a';
+            if (!n->child[i]) n->child[i] = new Node();
+            n = n->child[i];
         }
-}
-
-vector<string> find(Node* root, const string& prefix) {
-    Node* n = root;
-    for (char c : prefix) {
-        n = n->child[c - 'a'];
-        if (!n) return {};                    // prefix absent -> no matches
+        n->isWord = true;
     }
-    vector<string> out;
-    string p = prefix;
-    collect(n, p, out);                       // DFS gathers everything below
-    return out;
-}
+
+    void remove(const string& word) {
+        Node* n = root;
+        for (char c : word) {
+            n = n->child[c - 'a'];
+            if (!n) return;
+        }
+        n->isWord = false;
+    }
+
+    void collect(Node* n, string& prefix, vector<string>& out) {
+        if (n->isWord) out.push_back(prefix);
+        for (int i = 0; i < 26; ++i)
+            if (n->child[i]) {
+                prefix.push_back('a' + i);
+                collect(n->child[i], prefix, out);
+                prefix.pop_back();
+            }
+    }
+
+    vector<string> find(const string& prefix) {
+        Node* n = root;
+        for (char c : prefix) {
+            n = n->child[c - 'a'];
+            if (!n) return {};
+        }
+        vector<string> out;
+        string p = prefix;
+        collect(n, p, out);
+        return out;
+    }
+};
 ```
 
 - Iterating `child[0..25]` in index order makes `collect` emit words in sorted order for free.

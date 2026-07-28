@@ -2,4 +2,4 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-int kadane(const vector<int>& a);
+int max_subarray(const vector<int>& a);

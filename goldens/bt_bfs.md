@@ -14,8 +14,6 @@ Breadth-first traversal visits the tree **level by level, left to right**, using
 ```cpp
 using namespace std;
 
-struct Node { int val; Node* left; Node* right; };
-
 bool bfs(Node* root, int needle) {
     if (!root) return false;
     queue<Node*> q;

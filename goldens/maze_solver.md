@@ -14,8 +14,6 @@ Find **any** path from start to end in a grid of open/wall cells using DFS with 
 ```cpp
 using namespace std;
 
-struct Point { int x, y; };
-
 static const int DIRS[4][2] = {{-1,0}, {0,1}, {1,0}, {0,-1}};  // up right down left
 
 static bool walk(const vector<string>& maze, const string& wall, Point cur, Point end,

@@ -12,8 +12,6 @@ Detect whether a linked list loops back on itself using **O(1) space** -- two po
 ## Approach -- tortoise and hare
 
 ```cpp
-struct ListNode { int val; ListNode* next; };
-
 bool has_cycle(ListNode* head) {
     ListNode *slow = head, *fast = head;
     while (fast && fast->next) {      // fast needs two hops -- check both

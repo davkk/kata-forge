@@ -2,4 +2,4 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-int kmp(const string& a, const string& b);
+int kmp_search(const string& a, const string& b);

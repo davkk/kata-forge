@@ -2,7 +2,7 @@
   "title": "Min Heap",
   "shape": "commands",
   "description": "Binary min-heap: insert and delete (extract-min). length tracks size.\n",
-  "interface": "insert(x) -> void\ndelete() -> int | null\nlength() -> int\n",
+  "interface": "insert(x) -> void\ndeleteMin() -> int | null\nlength() -> int\n",
   "example": "insert 5,3,1; delete \u2192 1",
   "id": "min_heap",
   "cpp": {

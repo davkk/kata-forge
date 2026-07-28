@@ -5,7 +5,7 @@
   "interface": "sliding_window_max(nums: int[], k: int) -> int[]\n",
   "id": "sliding_window_max",
   "cpp": {
-    "fn": "vector<int> max_sliding_window(const vector<int>& a, int k)",
+    "fn": "vector<int> sliding_window_max(const vector<int>& a, int k)",
     "hint": "// return list from list + k"
   }
 }

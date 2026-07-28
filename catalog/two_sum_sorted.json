@@ -5,7 +5,7 @@
   "interface": "two_sum_sorted(nums: int[], target: int) -> int[2]\n",
   "id": "two_sum_sorted",
   "cpp": {
-    "fn": "vector<int> two_sum(const vector<int>& a, int k)",
+    "fn": "vector<int> two_sum_sorted(const vector<int>& a, int k)",
     "hint": "// return list from list + k"
   }
 }

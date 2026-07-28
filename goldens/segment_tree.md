@@ -14,21 +14,21 @@ Full binary tree over an array: leaves = elements, internal nodes = aggregate (s
 ```cpp
 using namespace std;
 
-struct SegTree {
+struct SegmentTree {
     vector<int> t;
     int n;
 
-    SegTree(const vector<int>& a) : n((int)a.size()) {
+    SegmentTree(vector<int> a) : n((int)a.size()) {
         t.assign(4 * n, 0);
-        build_(a, t, 1, 0, n - 1);
+        build_(a, 1, 0, n - 1);
     }
 
-    int query(int l, int r) { return query_(t, 1, 0, n - 1, l, r); }
-    void update(int i, int val) { update_(t, 1, 0, n - 1, i, val); }
+    int query(int left, int right) { return query_(1, 0, n - 1, left, right); }
+    void update(int idx, int val) { update_(1, 0, n - 1, idx, val); }
     int length() { return n; }
 };
 
-static void build_(const vector<int>& a, vector<int>& t, int v, int lo, int hi) {
+void build_(const vector<int>& a, vector<int>& t, int v, int lo, int hi) {
     if (lo == hi) { t[v] = a[lo]; return; }
     int mid = lo + (hi - lo) / 2;
     build_(a, t, v*2, lo, mid);
@@ -36,14 +36,14 @@ static void build_(const vector<int>& a, vector<int>& t, int v, int lo, int hi) 
     t[v] = t[v*2] + t[v*2+1];
 }
 
-static int query_(const vector<int>& t, int v, int lo, int hi, int ql, int qr) {
+int query_(const vector<int>& t, int v, int lo, int hi, int ql, int qr) {
     if (ql <= lo && hi <= qr) return t[v];
     if (hi < ql || lo > qr) return 0;
     int mid = lo + (hi - lo) / 2;
     return query_(t, v*2, lo, mid, ql, qr) + query_(t, v*2+1, mid+1, hi, ql, qr);
 }
 
-static void update_(vector<int>& t, int v, int lo, int hi, int i, int val) {
+void update_(vector<int>& t, int v, int lo, int hi, int i, int val) {
     if (lo == hi) { t[v] = val; return; }
     int mid = lo + (hi - lo) / 2;
     if (i <= mid) update_(t, v*2, lo, mid, i, val);

@@ -14,8 +14,6 @@ Builds a minimum spanning tree for a connected, undirected, weighted graph. Gree
 ```cpp
 using namespace std;
 
-struct Edge { int to; int weight; };
-
 optional<vector<vector<Edge>>> prims(const vector<vector<Edge>>& g) {
     int n = (int)g.size();
     vector<bool> inMST(n, false);

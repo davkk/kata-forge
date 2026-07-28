@@ -14,42 +14,63 @@ A binary tree with the ordering invariant: for every node, **every** value in it
 ```cpp
 using namespace std;
 
-struct Node { int val; Node* left; Node* right; };
+struct BinarySearchTree {
+    Node* root = nullptr;
 
-Node* find(Node* root, int v) {
-    while (root) {
-        if (v == root->val) return root;
-        root = v < root->val ? root->left : root->right;
+    void insert(int val) {
+        root = insert(root, val);
     }
-    return nullptr;
-}
 
-Node* insert(Node* root, int v) {               // returns subtree root
-    if (!root) return new Node{v, nullptr, nullptr};
-    if (v < root->val) root->left  = insert(root->left, v);
-    else               root->right = insert(root->right, v);
-    return root;
-}
-
-Node* erase(Node* root, int v) {                // returns subtree root
-    if (!root) return nullptr;
-    if      (v < root->val) root->left  = erase(root->left, v);
-    else if (v > root->val) root->right = erase(root->right, v);
-    else {
-        if (!root->left)  { Node* r = root->right; delete root; return r; }
-        if (!root->right) { Node* l = root->left;  delete root; return l; }
-        Node* succ = root->right;               // in-order successor:
-        while (succ->left) succ = succ->left;   // min of right subtree
-        root->val = succ->val;
-        root->right = erase(root->right, succ->val);
+    void erase(int val) {
+        root = erase(root, val);
     }
-    return root;
-}
+
+    optional<int> find(int val) {
+        Node* cur = root;
+        while (cur) {
+            if (val == cur->val) return val;
+            cur = val < cur->val ? cur->left : cur->right;
+        }
+        return nullopt;
+    }
+
+    int length() {
+        return length(root);
+    }
+
+    Node* insert(Node* n, int v) {
+        if (!n) return new Node{v, nullptr, nullptr};
+        if (v < n->val) n->left = insert(n->left, v);
+        else            n->right = insert(n->right, v);
+        return n;
+    }
+
+    Node* erase(Node* n, int v) {
+        if (!n) return nullptr;
+        if      (v < n->val) n->left = erase(n->left, v);
+        else if (v > n->val) n->right = erase(n->right, v);
+        else {
+            if (!n->left)  { Node* r = n->right; delete n; return r; }
+            if (!n->right) { Node* l = n->left;  delete n; return l; }
+            Node* s = n->right;
+            while (s->left) s = s->left;
+            n->val = s->val;
+            n->right = erase(n->right, s->val);
+        }
+        return n;
+    }
+
+    int length(Node* n) {
+        return n ? 1 + length(n->left) + length(n->right) : 0;
+    }
+};
 ```
 
-- `insert`/`erase` return the (possibly new) subtree root and the caller re-links it -- this idiom eliminates all parent-pointer bookkeeping.
+- Public `insert`/`erase` delegate to overloaded helpers that return the new subtree root -- the caller re-links it, eliminating all parent-pointer bookkeeping.
 - Delete has exactly three cases: **leaf or one child** -- splice the child (or null) up; **two children** -- copy the in-order successor's value into the node, then delete the successor, which always has at most one child.
-- Duplicates: this version inserts them to the right; reject `v == root->value` on insert for set semantics. Track `length` as a counter bumped only when a node is actually created or removed.
+- `find` returns `nullopt` on miss instead of a null pointer.
+- `length` does a full traversal each call; for hot-path usage, cache it as a member counter bumped on insert/erase.
+- Duplicates: this version inserts them to the right; reject `v == n->val` on insert for set semantics.
 
 ## Alternative -- self-balancing BSTs (AVL, red-black)
 

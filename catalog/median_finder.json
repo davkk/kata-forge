@@ -2,7 +2,7 @@
   "title": "Median Finder",
   "shape": "commands",
   "description": "Online median: insert values, getMedian (avg of two middles if even).\n",
-  "interface": "insert(x) getMedian() -> float\nlength()\n",
+  "interface": "insert(x) getMedian() -> double\nlength()\n",
   "id": "median_finder",
   "cpp": {
     "class": "MedianFinder",

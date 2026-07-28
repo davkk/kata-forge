@@ -15,25 +15,27 @@ Running median of a stream: insert values one at a time, report the median in O(
 ```cpp
 using namespace std;
 
-priority_queue<int> lo;                            // max-heap: lower half
-priority_queue<int, vector<int>, greater<>> hi;    // min-heap: upper half
+struct MedianFinder {
+    priority_queue<int> lo;
+    priority_queue<int, vector<int>, greater<>> hi;
 
-void insert(int x) {
-    if (lo.empty() || x <= lo.top()) lo.push(x);
-    else                             hi.push(x);
-    if (lo.size() > hi.size() + 1) {                   // rebalance to <=1 apart
-        hi.push(lo.top()); lo.pop();
-    } else if (hi.size() > lo.size()) {
-        lo.push(hi.top()); hi.pop();
+    void insert(int val) {
+        if (lo.empty() || val <= lo.top()) lo.push(val);
+        else                               hi.push(val);
+        if (lo.size() > hi.size() + 1) {
+            hi.push(lo.top()); lo.pop();
+        } else if (hi.size() > lo.size()) {
+            lo.push(hi.top()); hi.pop();
+        }
     }
-}
 
-double getMedian() {
-    if (lo.size() > hi.size()) return lo.top();        // odd count
-    return (lo.top() + hi.top()) / 2.0;                // even count
-}
+    double getMedian() {
+        if (lo.size() > hi.size()) return lo.top();
+        return (lo.top() + hi.top()) / 2.0;
+    }
 
-int length() { return (int)(lo.size() + hi.size()); }
+    int length() { return (int)(lo.size() + hi.size()); }
+};
 ```
 
 ### Walkthrough
@@ -47,7 +49,7 @@ Streaming `[1, 2, 3, 4, 5]` and asking the median after each insert:
 - final state: lo=[1,2,4] (top 4), hi=[3,5] (top 3) -> median = 3.0 (true median of 1..5)
 
 - Rebalancing moves only a root, and the root is by definition the boundary element -- the invariant survives every move.
-- Decide which heap receives `x` by comparing with `lo.top()` *before* inserting; comparing against the wrong side silently breaks the invariant.
+- Decide which heap receives `val` by comparing with `lo.top()` *before* inserting; comparing against the wrong side silently breaks the invariant.
 - `/2.0`, not `/2` -- integer division throws away the .5 on even counts.
 
 ## Complexity

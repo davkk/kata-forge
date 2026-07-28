@@ -2,7 +2,7 @@
   "title": "Ring Buffer",
   "shape": "commands",
   "description": "Fixed-capacity circular buffer. push, pop, get(idx from head).\n",
-  "interface": "push(x) pop() get(i) length()\n",
+  "interface": "push(x) pop() get(i) size()\n",
   "id": "ring_buffer",
   "cpp": {
     "class": "RingBuffer",

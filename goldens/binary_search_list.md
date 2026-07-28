@@ -14,12 +14,12 @@ Find a target in a **sorted** array by halving the search interval every step --
 ```cpp
 using namespace std;
 
-bool search(const vector<int>& a, int target) {
+bool search(const vector<int>& a, int needle) {
     int lo = 0, hi = (int)a.size();        // [lo, hi)
     while (lo < hi) {
         int mid = lo + (hi - lo) / 2;      // same as (lo+hi)/2, no overflow
-        if (a[mid] == target) return true;
-        if (a[mid] < target) lo = mid + 1; // keep right half
+        if (a[mid] == needle) return true;
+        if (a[mid] < needle) lo = mid + 1; // keep right half
         else                 hi = mid;     // keep left half
     }
     return false;

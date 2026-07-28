@@ -13,13 +13,13 @@ Find the 1-indexed pair of indices whose values sum to a target in a **sorted** 
 ```cpp
 using namespace std;
 
-vector<int> two_sum(const vector<int>& a, int target) {
+vector<int> two_sum_sorted(const vector<int>& a, int k) {
     int l = 0, r = (int)a.size() - 1;
     while (l < r) {
         int sum = a[l] + a[r];
-        if (sum == target) return {l + 1, r + 1};
-        if (sum < target) ++l;
-        else              --r;
+        if (sum == k) return {l + 1, r + 1};
+        if (sum < k) ++l;
+        else         --r;
     }
     return {-1, -1};
 }

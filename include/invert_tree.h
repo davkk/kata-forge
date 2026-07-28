@@ -4,4 +4,4 @@ using namespace std;
 
 struct Node { int val; Node* left; Node* right; };
 
-Node* invert(Node* root);
+Node* invert_tree(Node* root);

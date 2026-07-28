@@ -95,7 +95,7 @@ def test_session(session: Path, filter_kid: str | None = None) -> int:
 
         test_src = TESTS_DIR / f"{kid}.test.cpp"
         if not test_src.exists():
-            print("  FAIL missing shared test harness (run ./generate --harnesses)\n")
+            print("  FAIL missing shared test harness\n")
             total_t += 1
             continue
 
@@ -152,11 +152,17 @@ def main():
 
     if args.session:
         sp = Path(args.session)
+        kid = None
         if sp.suffix == ".cpp":
             kid = sp.stem
+        else:
+            latest = latest_session()
+            if latest and (latest / f"{args.session}.cpp").exists():
+                kid = args.session
+        if kid is not None:
             session = latest_session()
             if not session:
-                print("error: no sessions (run ./generate)", file=sys.stderr)
+                print("error: no sessions", file=sys.stderr)
                 sys.exit(1)
             sys.exit(test_session(session, filter_kid=kid))
         if not sp.is_absolute():
@@ -166,7 +172,7 @@ def main():
     else:
         session = latest_session()
         if not session:
-            print("error: no sessions (run ./generate)", file=sys.stderr)
+            print("error: no sessions", file=sys.stderr)
             sys.exit(1)
 
     if not session.is_dir():

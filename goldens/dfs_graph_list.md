@@ -14,8 +14,6 @@ Depth-first search -- explores as far as possible along each branch before backt
 ```cpp
 using namespace std;
 
-struct Edge { int to; int weight; };
-
 bool walk(const vector<vector<Edge>>& g, int u, int sink,
           vector<bool>& seen, vector<int>& prev) {
     if (u == sink) return true;

@@ -14,7 +14,7 @@ Length of the longest subsequence common to two strings -- same relative order, 
 ```cpp
 using namespace std;
 
-int longest_common_subsequence(const string& a, const string& b) {
+int lcs(const string& a, const string& b) {
     int m = (int)a.size(), n = (int)b.size();
     vector<vector<int>> dp(m + 1, vector<int>(n + 1, 0));
     for (int i = 1; i <= m; ++i)
@@ -61,7 +61,7 @@ A short prefix (a="ABC", b="AC"):
 ```cpp
 using namespace std;
 
-int longest_common_subsequence(const string& a, const string& b) {
+int lcs(const string& a, const string& b) {
     int m = (int)a.size(), n = (int)b.size();
     vector<vector<int>> memo(m + 1, vector<int>(n + 1, -1));
     function<int(int,int)> go = [&](int i, int j) -> int {

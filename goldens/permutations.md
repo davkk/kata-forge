@@ -26,10 +26,10 @@ static void backtrack(vector<int>& a, int k, vector<vector<int>>& out) {
     }
 }
 
-vector<vector<int>> permutations(const vector<int>& nums) {
+vector<vector<int>> permutations(const vector<int>& a) {
     vector<vector<int>> out;
-    vector<int> a = nums;
-    backtrack(a, 0, out);
+    vector<int> nums = a;
+    backtrack(nums, 0, out);
     return out;
 }
 ```
@@ -60,27 +60,27 @@ On `nums = [1, 2, 3]` (swap variant, array shown after each swap):
 ```cpp
 using namespace std;
 
-static void go(const vector<int>& nums, vector<bool>& used,
+static void go(const vector<int>& a, vector<bool>& used,
                vector<int>& curr, vector<vector<int>>& out) {
-    if ((int)curr.size() == (int)nums.size()) {
+    if ((int)curr.size() == (int)a.size()) {
         out.push_back(curr);
         return;
     }
-    for (int i = 0; i < (int)nums.size(); ++i) {
+    for (int i = 0; i < (int)a.size(); ++i) {
         if (used[i]) continue;
         used[i] = true;
-        curr.push_back(nums[i]);
-        go(nums, used, curr, out);
+        curr.push_back(a[i]);
+        go(a, used, curr, out);
         curr.pop_back();
         used[i] = false;
     }
 }
 
-vector<vector<int>> permutations(const vector<int>& nums) {
+vector<vector<int>> permutations(const vector<int>& a) {
     vector<vector<int>> out;
     vector<int> curr;
-    vector<bool> used(nums.size(), false);
-    go(nums, used, curr, out);
+    vector<bool> used(a.size(), false);
+    go(a, used, curr, out);
     return out;
 }
 ```

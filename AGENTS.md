@@ -26,7 +26,9 @@ C++ DSA practice forge. Compile-time assertions replace wire formats and I/O pip
 ## Goldens (markdown)
 
 - Teaching tutorials: intuition → main approach + code → alternatives → where it shows up → cousins & contrasts.
-- Code in **C-style C++** with `using namespace std;` — raw pointers for linked structures, plain arrays/vectors, free functions. No templates, no classes with access specifiers.
+- Code in **C-style C++** with `using namespace std;` — raw pointers for linked structures, plain arrays/vectors, **`struct` with members + methods** for command-shape katas (matches the stub generator), free functions for function-shape katas. No templates, no access specifiers (struct members are public by default).
+- Method/function names and parameter names in the golden code MUST match the catalog's `cpp.methods` / `cpp.fn` exactly. The golden is what the user sees alongside their stub.
+- **Do not define auxiliary struct types** (Node, Edge, KV, …) in the golden code. If the catalog has them in `cpp.members` or `cpp.structs`, the user already has them from the stub. Refer to them by name; let the user figure out the fields if not in the catalog.
 - Bullet points only; **no tables**, no numbered step-lists that merely paraphrase code.
 - ~50–100 lines per file (≤120 for range queries; ≥40 for trivial structures). Every line justifies itself.
 - No session or test infrastructure mentioned — pure DSA teaching.

@@ -2,7 +2,7 @@
   "title": "Hash Set",
   "shape": "commands",
   "description": "Set of ints: add, remove, contains. length is distinct count.\n",
-  "interface": "add(k) remove(k) contains(k) -> bool\nlength() -> int\n",
+  "interface": "add(x) remove(x) contains(x) -> bool\nlength() -> int\n",
   "id": "hash_set",
   "cpp": {
     "class": "HashSet",

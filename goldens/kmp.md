@@ -25,14 +25,14 @@ static vector<int> build_lps(const string& pat) {
     return lps;
 }
 
-int kmp(const string& text, const string& pattern) {
-    if (pattern.empty()) return 0;
-    vector<int> lps = build_lps(pattern);
+int kmp_search(const string& a, const string& b) {
+    if (b.empty()) return 0;
+    vector<int> lps = build_lps(b);
     int j = 0;
-    for (int i = 0; i < (int)text.size(); ) {
-        if (text[i] == pattern[j]) {
+    for (int i = 0; i < (int)a.size(); ) {
+        if (a[i] == b[j]) {
             ++i; ++j;
-            if (j == (int)pattern.size()) return i - j;   // full match
+            if (j == (int)b.size()) return i - j;   // full match
         } else if (j > 0) j = lps[j - 1];   // reuse surviving prefix
         else              ++i;               // nothing matched: advance text
     }

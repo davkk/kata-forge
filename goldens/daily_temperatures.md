@@ -15,11 +15,11 @@ For each day, how many days until a warmer temperature -- 0 if none. Solved in O
 ```cpp
 using namespace std;
 
-vector<int> daily_temperatures(const vector<int>& t) {
-    vector<int> out(t.size(), 0);
+vector<int> daily_temperatures(const vector<int>& a) {
+    vector<int> out(a.size(), 0);
     vector<int> st;
-    for (int i = 0; i < (int)t.size(); ++i) {
-        while (!st.empty() && t[st.back()] < t[i]) {
+    for (int i = 0; i < (int)a.size(); ++i) {
+        while (!st.empty() && a[st.back()] < a[i]) {
             int idx = st.back(); st.pop_back();
             out[idx] = i - idx;
         }

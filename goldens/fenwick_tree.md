@@ -14,22 +14,23 @@ Prefix sums with point updates, both in O(log n) -- a flat array impersonating a
 ```cpp
 using namespace std;
 
-struct Fenwick {
+struct FenwickTree {
     vector<int> t;
-    Fenwick(int n) : t(n + 1, 0) {}
 
-    void add(int i, int d) {
-        for (; i < (int)t.size(); i += i & -i) t[i] += d;
+    FenwickTree(int n) : t(n + 1, 0) {}
+
+    void add(int idx, int delta) {
+        for (; idx < (int)t.size(); idx += idx & -idx) t[idx] += delta;
     }
 
-    int sum(int i) {
+    int sum(int idx) {
         int s = 0;
-        for (; i > 0; i -= i & -i) s += t[i];
+        for (; idx > 0; idx -= idx & -idx) s += t[idx];
         return s;
     }
 
     int length() { return (int)t.size() - 1; }
-}
+};
 ```
 
 - Range sum `[l..r]` = `sum(r) - sum(l - 1)` because addition is invertible.

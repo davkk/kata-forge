@@ -48,19 +48,20 @@ Quickselect on the same input (target index = 4, since n - k = 4):
 - Time: O(n log k) heap, O(n) average / O(n^2) worst quickselect, O(n log n) sort.
 - Space: O(k) heap, O(1) quickselect, O(n) sort.
 
-## Approach 2 -- quickselect (average O(n), mutates input)
+## Approach 2 -- quickselect (average O(n), internal copy)
 
 ```cpp
-int kth_largest(vector<int>& nums, int k) {
-    int lo = 0, hi = (int)nums.size() - 1, target = (int)nums.size() - k;
+int kth_largest(const vector<int>& a, int k) {
+    vector<int> tmp = a;
+    int lo = 0, hi = (int)tmp.size() - 1, target = (int)tmp.size() - k;
     while (true) {
         int p = lo + rand() % (hi - lo + 1);           // random pivot -> hi
-        swap(nums[p], nums[hi]);
-        int pivot = nums[hi], i = lo;
+        swap(tmp[p], tmp[hi]);
+        int pivot = tmp[hi], i = lo;
         for (int j = lo; j < hi; ++j)                  // Lomuto partition
-            if (nums[j] <= pivot) swap(nums[i++], nums[j]);
-        swap(nums[i], nums[hi]);                       // pivot at final index i
-        if (i == target) return nums[i];
+            if (tmp[j] <= pivot) swap(tmp[i++], tmp[j]);
+        swap(tmp[i], tmp[hi]);                         // pivot at final index i
+        if (i == target) return tmp[i];
         if (i < target) lo = i + 1;
         else            hi = i - 1;
     }

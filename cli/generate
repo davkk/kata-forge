@@ -28,7 +28,7 @@ def main():
         picks = read_json(active_path(), [])
 
     if not picks:
-        print("error: no katas selected (run ./pick or pass --katas)", file=sys.stderr)
+        print("error: no katas selected", file=sys.stderr)
         sys.exit(1)
 
     ensure_sessions_dir()
@@ -56,7 +56,6 @@ def main():
     print(f"session: {sdir}")
     for kid in written:
         print(f"  {kid}.cpp")
-    print("Edit the stubs, then run ./test")
 
 
 if __name__ == "__main__":

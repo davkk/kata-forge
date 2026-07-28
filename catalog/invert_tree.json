@@ -5,7 +5,7 @@
   "interface": "invert_tree(root) -> root\n",
   "id": "invert_tree",
   "cpp": {
-    "fn": "Node* invert(Node* root)",
+    "fn": "Node* invert_tree(Node* root)",
     "structs": [
       "struct Node { int val; Node* left; Node* right; };"
     ],

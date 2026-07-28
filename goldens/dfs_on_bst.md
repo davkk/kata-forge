@@ -14,13 +14,11 @@ Searching a binary search tree by exploiting its **ordering invariant** (left < 
 ```cpp
 using namespace std;
 
-struct Node { int val; Node* left; Node* right; };
-
-bool dfs(Node* curr, int needle) {
-    if (!curr) return false;
-    if (curr->val == needle) return true;
-    if (needle < curr->val) return dfs(curr->left, needle);
-    return dfs(curr->right, needle);
+bool dfs(Node* root, int needle) {
+    if (!root) return false;
+    if (root->val == needle) return true;
+    if (needle < root->val) return dfs(root->left, needle);
+    return dfs(root->right, needle);
 }
 ```
 
@@ -30,10 +28,10 @@ bool dfs(Node* curr, int needle) {
 ## Approach 2 -- iterative (O(1) space)
 
 ```cpp
-bool dfs(Node* curr, int needle) {
-    while (curr) {
-        if (curr->val == needle) return true;
-        curr = needle < curr->val ? curr->left : curr->right;
+bool dfs(Node* root, int needle) {
+    while (root) {
+        if (root->val == needle) return true;
+        root = needle < root->val ? root->left : root->right;
     }
     return false;
 }

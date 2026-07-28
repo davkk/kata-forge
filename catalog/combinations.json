@@ -5,7 +5,7 @@
   "interface": "combinations(n, k) -> int[][]\n",
   "id": "combinations",
   "cpp": {
-    "fn": "vector<vector<int>> combine(int n, int k)",
+    "fn": "vector<vector<int>> combinations(int n, int k)",
     "hint": "// return list of k-combinations of 1..n"
   }
 }

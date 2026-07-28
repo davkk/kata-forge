@@ -5,7 +5,7 @@
   "interface": "kmp_search(text, pattern) -> int\n",
   "id": "kmp",
   "cpp": {
-    "fn": "int kmp(const string& a, const string& b)",
+    "fn": "int kmp_search(const string& a, const string& b)",
     "hint": "// return scalar from two strings"
   }
 }

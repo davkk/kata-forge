@@ -15,6 +15,26 @@ Binary heap in a flat array: a complete binary tree where **every parent is <= i
 ```cpp
 using namespace std;
 
+struct MinHeap {
+    vector<int> data;
+
+    void insert(int x) {
+        data.push_back(x);
+        siftUp(data, (int)data.size() - 1);
+    }
+
+    optional<int> deleteMin() {
+        if (data.empty()) return nullopt;
+        int out = data[0];
+        data[0] = data.back();
+        data.pop_back();
+        if (!data.empty()) siftDown(data, 0);
+        return out;
+    }
+
+    int length() { return (int)data.size(); }
+};
+
 int parent(int i) { return (i - 1) / 2; }
 
 void siftUp(vector<int>& h, int i) {
@@ -34,19 +54,6 @@ void siftDown(vector<int>& h, int i) {
         swap(h[i], h[smallest]);
         i = smallest;
     }
-}
-
-void insert(vector<int>& h, int x) {
-    h.push_back(x);
-    siftUp(h, (int)h.size() - 1);
-}
-
-int deleteMin(vector<int>& h) {     // call only when !h.empty()
-    int out = h[0];
-    h[0] = h.back();
-    h.pop_back();
-    if (!h.empty()) siftDown(h, 0);
-    return out;
 }
 ```
 

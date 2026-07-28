@@ -14,32 +14,38 @@ Fixed-capacity FIFO over a circular array: head and tail advance and wrap modulo
 ```cpp
 using namespace std;
 
-struct Ring {
-    int* buf;
-    int  head;     // oldest element
-    int  count;    // elements stored -- kills the full/empty ambiguity
-    int  cap;
+struct RingBuffer {
+    int cap;
+    vector<int> buf;
+    int head;
+    int count;
+
+    RingBuffer(int cap) : cap(cap), buf(cap), head(0), count(0) {}
+
+    void push(int x) {
+        int tail = (head + count) % cap;
+        if (count == cap)
+            head = (head + 1) % cap;
+        else
+            count++;
+        buf[tail] = x;
+    }
+
+    optional<int> pop() {
+        if (count == 0) return nullopt;
+        int val = buf[head];
+        head = (head + 1) % cap;
+        count--;
+        return val;
+    }
+
+    optional<int> get(int i) {
+        if (i < 0 || i >= count) return nullopt;
+        return buf[(head + i) % cap];
+    }
+
+    int size() { return count; }
 };
-
-void push(Ring& r, int x) {
-    int tail = (r.head + r.count) % r.cap;
-    if (r.count == r.cap)            // full: tail == head, oldest slot dies
-        r.head = (r.head + 1) % r.cap;
-    else
-        r.count++;
-    r.buf[tail] = x;
-}
-
-int pop(Ring& r) {                   // caller checks r.count > 0
-    int val = r.buf[r.head];
-    r.head = (r.head + 1) % r.cap;
-    r.count--;
-    return val;
-}
-
-int get(Ring& r, int idx) {          // idx counted from head, not from 0
-    return r.buf[(r.head + idx) % r.cap];
-}
 ```
 
 - Derive `tail` from `head + count` instead of storing it -- one state variable fewer to desynchronize.

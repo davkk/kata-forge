@@ -14,15 +14,15 @@ Find the break floor -- the first `1` in a **monotone** 0/1 array (`0...0 1...1`
 ```cpp
 using namespace std;
 
-int two_crystal_balls(const vector<int>& breaks) {
-    int n = (int)breaks.size();
+int two_crystal_balls(const vector<int>& a) {
+    int n = (int)a.size();
     int jump = max(1, (int)sqrt((double)n));
 
     int i = 0;
-    while (i < n && !breaks[i]) i += jump;
+    while (i < n && !a[i]) i += jump;
     i = max(0, i - jump);
 
-    while (i < n && !breaks[i]) ++i;
+    while (i < n && !a[i]) ++i;
     return i < n ? i : -1;
 }
 ```

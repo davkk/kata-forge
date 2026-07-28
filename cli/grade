@@ -41,7 +41,7 @@ def cmd_state():
 def cmd_rate_session():
     session = latest_session()
     if not session:
-        print("error: no sessions (run ./generate first)", file=sys.stderr)
+        print("error: no sessions", file=sys.stderr)
         sys.exit(1)
     meta = read_json(session / "meta.json", {})
     kids = meta.get("katas") or sorted(p.stem for p in session.glob("*.cpp"))

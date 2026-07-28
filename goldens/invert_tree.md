@@ -13,13 +13,11 @@ Swap every left and right child at every node -- mirrors the tree horizontally. 
 ```cpp
 using namespace std;
 
-struct Node { int val; Node* left; Node* right; };
-
-Node* invert(Node* root) {
+Node* invert_tree(Node* root) {
     if (!root) return nullptr;
     swap(root->left, root->right);
-    invert(root->left);
-    invert(root->right);
+    invert_tree(root->left);
+    invert_tree(root->right);
     return root;
 }
 ```

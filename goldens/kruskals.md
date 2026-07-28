@@ -14,8 +14,6 @@ Finds a minimum spanning tree by sorting all edges by weight and adding them one
 ```cpp
 using namespace std;
 
-struct Edge { int to; int weight; };
-
 struct UF {
     vector<int> p;
     UF(int n) : p(n, -1) {}

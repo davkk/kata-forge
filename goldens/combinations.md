@@ -29,7 +29,7 @@ static void backtrack(int n, int k, int start,
     }
 }
 
-vector<vector<int>> combine(int n, int k) {
+vector<vector<int>> combinations(int n, int k) {
     vector<vector<int>> out;
     vector<int> curr;
     backtrack(n, k, 1, curr, out);
@@ -39,7 +39,7 @@ vector<vector<int>> combine(int n, int k) {
 
 ### Walkthrough
 
-`combine(4, 2)` should produce C(4, 2) = 6 results:
+`combinations(4, 2)` should produce C(4, 2) = 6 results:
 - backtrack(n=4, k=2, start=1, curr=[]):
   - curr.size=0 + (4-1+1)=4 >= 2 -> try i=1: push 1
     - start=2, curr=[1]: try i=2: push 2 -> record [1,2]; pop
@@ -68,7 +68,7 @@ vector<vector<int>> combine(int n, int k) {
 ```cpp
 using namespace std;
 
-vector<vector<int>> combine(int n, int k) {
+vector<vector<int>> combinations(int n, int k) {
     vector<vector<int>> out;
     for (int mask = 0; mask < (1 << n); ++mask) {
         if (__builtin_popcount(mask) != k) continue;

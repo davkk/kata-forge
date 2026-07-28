@@ -16,42 +16,61 @@ A dynamic array: O(1) indexed access plus O(1) **amortized** append, paid for by
 using namespace std;
 
 struct ArrayList {
+    int cap;
     int* data;
-    int  len;
-    int  cap;
+    int len;
+
+    ArrayList(int cap) : cap(cap), data(new int[cap]), len(0) {}
+
+    void append(int x) {
+        if (len == cap) grow();
+        data[len++] = x;
+    }
+
+    void prepend(int x) { insertAt(0, x); }
+
+    void insertAt(int i, int x) {
+        if (len == cap) grow();
+        for (int j = len; j > i; --j) data[j] = data[j - 1];
+        data[i] = x;
+        len++;
+    }
+
+    optional<int> removeAt(int i) {
+        if (i < 0 || i >= len) return nullopt;
+        int val = data[i];
+        for (int j = i; j < len - 1; ++j) data[j] = data[j + 1];
+        len--;
+        return val;
+    }
+
+    optional<int> remove(int x) {
+        for (int i = 0; i < len; ++i) {
+            if (data[i] == x) return removeAt(i);
+        }
+        return nullopt;
+    }
+
+    optional<int> get(int i) {
+        if (i < 0 || i >= len) return nullopt;
+        return data[i];
+    }
+
+    int size() { return len; }
+
+    void grow() {
+        cap *= 2;
+        int* next = new int[cap];
+        for (int i = 0; i < len; ++i) next[i] = data[i];
+        delete[] data;
+        data = next;
+    }
 };
-
-void grow(ArrayList& l) {
-    l.cap *= 2;
-    int* next = new int[l.cap];
-    for (int i = 0; i < l.len; ++i) next[i] = l.data[i];
-    delete[] l.data;
-    l.data = next;
-}
-
-void append(ArrayList& l, int x) {
-    if (l.len == l.cap) grow(l);
-    l.data[l.len++] = x;
-}
-
-void insertAt(ArrayList& l, int x, int idx) {
-    if (l.len == l.cap) grow(l);
-    for (int i = l.len; i > idx; --i) l.data[i] = l.data[i - 1];
-    l.data[idx] = x;
-    l.len++;
-}
-
-int removeAt(ArrayList& l, int idx) {
-    int val = l.data[idx];
-    for (int i = idx; i < l.len - 1; ++i) l.data[i] = l.data[i + 1];
-    l.len--;
-    return val;
-}
 ```
 
-- `prepend(x)` is `insertAt(l, x, 0)`; `remove(x)` is a linear scan then `removeAt`. Don't duplicate the shifting logic.
+- `prepend(x)` is `insertAt(0, x)`; `remove(x)` is a linear scan then `removeAt`. Don't duplicate the shifting logic.
 - Grow *before* writing, not after -- writing into a full array is the classic heap overflow.
-- Shift direction matters: shift-right walks `i` from `len` *down* to `idx`, shift-left walks *up*. Flip it and you overwrite the element you still need.
+- Shift direction matters: shift-right walks `j` from `len` *down* to `i`, shift-left walks *up*. Flip it and you overwrite the element you still need.
 
 ## Alternative -- linked list
 

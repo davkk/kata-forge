@@ -14,8 +14,6 @@ Structural and value equality: both trees have the same shape and same values at
 ```cpp
 using namespace std;
 
-struct Node { int val; Node* left; Node* right; };
-
 bool compare(Node* a, Node* b) {
     if (!a && !b) return true;
     if (!a || !b) return false;
