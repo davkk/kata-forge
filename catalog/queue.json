@@ -7,7 +7,7 @@
   "id": "queue",
   "cpp": {
     "class": "Queue",
-    "members": ["struct Node { int val; Node* next; }", "Node *head, *tail"],
+    "members": ["struct Node { int val; Node* next; }", "Node *head = nullptr, *tail = nullptr"],
     "methods": [
       "void enqueue(int x)",
       "optional<int> deque()",

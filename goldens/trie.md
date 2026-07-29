@@ -16,10 +16,6 @@ A tree where each edge is one character and a path from the root spells a word. 
 using namespace std;
 
 struct Trie {
-    struct Node {
-        Node* child[26] = {};
-        bool isWord = false;
-    };
     Node* root = new Node();
 
     void insert(const string& word) {

@@ -7,15 +7,14 @@ Each node points both ways (`prev` and `next`). The payoff over a singly linked 
 - Singly linked removal needs the target's predecessor to reroute `prev->next`. With `prev` pointers, the node itself carries both neighbors: two assignments unlink it.
 - Keep both `head` and `tail`: append and prepend both become O(1), no walking.
 - Cost: one extra pointer per element, and every splice has twice as many assignments to get right (4 links for insert, 2 for delete).
-- Indexed access is still O(n) — pointers buy splicing speed, not search speed.
 
-## Approach — splice out a node (the reason for prev)
+## Approach — one unlink routine, everything else finds nodes
 
 ```cpp
 using namespace std;
 
 struct DoublyLinkedList {
-    Node *head, *tail;
+    Node *head = nullptr, *tail = nullptr;
 
     void append(int x) {
         Node* n = new Node{x, tail, nullptr};
@@ -31,17 +30,44 @@ struct DoublyLinkedList {
         head = n;
     }
 
-    optional<int> removeAt(int i) {
+    void insertAt(int i, int x) {
+        if (i == 0) { prepend(x); return; }
         Node* cur = head;
         for (int j = 0; cur && j < i; j++) cur = cur->next;
-        if (!cur) return nullopt;
+        if (!cur) { append(x); return; }
+        Node* n = new Node{x, cur->prev, cur};
+        if (cur->prev) cur->prev->next = n;
+        cur->prev = n;
+    }
+
+    void drop(Node* cur) {  // unlink + free; the one place head/tail edge cases live
         if (cur->prev) cur->prev->next = cur->next;
         else           head = cur->next;
         if (cur->next) cur->next->prev = cur->prev;
         else           tail = cur->prev;
-        int val = cur->val;
         delete cur;
+    }
+
+    optional<int> removeAt(int i) {
+        Node* cur = head;
+        for (int j = 0; cur && j < i; j++) cur = cur->next;
+        if (!cur) return nullopt;
+        int val = cur->val;
+        drop(cur);
         return val;
+    }
+
+    optional<int> remove(int x) {
+        for (Node* cur = head; cur; cur = cur->next)
+            if (cur->val == x) { drop(cur); return x; }
+        return nullopt;
+    }
+
+    optional<int> get(int i) {
+        Node* cur = head;
+        for (int j = 0; cur && j < i; j++) cur = cur->next;
+        if (!cur) return nullopt;
+        return cur->val;
     }
 
     int size() {
@@ -52,36 +78,23 @@ struct DoublyLinkedList {
 };
 ```
 
-- The two `if/else` pairs in `removeAt` handle the head/tail edge cases — nearly every doubly-linked bug lives there.
-- Fix links on both sides *before* `delete`: once freed, `n->prev`/`n->next` are unreadable.
-- `insertAt(i, x)`: walk to node at `i`, insert before it with the same four-link pattern. `remove(x)`: walk comparing values, then splice out. `get(i)`: walk and return the value.
-- `prepend` mirrors `append` but links at the front.
+- `drop` is the single unlink routine — the head/tail edge cases live there and nowhere else; `removeAt`/`remove` only find the node.
+- Fix links on both sides *before* `delete`: once freed, the pointers are unreadable.
+- `insertAt(i, x)` falls back to `prepend`/`append` at the boundaries.
 
 ## Alternative — sentinel head/tail
 
-- Allocate permanent dummy nodes bracketing the real elements; then `n->prev` and `n->next` are **never null** and every edge-case `if` disappears.
-- `removeAt` shrinks to two unconditional lines: `n->prev->next = n->next; n->next->prev = n->prev;` — the sentinels absorb the boundaries.
-- Price: two extra nodes, and the first real element is `head->next` rather than `head`.
-
-## Alternative — XOR-linked list (memory trick)
-
-- Store `prev XOR next` in a single pointer field; walk forward or back by XORing with the address of the previous node.
-- Halves the pointer overhead; tricky to debug, illegal in C++ (pointer arithmetic on `intptr_t` is technically UB), almost never used in practice.
+- Permanent dummy nodes bracket the real elements so `n->prev`/`n->next` are never null — the edge-case `if`s in `drop` vanish, at the price of two extra nodes.
 
 ## Complexity
 
-- Time: O(1) prepend, append, removeAt/remove given the node; O(n) random access and search.
-- Space: O(n) plus one extra pointer per node versus a singly linked list.
+- O(1) prepend/append/removeAt/remove; O(n) access/search. O(n) space plus one pointer per node.
 
 ## Usage
 
-- **LRU cache**: hash map from key to node + doubly linked list for recency order; hit/evict are the O(1) node removals above.
-- Browser back/forward history, music playlists with next/prev, text-editor line buffers.
-- `malloc` free lists and kernel run queues splice nodes out of the middle constantly.
-- Any time you need "remove the current element" in O(1) — editors, transaction logs, undo stacks.
+- **LRU cache**: hash map to node + doubly linked list for recency order; hit/evict are O(1) removals.
+- Browser back/forward, playlists, text-editor buffers, kernel run queues.
 
 ## Cousins & contrasts
 
-- **Singly linked list**: half the pointer traffic, but deleting a given node needs its predecessor — walk for it or keep a trailing pointer.
-- **`std::list`**: the STL doubly linked list; its iterators stay valid across `splice`/`erase`, which is exactly the "O(1) removal given the node" property.
-- **Array list**: O(1) indexed access but O(n) middle insert/remove — the mirror-image trade-off.
+- **Singly linked list**: half the pointer traffic, but deleting a node needs its predecessor — `std::forward_list` vs `std::list`.

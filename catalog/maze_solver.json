@@ -7,7 +7,7 @@
   "cpp": {
     "fn": "vector<Point> solve_maze(const vector<string>& maze, const string& wall, Point start, Point end)",
     "structs": [
-      "struct Point { int x, y; };"
+      "struct Point { int x, y; bool operator==(const Point& o) const { return x == o.x && y == o.y; } };"
     ],
     "hint": "// return path"
   }

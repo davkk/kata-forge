@@ -77,11 +77,6 @@ void merge_sort(vector<int>& a) {
 - Merge runs of width 1, 2, 4, ... pairwise; same O(n log n), no recursion stack, and the natural form for linked lists and external sorting.
 - Natural merge sort (timsort's core) first scans for existing ascending runs -- adaptive to pre-sorted data.
 
-## Alternative -- in-place merge (theoretical)
-
-- An O(1) extra-space merge is possible but the constant factor is brutal -- a real-world merge sort always uses a buffer.
-- Linked-list merge sort needs no extra memory: the merge relinks nodes instead of copying.
-
 ## Usage
 
 - External sorting: files bigger than RAM -- sort chunks in memory, then k-way merge runs from disk.

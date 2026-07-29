@@ -27,7 +27,7 @@ static bool walk(const vector<string>& maze, const string& wall, Point cur, Poin
     if (y == end.y && x == end.x) return true;
 
     for (auto& d : DIRS)
-        if (walk(maze, wall, {y + d[0], x + d[1]}, end, seen, path))
+        if (walk(maze, wall, {x + d[1], y + d[0]}, end, seen, path))
             return true;
 
     path.pop_back();

@@ -16,7 +16,7 @@ Stores distinct keys with O(1) average add/remove/contains by scattering keys ac
 using namespace std;
 
 struct HashSet {
-    vector<vector<int>> buckets;
+    vector<vector<int>> buckets = vector<vector<int>>(16);
     int count = 0;
 
     int hash_of(int k) {

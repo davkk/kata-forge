@@ -27,7 +27,7 @@ void insertion_sort(vector<int>& a) {
 ```
 
 - Hoist `curr` out of the array: shifts are single assignments, not swaps -- half the writes of bubble sort.
-- The function is named `insertion_sort` to match the kata interface -- stub generators expect that name.
+- The function signature `insertion_sort(vector<int>& a)` matches the kata interface -- it sorts the vector in place.
 - Condition order matters: `j >= 0 && a[j] > curr` -- the short-circuit guards the index.
 - Start at `i = 1`; a one-element prefix is trivially sorted.
 

@@ -40,8 +40,6 @@ vector<int> topological_sort(int n, const vector<pair<int,int>>& edges) {
 }
 ```
 
-### Walkthrough
-
 Edges: 5->2, 5->0, 4->0, 4->1, 2->3, 3->1 (6 nodes 0..5):
 - Build in-degrees: indeg=[2, 2, 1, 1, 0, 0]
 - Initial ready set (indeg==0): {4, 5}
@@ -52,15 +50,13 @@ Edges: 5->2, 5->0, 4->0, 4->1, 2->3, 3->1 (6 nodes 0..5):
 - pop 3: emit 3; relax 3->1 (indeg[1]=0 -> push)
 - pop 1: emit 1
 - return [4, 5, 2, 0, 3, 1] (one of many valid orderings)
-
 - Decrement `indeg[v]` before checking if it reached 0 -- never after, or you may skip a node.
 - A plain `queue` yields a valid topological order; the min-heap guarantees determinism when the spec requires smallest-first.
 - Cycle detection: `result.size() < n` implies a cycle prevented some nodes from reaching indegree 0.
 
 ## Complexity
 
-- Time: O(V+E).
-- Space: O(V+E) for the adjacency list and in-degree / recursion stack.
+- O(V+E) time, O(V+E) space.
 
 ## Approach 2 -- DFS post-order
 
@@ -83,12 +79,10 @@ return result;
 
 - Run DFS from every unvisited node. After all children of `u` return, push `u` to the result and reverse at the end.
 - Cycle detection: track an `onStack` array. If a DFS edge leads to a node that is still `onStack`, the graph has a cycle.
-
 ## Alternative -- Tarjan's SCC (condensation is always a DAG)
 
 - Run Tarjan's algorithm to get strongly connected components, then topologically sort the condensation DAG.
 - Useful when the input might have cycles and you want the SCC structure anyway.
-
 ## Usage
 
 - Build systems (Make, Gradle, Bazel) resolving dependency order.

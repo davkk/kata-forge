@@ -1,12 +1,12 @@
 {
   "title": "Trie",
   "shape": "commands",
-  "description": "Prefix tree: insert/delete words, find all words with a prefix.\n",
-  "interface": "insert(s) delete(s) find(prefix) -> string[]\n",
+  "description": "Prefix tree: insert/remove words, find all words with a prefix.\n",
+  "interface": "insert(s) remove(s) find(prefix) -> string[]\n",
   "id": "trie",
   "cpp": {
     "class": "Trie",
-    "members": ["struct Node { Node* child[26]; bool isWord = false; }", "Node* root"],
+    "members": ["struct Node { Node* child[26] = {}; bool isWord = false; }", "Node* root = new Node()"],
     "methods": [
       "void insert(const string& word)",
       "void remove(const string& word)",

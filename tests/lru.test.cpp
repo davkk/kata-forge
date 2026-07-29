@@ -19,5 +19,17 @@ int main() { TEST("evict_lru_on_overflow");
     { auto _v = _inst0.get("foo"); VAL(_v, 69); }
     { auto _v = _inst0.get("baz"); CHECK(!_v.has_value()); }
 
+    { TEST("size");
+        auto _inst1 = LRU{{2}};
+        EQL(0, _inst1.size());
+        _inst1.update("a", 1);
+        _inst1.update("b", 2);
+        EQL(2, _inst1.size());
+        _inst1.update("c", 3);
+        EQL(2, _inst1.size());
+        _inst1.update("b", 22);
+        EQL(2, _inst1.size());
+    }
+
     return 0;
 }

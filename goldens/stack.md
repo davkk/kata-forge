@@ -4,57 +4,74 @@ LIFO container: the last thing pushed is the first thing popped. Restricting acc
 
 ## Intuition
 
-- One index (or pointer) marks the top; push and pop both touch only that end — no traversal, no shifting.
+- One pointer marks the top; push and pop both touch only that end — no traversal, no shifting.
 - The restriction is the feature: LIFO order matches nested, last-opened-first-closed structure — calls, brackets, undo history.
 - All ops O(1) time; O(n) space for n elements.
 
-## Approach — array-backed stack
+## Approach 1 — linked-node stack
 
 ```cpp
 using namespace std;
 
 struct Stack {
-    vector<int> data;
+    Node *head = nullptr;
 
     void push(int x) {
-        data.push_back(x);
+        head = new Node{x, head};
     }
 
     optional<int> pop() {
-        if (data.empty()) return nullopt;
-        int val = data.back();
-        data.pop_back();
+        if (!head) return nullopt;
+        Node* n = head;
+        int val = n->val;
+        head = n->next;
+        delete n;
         return val;
     }
 
     optional<int> peek() {
-        if (data.empty()) return nullopt;
-        return data.back();
+        if (!head) return nullopt;
+        return head->val;
     }
 
     int size() {
-        return data.size();
+        int len = 0;
+        for (Node* cur = head; cur; cur = cur->next) len++;
+        return len;
     }
 };
 ```
 
-- The top is the *end* of the vector — that's where arrays support O(1) add/remove; using the front would cost O(n) shifting per op.
-- `pop`/`peek` return `nullopt` on empty — the caller owns the error check.
-- A raw array + top index works identically; `vector` just handles growth.
+- The top of the stack is the **head** of the list — the one end where a singly-linked list gives O(1) insert and remove. Push prepends, pop unlinks.
+- One pointer suffices; a queue needs two (head + tail) because it touches both ends.
+- `pop`/`peek` return `nullopt` on empty — the caller owns the error check. `delete` the unlinked node or you leak.
+- `size()` is O(n) as a traversal; keep a running counter (++ on push, -- on pop) for O(1).
 
-## Alternative — linked-list stack
+## Approach 2 — array-backed stack
 
-- Push = prepend a node, pop = unlink the head. O(1) with no capacity limit and no growth copies.
-- Costs a heap allocation + pointer per element and loses cache locality; the array version wins in practice.
+```cpp
+vector<int> data;
+
+void push(int x) { data.push_back(x); }
+
+optional<int> pop() {
+    if (data.empty()) return nullopt;
+    int val = data.back();
+    data.pop_back();
+    return val;
+}
+```
+
+- The top is the *end* of the vector — the only end where arrays give O(1) add/remove; the front would cost O(n) shifting per op.
+- Wins in practice: no per-element allocation, cache-friendly, amortized O(1) growth. The linked version pays a heap allocation + pointer per element.
 
 ## Alternative — two-stack queue (the reverse trick)
 
-- Two stacks can simulate a FIFO queue: enqueue pushes onto `in`, dequeue pops from `out` (pouring `in` into `out` when empty). See queue.md.
-- The same composition lets a stack stand in for a deque when you only need one end.
+- Two stacks simulate a FIFO queue: enqueue pushes onto `in`, dequeue pops from `out` (pouring `in` into `out` when empty). See queue.md.
 
 ## Complexity
 
-- Time: O(1) per push, pop, peek, size.
+- Time: O(1) per push, pop, peek, size (amortized growth for the array version).
 - Space: O(n) for n elements.
 
 ## Usage

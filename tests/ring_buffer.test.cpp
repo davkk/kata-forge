@@ -38,5 +38,15 @@ int main() {
         { auto _v = _inst1.pop(); CHECK(!_v.has_value()); }
     }
 
+    { TEST("size");
+        auto _inst2 = RingBuffer{3};
+        EQL(0, _inst2.size());
+        _inst2.push(1);
+        _inst2.push(2);
+        EQL(2, _inst2.size());
+        { auto _v = _inst2.pop(); VAL(_v, 1); }
+        EQL(1, _inst2.size());
+    }
+
     return 0;
 }

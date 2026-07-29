@@ -23,33 +23,33 @@ struct SegmentTree {
         build_(a, 1, 0, n - 1);
     }
 
+    void build_(const vector<int>& a, int v, int lo, int hi) {
+        if (lo == hi) { t[v] = a[lo]; return; }
+        int mid = lo + (hi - lo) / 2;
+        build_(a, v*2, lo, mid);
+        build_(a, v*2+1, mid+1, hi);
+        t[v] = t[v*2] + t[v*2+1];
+    }
+
+    int query_(int v, int lo, int hi, int ql, int qr) {
+        if (ql <= lo && hi <= qr) return t[v];
+        if (hi < ql || lo > qr) return 0;
+        int mid = lo + (hi - lo) / 2;
+        return query_(v*2, lo, mid, ql, qr) + query_(v*2+1, mid+1, hi, ql, qr);
+    }
+
+    void update_(int v, int lo, int hi, int i, int val) {
+        if (lo == hi) { t[v] = val; return; }
+        int mid = lo + (hi - lo) / 2;
+        if (i <= mid) update_(v*2, lo, mid, i, val);
+        else          update_(v*2+1, mid+1, hi, i, val);
+        t[v] = t[v*2] + t[v*2+1];
+    }
+
     int query(int left, int right) { return query_(1, 0, n - 1, left, right); }
     void update(int idx, int val) { update_(1, 0, n - 1, idx, val); }
     int length() { return n; }
 };
-
-void build_(const vector<int>& a, vector<int>& t, int v, int lo, int hi) {
-    if (lo == hi) { t[v] = a[lo]; return; }
-    int mid = lo + (hi - lo) / 2;
-    build_(a, t, v*2, lo, mid);
-    build_(a, t, v*2+1, mid+1, hi);
-    t[v] = t[v*2] + t[v*2+1];
-}
-
-int query_(const vector<int>& t, int v, int lo, int hi, int ql, int qr) {
-    if (ql <= lo && hi <= qr) return t[v];
-    if (hi < ql || lo > qr) return 0;
-    int mid = lo + (hi - lo) / 2;
-    return query_(t, v*2, lo, mid, ql, qr) + query_(t, v*2+1, mid+1, hi, ql, qr);
-}
-
-void update_(vector<int>& t, int v, int lo, int hi, int i, int val) {
-    if (lo == hi) { t[v] = val; return; }
-    int mid = lo + (hi - lo) / 2;
-    if (i <= mid) update_(t, v*2, lo, mid, i, val);
-    else          update_(t, v*2+1, mid+1, hi, i, val);
-    t[v] = t[v*2] + t[v*2+1];
-}
 ```
 
 - Nodes 1-indexed (root = 1, children `2v` / `2v+1`); keeps array small, arithmetic obvious.

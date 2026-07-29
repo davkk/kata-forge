@@ -59,8 +59,7 @@ optional<vector<int>> dijkstra(const vector<vector<Edge>>& g, int source, int si
 
 ## Complexity
 
-- Time: O(V^2) with a linear scan, O(E log V) with a min-heap.
-- Space: O(V) for dist/prev/seen plus the heap.
+- Time: O(V^2) with linear scan, O(E log V) with min-heap. Space: O(V).
 
 ## Approach 2 -- O(E log V) lazy min-heap (better on sparse graphs)
 
@@ -93,11 +92,9 @@ while (!pq.empty()) {
 
 - GPS routing, OSPF/IS-IS network routing, latency- and cost-minimization problems.
 - As a subroutine: A* (Dijkstra + heuristic), Johnson's all-pairs algorithm, "cheapest flight with k stops" variants.
-- Any "what is the cheapest way to get from here to there" question on a graph with non-negative costs.
 
 ## Cousins & contrasts
 
 - **BFS**: Dijkstra with all weights = 1 -- a plain queue suffices, O(V + E).
 - **Bellman-Ford**: tolerates negative edges and detects negative cycles, but O(V*E).
 - **Prim's MST**: nearly identical code -- but the key is the single edge weight, not the path sum. Same greedy skeleton, different quantity being minimized.
-- **A***: same relaxation loop plus an admissible heuristic `h(u)` that steers search toward the goal.

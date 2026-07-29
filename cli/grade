@@ -6,7 +6,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from kflib.kf_common import kata_by_id, latest_session, read_json
-from kflib.fsrs import load_state, save_state, get_card, review, retrievability_of
+from kflib.fsrs import load_state, review, retrievability_of
 
 
 def cmd_rate(kid, grade):

@@ -24,5 +24,18 @@ int main() { TEST("append_remove_prepend_get_size");
     EQL(2, _inst0.size());
     { auto _v = _inst0.get(0); VAL(_v, 7); }
 
+    { TEST("insertAt");
+        DoublyLinkedList _inst1;
+        _inst1.append(1);
+        _inst1.append(3);
+        _inst1.insertAt(1, 2);
+        { auto _v = _inst1.get(1); VAL(_v, 2); }
+        { auto _v = _inst1.get(2); VAL(_v, 3); }
+        EQL(3, _inst1.size());
+        _inst1.insertAt(0, 0);
+        { auto _v = _inst1.get(0); VAL(_v, 0); }
+        EQL(4, _inst1.size());
+    }
+
     return 0;
 }

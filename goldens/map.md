@@ -15,7 +15,7 @@ A key to value dictionary with O(1) average get/set/delete. Same hashing core as
 using namespace std;
 
 struct Map {
-    vector<vector<KV>> buckets;
+    vector<vector<KV>> buckets = vector<vector<KV>>(16);
     int count = 0;
 
     unsigned hash_of(const string& k) {
@@ -67,10 +67,8 @@ struct Map {
 ```
 
 - `set` checks for the key *before* inserting: found -> overwrite; missing -> push back a new entry. That distinction is what keeps `count` honest.
-- Pitfall: recompute `idx` after `rehash` — a reference captured before `rehash` dangles after the resize.
-- Pitfall: `get` uses `optional<int>` to signal found/missing without a sentinel value — `nullopt` means missing, `optional(0)` means stored 0.
-- `erase` uses `vector::erase` which shifts elements (O(k)) — fine for small buckets. Swap-with-last + `pop_back` avoids the shift.
-- `rehash` rebuilds by iterating all old buckets and re-inserting via `push_back`. The rolling hash is position-sensitive so `"ab"` and `"ba"` go to different buckets.
+- Pitfall: recompute `idx` after `rehash` — a reference captured before the resize dangles. `get` uses `optional<int>`: `nullopt` means missing, `optional(0)` means stored 0.
+- `erase` shifts O(k) — swap-with-last + `pop_back` avoids it. `rehash` rebuilds by iterating old buckets and re-inserting via `push_back`.
 
 ## Alternative — balanced BST (`std::map`)
 
@@ -90,11 +88,9 @@ struct Map {
 - Space: O(n).
 
 ## Usage
-
-- Associative arrays and object/dict literals in every dynamic language; JSON objects under the hood.
-- Memoization caches, frequency counting, index-of-x tables, grouping records by a field.
-- Two-sum and friends: complement lookup turns an O(n^2) pair search into one pass.
-- Any "look up by key, insert, delete" workload that needs to stay fast under growth.
+- Associative arrays, memoization caches, frequency counting, index-of-x tables.
+- Two-sum: complement lookup turns O(n^2) into one pass.
+- Any fast "look up by key, insert, delete" workload.
 
 ## Cousins & contrasts
 

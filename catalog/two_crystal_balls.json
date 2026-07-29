@@ -2,7 +2,7 @@
   "title": "Two Crystal Balls",
   "shape": "list_scalar",
   "description": "Array of 0/1 where first 1 is break floor. Find index in O(sqrt n). -1 if none.\n",
-  "interface": "two_crystal_balls(breaks: int[] /*0/1*/) -> int\n",
+  "interface": "two_crystal_balls(breaks: int[] (0/1)) -> int\n",
   "id": "two_crystal_balls",
   "cpp": {
     "fn": "int two_crystal_balls(const vector<int>& a)",

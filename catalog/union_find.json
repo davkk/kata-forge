@@ -2,7 +2,7 @@
   "title": "Union Find",
   "shape": "commands",
   "description": "Disjoint set: find, union, connected. init = n elements 0..n-1.\n",
-  "interface": "find(p) union(p,q) connected(p,q) size()\n",
+  "interface": "find(p) unite(p,q) connected(p,q) size()\n",
   "id": "union_find",
   "cpp": {
     "class": "UnionFind",

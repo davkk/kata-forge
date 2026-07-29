@@ -12,11 +12,11 @@ TESTS_DIR = TOOL_ROOT / "tests"
 
 
 def sessions_dir() -> Path:
-    return Path.cwd() / "sessions"
+    return TOOL_ROOT / "sessions"
 
 
 def active_path() -> Path:
-    return Path.cwd() / ".active.json"
+    return TOOL_ROOT / ".active.json"
 
 
 def ensure_sessions_dir() -> None:
@@ -63,10 +63,14 @@ def latest_session() -> Path | None:
     d = sessions_dir()
     if not d.exists():
         return None
-    sessions = [p for p in d.iterdir() if p.is_dir()]
+    sessions = [
+        p
+        for p in d.iterdir()
+        if p.is_dir() and p.name.startswith("session") and p.name[7:].isdigit()
+    ]
     if not sessions:
         return None
-    return max(sessions, key=lambda p: p.name)
+    return max(sessions, key=lambda p: int(p.name[7:]))
 
 
 def new_session_id() -> str:
@@ -160,6 +164,8 @@ def render_stub(kata: dict) -> str:
             parts.append(cpp["hint"])
         parts.append(f"{ret} {name}({params}) {{")
         parts.append("    // TODO")
+        if ret != "void":
+            parts.append("    return {};")
         parts.append("}")
 
     return "\n".join(parts) + "\n"

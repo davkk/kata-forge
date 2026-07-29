@@ -1,7 +1,12 @@
 #include "kata_test.h"
+#include <algorithm>
 
 static bool eq_edge(const Edge& a, const Edge& b) {
     return a.to == b.to && a.weight == b.weight;
+}
+
+static bool lt_edge(const Edge& a, const Edge& b) {
+    return a.to != b.to ? a.to < b.to : a.weight < b.weight;
 }
 
 int main() {
@@ -18,6 +23,8 @@ int main() {
         EQL(_exp.size(), _m.size());
         for (int i = 0; i < (int)_m.size(); ++i) {
             EQL(_exp[i].size(), _m[i].size());
+            sort(_exp[i].begin(), _exp[i].end(), lt_edge);
+            sort(_m[i].begin(), _m[i].end(), lt_edge);
             for (int j = 0; j < (int)_m[i].size(); ++j)
                 CHECK(eq_edge(_m[i][j], _exp[i][j]));
         }

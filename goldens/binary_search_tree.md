@@ -69,8 +69,7 @@ struct BinarySearchTree {
 - Public `insert`/`erase` delegate to overloaded helpers that return the new subtree root -- the caller re-links it, eliminating all parent-pointer bookkeeping.
 - Delete has exactly three cases: **leaf or one child** -- splice the child (or null) up; **two children** -- copy the in-order successor's value into the node, then delete the successor, which always has at most one child.
 - `find` returns `nullopt` on miss instead of a null pointer.
-- `length` does a full traversal each call; for hot-path usage, cache it as a member counter bumped on insert/erase.
-- Duplicates: this version inserts them to the right; reject `v == n->val` on insert for set semantics.
+- `length` does a full traversal each call; for hot-path usage, cache it as a member counter bumped on insert/erase. Duplicates go right; reject `v == n->val` for set semantics.
 
 ## Alternative -- self-balancing BSTs (AVL, red-black)
 
@@ -85,14 +84,12 @@ struct BinarySearchTree {
 
 ## Complexity
 
-- Time: O(h) per operation, where h is the height. h = O(log n) when balanced, O(n) when degenerate.
-- Space: O(n).
+- Time: O(h) per operation (h = O(log n) when balanced, O(n) when degenerate). Space: O(n).
 
 ## Usage
 
 - Ordered dictionaries: `std::map`/`std::set`, database indices (B-trees are the disk-friendly generalization), autocomplete-style ordered scans.
 - Spell checkers and file-system directories: ordered storage with fast lookup plus sorted enumeration.
-- The "should I include this in the sorted set" question with the bonus of range queries and ordered iteration.
 - Anywhere a sorted array would do, but you also need fast insert/delete -- the dynamic version of a sorted array.
 
 ## Cousins & contrasts

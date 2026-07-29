@@ -51,7 +51,6 @@ vector<vector<int>> combinations(int n, int k) {
     - i=4: push 4 -> record [2,4]; pop
   - i=3: push 3
     - i=4: 1 + (4-4+1)=2 >= 2 -> push 4 -> record [3,4]; pop
-  - (i=4 would not fit since curr=[3] has 1 slot left and only 1 value remains)
 - return [[1,2], [1,3], [1,4], [2,3], [2,4], [3,4]]
 
 - `k == 0` yields one empty combination -- falls out of the base case naturally.
@@ -60,8 +59,7 @@ vector<vector<int>> combinations(int n, int k) {
 
 ## Complexity
 
-- Time: O(k * C(n, k)) -- output copies dominate.
-- Space: O(k) recursion depth plus output.
+- Time: O(k * C(n, k)) -- output copies dominate. Space: O(k) recursion depth plus output.
 
 ## Approach 2 -- bitmask enumeration (small n)
 
@@ -82,20 +80,17 @@ vector<vector<int>> combinations(int n, int k) {
 ```
 
 - Iterate every n-bit mask, keep the ones with exactly k bits set, decode to the combination.
-- No recursion, no pruning, no argument gymnastics. Wins for tiny `n` (<= 20) where the simplicity beats the backtracking version.
-- Cost: enumerates 2^n masks to find C(n, k) results -- fine for small n, disastrous for n around 30.
+- No recursion, no pruning, no argument gymnastics. Enumerates 2^n masks to find C(n, k) results -- fine for n <= 20, disastrous around 30.
 
 ## Alternative -- combinations with repetition
 
-- Same code but recurse with `i` instead of `i + 1`: each level may pick the same value again. Produces C(n + k - 1, k) combinations.
-- Models "k items drawn from n types with replacement" -- multiset selections, dice sum outcomes.
+- Same code but recurse with `i` instead of `i + 1`: each level may pick the same value again, producing C(n + k - 1, k) combinations. Models k items drawn from n types with replacement -- multiset selections, dice sum outcomes.
 
 ## Usage
 
 - Lottery and committee selection: enumerate all ways to pick k from n.
 - n-choose-k rollouts in probabilistic algorithms, uniform sampling of fixed-size subsets.
 - Combinatorial search: try every size-k feature set, every k-edge subgraph, every k-element committee.
-- Any "all ways to choose k of n" question in scheduling, sampling, and design of experiments.
 
 ## Cousins & contrasts
 

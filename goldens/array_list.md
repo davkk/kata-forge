@@ -84,15 +84,13 @@ struct ArrayList {
 
 ## Complexity
 
-- Time: O(1) amortized append, O(1) get, O(n) insert/remove at arbitrary index, O(n) search.
-- Space: O(n), with at most 2x waste at any moment.
+- Time: O(1) amortized append, O(1) get, O(n) insert/remove, O(n) search. Space: O(n), with at most 2x waste.
 
 ## Usage
 
 - `std::vector`, Python `list`, Java `ArrayList` -- the default sequential container in most languages.
 - Backing store for stacks, binary heaps, hash-table buckets, adjacency arrays.
 - Amortized doubling is *the* canonical example for amortized analysis.
-- Any time you need "growable indexed sequence" -- building buffers, accumulating results, serving as the substrate for higher-level structures.
 
 ## Cousins & contrasts
 

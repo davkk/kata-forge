@@ -2,7 +2,7 @@
   "title": "Array List",
   "shape": "commands",
   "description": "Dynamic array list with random access. Capacity hint via init.\n",
-  "interface": "prepend(x) append(x) insertAt(x,i)\nget(i) remove(x) removeAt(i) size()\n",
+  "interface": "prepend(x) append(x) insertAt(i,x)\nget(i) remove(x) removeAt(i) size()\n",
   "example": "append 5,7,9; get(2) \u2192 9",
   "id": "array_list",
   "cpp": {

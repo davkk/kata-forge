@@ -12,6 +12,7 @@ Python 3 (stdlib only) and a C++17 compiler (`c++` / `g++` / `clang++`).
 kf pick          -> pick 4 katas via FSRS, write to .active.json
 kf pick 6        -> pick 6 katas
 kf generate      -> create sessions/sessionN/ with stubs
+kf golden <kata> -> render the reference tutorial for a kata
 
 # edit *.cpp stubs in sessions/sessionN/
 kf test          -> compile & run test harnesses
@@ -49,9 +50,9 @@ Ratings update the FSRS card state (difficulty, stability, lapses).
 
 ### Adding a kata
 
-1. `catalog/<id>.json` — shape + named tests
+1. `catalog/<id>.json` — meta + `cpp` interface block
 2. `goldens/<id>.md` — teaching tutorial
-3. If using a new shape, add its signature + harness logic in `kflib/kf_common.py`
+3. `tests/<id>.test.cpp` — test harness
 
 ### Stubs
 

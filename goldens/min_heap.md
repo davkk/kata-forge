@@ -18,9 +18,30 @@ using namespace std;
 struct MinHeap {
     vector<int> data;
 
+    int parent(int i) { return (i - 1) / 2; }
+
+    void siftUp(int i) {
+        while (i > 0 && data[i] < data[parent(i)]) {
+            swap(data[i], data[parent(i)]);
+            i = parent(i);
+        }
+    }
+
+    void siftDown(int i) {
+        int n = (int)data.size();
+        while (true) {
+            int l = 2*i + 1, r = 2*i + 2, smallest = i;
+            if (l < n && data[l] < data[smallest]) smallest = l;
+            if (r < n && data[r] < data[smallest]) smallest = r;
+            if (smallest == i) break;
+            swap(data[i], data[smallest]);
+            i = smallest;
+        }
+    }
+
     void insert(int x) {
         data.push_back(x);
-        siftUp(data, (int)data.size() - 1);
+        siftUp((int)data.size() - 1);
     }
 
     optional<int> deleteMin() {
@@ -28,33 +49,12 @@ struct MinHeap {
         int out = data[0];
         data[0] = data.back();
         data.pop_back();
-        if (!data.empty()) siftDown(data, 0);
+        if (!data.empty()) siftDown(0);
         return out;
     }
 
     int length() { return (int)data.size(); }
 };
-
-int parent(int i) { return (i - 1) / 2; }
-
-void siftUp(vector<int>& h, int i) {
-    while (i > 0 && h[i] < h[parent(i)]) {
-        swap(h[i], h[parent(i)]);
-        i = parent(i);
-    }
-}
-
-void siftDown(vector<int>& h, int i) {
-    int n = (int)h.size();
-    while (true) {
-        int l = 2*i + 1, r = 2*i + 2, smallest = i;
-        if (l < n && h[l] < h[smallest]) smallest = l;
-        if (r < n && h[r] < h[smallest]) smallest = r;
-        if (smallest == i) break;
-        swap(h[i], h[smallest]);
-        i = smallest;
-    }
-}
 ```
 
 - Sift down toward the *smaller* child -- swapping with the larger one breaks the invariant between the two children.
