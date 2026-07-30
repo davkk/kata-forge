@@ -4,8 +4,7 @@ from __future__ import annotations
 import json
 import math
 from datetime import date, datetime, timezone
-
-from kflib.kf_common import TOOL_ROOT
+from pathlib import Path
 
 W = [
     0.40255, 1.18385, 3.173, 15.69105,
@@ -17,7 +16,7 @@ W = [
 
 DECAY = -0.5
 FACTOR = 19 / 81
-FSRS_PATH = TOOL_ROOT / ".fsrs.json"
+FSRS_PATH = Path(".fsrs.json")
 
 
 def _clamp(v: float, lo: float = 1.0, hi: float = 10.0) -> float:

@@ -12,11 +12,11 @@ TESTS_DIR = TOOL_ROOT / "tests"
 
 
 def sessions_dir() -> Path:
-    return TOOL_ROOT / "sessions"
+    return Path("sessions")
 
 
 def active_path() -> Path:
-    return TOOL_ROOT / ".active.json"
+    return Path(".active.json")
 
 
 def ensure_sessions_dir() -> None:
