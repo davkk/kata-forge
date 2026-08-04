@@ -10,7 +10,16 @@ from kflib.kf_common import list_katas, write_json, active_path
 from kflib.fsrs import retrievability_of
 
 
+def kind_of(kata):
+    return "ds" if kata.get("shape") == "commands" else "algo"
+
+
 def cmd_pick(args, all_katas, by_id):
+    if args.type != "all":
+        all_katas = [k for k in all_katas if kind_of(k) == args.type]
+        if not all_katas:
+            print(f"error: no {args.type} katas in catalog", file=sys.stderr)
+            sys.exit(1)
     if args.katas:
         picks = [s.strip() for s in args.katas.split(",") if s.strip()]
         unknown = [p for p in picks if p not in by_id]
@@ -41,6 +50,8 @@ def main():
                     help="number of katas to pick (default 4)")
     ap.add_argument("--katas", type=str, default=None, help="comma-separated ids")
     ap.add_argument("--random", action="store_true", help="random pick (default is FSRS)")
+    ap.add_argument("--type", choices=["algo", "ds", "all"], default="all",
+                    help="kind of katas to pick: algo (algorithms), ds (data structures), all (default)")
 
     args = ap.parse_args()
 
