@@ -129,13 +129,13 @@ def render_stub(kata: dict) -> str:
 
     if shape == "commands":
         cls = cpp["class"]
-        parts.append(f"struct {cls} {{")
+        parts.append(f"class {cls} {{\npublic:")
         for m in cpp.get("members", []):
-            parts.append(f"    {m};")
-        ctor_param = cpp.get("ctor", "")
-        if cpp.get("members") or ctor_param:
+            parts.append(f"    {m}{'' if m.rstrip().endswith(';') else ';'}")
+        ctor_param = cpp.get("ctor")
+        if cpp.get("members") or ctor_param is not None:
             parts.append("")
-        if ctor_param:
+        if ctor_param is not None:
             parts.append(f"    {cls}({ctor_param}) {{")
             parts.append("        // TODO")
             parts.append("    }")

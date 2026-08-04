@@ -1,11 +1,12 @@
 {
   "title": "Sliding Window Maximum",
   "shape": "list_k_list",
-  "description": "Maximum of each contiguous window of size k.\n",
-  "interface": "sliding_window_max(nums: int[], k: int) -> int[]\n",
+  "description": "sliding_window_max(a, k) returns the maximum of each contiguous window of size k.",
+  "interface": "sliding_window_max(a: int[], k: int) -> int[]",
+  "example": "a = [1,3,-1,-3,5,3,6,7], k=3 -> [3,3,5,5,6,7]",
   "id": "sliding_window_max",
   "cpp": {
     "fn": "vector<int> sliding_window_max(const vector<int>& a, int k)",
-    "hint": "// return list from list + k"
+    "hint": "// return max of each k-sized window"
   }
 }

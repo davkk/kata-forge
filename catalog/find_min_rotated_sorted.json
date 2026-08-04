@@ -1,11 +1,12 @@
 {
   "title": "Find Min in Rotated Sorted Array",
   "shape": "list_scalar",
-  "description": "Rotated sorted unique array: find minimum in O(log n).\n",
-  "interface": "find_min_rotated(nums: int[]) -> int\n",
+  "description": "find_min_rotated(a) returns the minimum of a rotated sorted array in O(log n).",
+  "interface": "find_min_rotated(a: int[]) -> int",
+  "example": "a = [4,5,6,7,0,1,2] -> 0",
   "id": "find_min_rotated_sorted",
   "cpp": {
     "fn": "int find_min_rotated(const vector<int>& a)",
-    "hint": "// return scalar from list"
+    "hint": "// return the minimum element"
   }
 }

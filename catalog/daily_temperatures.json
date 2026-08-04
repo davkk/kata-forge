@@ -1,11 +1,12 @@
 {
   "title": "Daily Temperatures",
   "shape": "list_list",
-  "description": "For each day, days until a warmer temperature (0 if none).\n",
-  "interface": "daily_temperatures(t: int[]) -> int[]\n",
+  "description": "daily_temperatures(a) returns, for each day, the days until a warmer temperature (0 if never).",
+  "interface": "daily_temperatures(a: int[]) -> int[]",
+  "example": "a = [73,74,75,71,69,72,76,73] -> [1,1,4,2,1,1,0,0]",
   "id": "daily_temperatures",
   "cpp": {
     "fn": "vector<int> daily_temperatures(const vector<int>& a)",
-    "hint": "// return list from list"
+    "hint": "// return days-until-warmer for each day"
   }
 }

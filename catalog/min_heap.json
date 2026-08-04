@@ -1,17 +1,20 @@
 {
   "title": "Min Heap",
   "shape": "commands",
-  "description": "Binary min-heap: insert and delete (extract-min). length tracks size.\n",
-  "interface": "insert(x) -> void\ndeleteMin() -> int | null\nlength() -> int\n",
-  "example": "insert 5,3,1; delete \u2192 1",
+  "description": "binary min-heap: insert(x), deleteMin() removes and returns the minimum (or nullopt), size().",
+  "interface": "insert(x) -> void deleteMin() -> int|null size() -> int",
+  "example": "insert 5,3,1; deleteMin() -> 1",
   "id": "min_heap",
   "cpp": {
     "class": "MinHeap",
-    "members": ["vector<int> data"],
+    "members": [
+      "vector<int> data"
+    ],
     "methods": [
       "void insert(int x)",
       "optional<int> deleteMin()",
-      "int length()"
-    ]
+      "int size()"
+    ],
+    "ctor": ""
   }
 }

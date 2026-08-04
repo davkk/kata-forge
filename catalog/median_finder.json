@@ -1,16 +1,21 @@
 {
   "title": "Median Finder",
   "shape": "commands",
-  "description": "Online median: insert values, getMedian (avg of two middles if even).\n",
-  "interface": "insert(x) getMedian() -> double\nlength()\n",
+  "description": "online median: insert(x), getMedian() (average of the two middles when even), size().",
+  "interface": "insert(x) -> void getMedian() -> double size() -> int",
+  "example": "insert 5,15,1,3; getMedian() -> 4",
   "id": "median_finder",
   "cpp": {
     "class": "MedianFinder",
-    "members": ["priority_queue<int> lo", "priority_queue<int, vector<int>, greater<>> hi"],
+    "members": [
+      "priority_queue<int> lo",
+      "priority_queue<int, vector<int>, greater<>> hi"
+    ],
     "methods": [
       "void insert(int val)",
       "double getMedian()",
-      "int length()"
-    ]
+      "int size()"
+    ],
+    "ctor": ""
   }
 }

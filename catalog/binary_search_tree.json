@@ -1,17 +1,22 @@
 {
   "title": "Binary Search Tree",
   "shape": "commands",
-  "description": "BST with insert, erase, find (returns value or empty), length.\n",
-  "interface": "insert(v) erase(v) find(v) -> int|null\nlength() -> int\n",
+  "description": "bst with insert(v), remove(v), find(v) (returns the value or nullopt), size().",
+  "interface": "insert(v) remove(v) find(v) -> int|null size() -> int",
+  "example": "insert 5,3,7; find 3 -> 3; remove 5",
   "id": "binary_search_tree",
   "cpp": {
     "class": "BinarySearchTree",
-    "members": ["struct Node { int val; Node *left, *right; }", "Node* root = nullptr"],
+    "members": [
+      "struct Node { int val; Node* left; Node* right; };",
+      "Node* root"
+    ],
     "methods": [
       "void insert(int val)",
-      "void erase(int val)",
+      "void remove(int val)",
       "optional<int> find(int val)",
-      "int length()"
-    ]
+      "int size()"
+    ],
+    "ctor": ""
   }
 }

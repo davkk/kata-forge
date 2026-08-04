@@ -1,18 +1,23 @@
 {
   "title": "Queue",
   "shape": "commands",
-  "description": "FIFO queue. enqueue at the tail, deque from the head, peek the head\nwithout removing. All operations should be O(1).\n",
-  "interface": "enqueue(x: int) -> void\ndeque() -> int | null\npeek() -> int | null\nlength() -> int\n",
-  "example": "enqueue 5,7,9; deque \u2192 5; length \u2192 2",
+  "description": "fifo queue: enqueue(x) at the tail, deque() from the head, peek() without removing; all O(1).",
+  "interface": "enqueue(x) -> void deque() -> int|null peek() -> int|null size() -> int",
+  "example": "enqueue 5,7,9; deque() -> 5; size() -> 2",
   "id": "queue",
   "cpp": {
     "class": "Queue",
-    "members": ["struct Node { int val; Node* next; }", "Node *head = nullptr, *tail = nullptr"],
+    "members": [
+      "struct Node { int val; Node* next; };",
+      "Node* head",
+      "Node* tail"
+    ],
     "methods": [
       "void enqueue(int x)",
       "optional<int> deque()",
       "optional<int> peek()",
-      "int length()"
-    ]
+      "int size()"
+    ],
+    "ctor": ""
   }
 }

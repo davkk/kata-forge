@@ -1,18 +1,22 @@
 {
   "title": "Stack",
   "shape": "commands",
-  "description": "LIFO stack. push/pop/peek at the top. All ops O(1).\n",
-  "interface": "push(x: int) -> void\npop() -> int | null\npeek() -> int | null\nsize() -> int\n",
-  "example": "push 5,7,9; pop \u2192 9",
+  "description": "lifo stack: push(x), pop(), peek() at the top; all O(1).",
+  "interface": "push(x) -> void pop() -> int|null peek() -> int|null size() -> int",
+  "example": "push 5,7,9; pop() -> 9",
   "id": "stack",
   "cpp": {
     "class": "Stack",
-    "members": ["struct Node { int val; Node* next; }", "Node *head = nullptr"],
+    "members": [
+      "struct Node { int val; Node* next; };",
+      "Node* head"
+    ],
     "methods": [
       "void push(int x)",
       "optional<int> pop()",
       "optional<int> peek()",
       "int size()"
-    ]
+    ],
+    "ctor": ""
   }
 }

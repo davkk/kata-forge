@@ -1,11 +1,12 @@
 {
   "title": "Combinations",
   "shape": "combos",
-  "description": "All k-combinations from 1..n (order-insensitive judge).\n",
-  "interface": "combinations(n, k) -> int[][]\n",
+  "description": "combinations(n, k) returns all k-element subsets of 1..n.",
+  "interface": "combinations(n: int, k: int) -> int[][]",
+  "example": "n=4, k=2 -> [[1,2],[1,3],[1,4],[2,3],[2,4],[3,4]]",
   "id": "combinations",
   "cpp": {
     "fn": "vector<vector<int>> combinations(int n, int k)",
-    "hint": "// return list of k-combinations of 1..n"
+    "hint": "// return all k-combinations of 1..n"
   }
 }

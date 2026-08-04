@@ -1,62 +1,93 @@
-# Linked List Cycle Detection (Tortoise and Hare)
+# Linked List Cycle -- two pointers at different speeds: lapping proves a loop
 
-Detect whether a linked list loops back on itself using **O(1) space** -- two pointers racing at different speeds.
+## Core idea
 
-## Intuition
+- Mechanism: `slow` steps 1, `fast` steps 2; on a cycle the gap between them shrinks by exactly 1 per step, so `fast` must lap `slow` -- address equality is the proof.
+- Why correct: a finite list lets `fast` fall off (no cycle); on a loop both are trapped and the gap closes 1 per step, never skipping `slow`.
 
-- `slow` advances 1 node per step, `fast` advances 2. If the list ends, `fast` falls off the end -> no cycle.
-- If there is a cycle, both pointers eventually enter it; then picture them on a circular track.
-- Why they must meet: inside the loop the gap between fast and slow closes by exactly 1 node per step (fast gains 2 - 1), so it can never jump *over* slow -- fast laps slow within one loop.
-- O(n) time: slow is caught after at most one cycle length of extra travel; O(1) space: just two pointers, no memory of visited nodes.
+## Build up
+
+1. **One pointer walks the list**
+
+```
+ListNode* cur = head;
+while (cur) cur = cur->next;
+```
+
+2. **Two pointers, different speeds**
+
+```
+ListNode *slow = head, *fast = head;
+slow = slow->next;
+fast = fast->next->next;
+```
+
+3. **Fast lapping slow means a cycle**
+
+```
+if (slow == fast) return true;
+```
+
+4. **The guard for fast's second hop**
+
+```
+while (fast && fast->next) { ... }
+return false;
+```
+
+## Diagram
+
+```
+no cycle: 1 -> 2 -> 3 -> null       cycle 3 -> 1:
+                                    1 -> 2 -> 3 -+
+                                    +------------+
+fast: 1, 3, null -> false
+                                    step 0: s=1 f=1
+                                    step 1: s=2 f=3
+                                    step 2: s=3 f=2
+                                    step 3: s=1 f=1  meet -> true
+```
 
 ## Approach -- tortoise and hare
 
 ```cpp
+using namespace std;
+
 bool has_cycle(ListNode* head) {
-    ListNode *slow = head, *fast = head;
-    while (fast && fast->next) {      // fast needs two hops -- check both
+    ListNode *slow = head, *fast = head;      // step 2
+    while (fast && fast->next) {              // step 4
         slow = slow->next;
         fast = fast->next->next;
-        if (slow == fast) return true;
+        if (slow == fast) return true;        // step 3
     }
-    return false;                     // fast hit the end
+    return false;                             // step 4
 }
 ```
 
-- The loop condition is `fast && fast->next`, not `fast` -- the second hop `fast->next->next` would dereference null otherwise.
-- Compare pointers (`==` on addresses), never values: a cycle is about node identity.
-- Empty list and single node without self-loop fall out naturally -- the while condition fails immediately.
+- The guard checks `fast && fast->next`, not just `fast`: the second hop dereferences, so odd-length lists fall off safely.
+- The comparison is on addresses, never values -- duplicates are legal.
 
-## Alternative -- visited hash set
+### Trace
 
-- Walk once, insert every node pointer into an `unordered_set<Node*>`; first repeat means cycle, hitting null means none.
-- Same O(n) time but O(n) space -- strictly worse here, though the "seen-before" pattern generalizes where two pointers can't (e.g. arbitrary graph walks).
-
-## Alternative -- Brent's algorithm (cycle length for free)
-
-- Same O(n) / O(1) guarantees with a teleporting power-of-two probe; usually fewer pointer hops and also yields the cycle length directly.
-- Tortoise-and-hare wins on code clarity; Brent wins when you also need the cycle length.
-
-## Extension -- find the cycle entry node
-
-- After the meeting point, reset one pointer to `head` and advance *both* by 1 -- they meet exactly at the entry.
-- Why: if head to entry is `a` steps and entry to meeting is `b`, then fast's doubling gives `a = remaining loop distance - b` (mod the cycle length), i.e. both pointers are equally far from the entry once one restarts at head.
+- 1->2->3: fast hits null -> false. Add 3->1: slow 1,2,3,1... fast 1,3,2,1...; both land on node 1 at step 3 -> true.
+- A self-loop meets on the first iteration.
 
 ## Complexity
 
-- Time: O(n) -- slow is caught after at most one cycle length of extra travel.
-- Space: O(1).
+- Time: O(n) -- slow is caught within one cycle length of extra travel. Space: O(1) -- two pointers.
 
-## Usage
+## Alternative -- visited hash set
 
-- Debugging allocators / data structures: a corrupted `next` often manifests as a loop.
-- Functional graphs (each x maps to f(x)): detecting repetition in pseudo-random sequences, Pollard's rho factorization.
-- Detecting a fixed point in a digit-square-sum sequence (a number whose iterate of digit-square-sums reaches 1 or loops).
-- Finding a duplicate in an array interpreted as a functional graph (index -> value -> index).
+- Insert each pointer into an `unordered_set<ListNode*>`; first repeat = cycle, null = none. Same O(n) time, but O(n) space; generalizes to arbitrary graph walks.
 
-## Cousins & contrasts
+## Use when
 
-- **Brent's algorithm**: same O(n)/O(1) guarantees with a teleporting power-of-two probe; usually fewer pointer hops and also yields the cycle length directly.
-- **Floyd middle-of-list**: same slow/fast hardware, different question -- when fast falls off the end, slow sits at the midpoint.
-- **Graph cycle detection**: linked lists have out-degree 1, so two pointers suffice; general graphs need DFS with a color/visited set.
-- **Hash set of visited nodes**: O(n) time and O(n) space -- the easy-but-heavier alternative.
+- Reach for this when you must detect a loop with zero extra memory.
+- Functional graphs (x -> f(x)): Pollard's rho, repeats in pseudo-random sequences.
+- Middle-of-list: the same two pointers, a different question -- when fast falls off, slow is at the midpoint.
+
+## Cousins
+
+- **Middle-of-list**: same slow/fast hardware, different answer.
+- **Graph cycle detection**: general graphs need DFS with a visited/color set; lists have out-degree 1, so two pointers suffice.
+- **Brent's algorithm**: O(1)-space variant with a power-of-two teleport, usually fewer hops, also yields cycle length.

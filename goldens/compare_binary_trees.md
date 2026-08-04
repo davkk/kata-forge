@@ -1,57 +1,96 @@
-# Compare Binary Trees
+# Compare Binary Trees -- walk both in lockstep: every aligned pair must agree
 
-Structural and value equality: both trees have the same shape and same values at every corresponding node. This is the template pattern for "same tree", "symmetric tree", and "subtree of another tree".
+## Core idea
 
-## Intuition
+- Invariant: equality holds iff roots agree and, recursively, both child pairs agree -- the structural definition of "same tree" projected onto one pair at a time.
+- Mechanism: two pointers descend identically (both left, both right); a node facing a null is a shape gap that kills the compare.
 
-- Walk both trees in lockstep: compare the current pair of nodes, then descend into left children together and right children together.
-- Three base cases cover everything: both null -> true, exactly one null -> false, value mismatch -> false.
-- Any traversal order works as long as both sides are visited identically; pre-order lockstep is the most natural.
-- O(n) time, O(h) recursion depth (worst case O(n) for a degenerate tree).
+## Build up
 
-## Approach -- recursive
+1. **Two pointers, one per tree**
+
+```
+bool compare(Node* a, Node* b)
+```
+
+2. **Both null -> equal**
+
+```
+if (!a && !b) return true;
+```
+
+3. **One null -> shape gap**
+
+```
+if (!a || !b) return false;
+```
+
+4. **Values must match**
+
+```
+if (a->val != b->val) return false;
+```
+
+5. **Recurse into both child pairs**
+
+```
+return compare(a->left, b->left) &&
+       compare(a->right, b->right);
+```
+
+## Diagram
+
+```
+  A:    a          B:    a
+       / \              / \
+      b   c            b   c
+     /                / \
+    d                d   e
+
+  (a,a) ok
+   (b,b) ok       (c,c) ok
+   (d,d) ok       (null,null) ok
+   (null,e) FALSE -- one null, one node
+```
+
+## Approach -- recursive lockstep
 
 ```cpp
 using namespace std;
 
 bool compare(Node* a, Node* b) {
-    if (!a && !b) return true;
-    if (!a || !b) return false;
-    if (a->val != b->val) return false;
-    return compare(a->left, b->left) && compare(a->right, b->right);
+    if (!a && !b) return true;            // step 2
+    if (!a || !b) return false;           // step 3
+    if (a->val != b->val) return false;   // step 4
+    return compare(a->left, b->left) &&   // step 5
+           compare(a->right, b->right);
 }
 ```
 
-- `!a || !b` catches "exactly one is null" in a single line.
-- Short-circuit `&&` skips the right subtree when the left already differs -- no wasted work.
+- The clause order matters: `!a || !b` must come after `!a && !b`, or a null would be dereferenced.
+- `&&` short-circuits: a failed left pair skips the right subtrees entirely.
 
-## Alternative -- serialize and compare
+### Trace
 
-- Flatten both trees to strings (pre-order with null markers), then do a string comparison.
-- Same O(n) time but needs O(n) extra space for the strings. The recursive lockstep is simpler and standard.
-- Useful when you also need to store / transmit the tree shape (caches, network messages).
-
-## Alternative -- iterative (explicit stack)
-
-- Push `(a, b)` pairs onto a stack; for each pair, check the same three base cases and push `(a->left, b->left)`, `(a->right, b->right)`.
-- Same O(n) time, O(h) space (in practice often less than recursion because the stack is shared).
-- Reach for it on degenerate trees where recursion depth would overflow.
+- Identical trees recurse lockstep all the way down, every pair true, then back up -- true.
+- Extra node 21 under 29 in `b` only: pair becomes (null, 21) -> `!a` true, `!b` false -> false; b's right side never runs.
 
 ## Complexity
 
-- Time: O(n) where n is the number of nodes in the larger tree.
-- Space: O(h) recursion depth, O(n) in the worst case for a degenerate tree.
+- Time: O(n) -- each aligned pair touched once. Space: O(h) recursion (O(n) degenerate).
 
-## Usage
+## Alternative -- serialize with null markers
 
-- Testing structural equality of DOM trees or JSON objects.
-- **Symmetric tree**: compare the left and right subtrees of a single root with swapped arguments -- `compare(a->left, b->right) && compare(a->right, b->left)`.
-- **Subtree of another tree**: for each node in the larger tree, check if `compare` returns true with the smaller tree.
-- Diff tools for tree-shaped data (XML/JSON diff, AST comparison in compilers).
+- Flatten both trees pre-order, writing explicit nulls, then string-compare: O(n) time but O(n) scratch space; worth it only if you must store the shape anyway.
 
-## Cousins & contrasts
+## Use when
 
-- **Invert tree**: the destructive mirror; compare is read-only. See invert_tree.
-- **DFS traversal**: visits one tree; compare walks two trees simultaneously, pairing nodes.
-- **Same-tree variant**: identical code; the symmetric-tree variant swaps the recursion arguments.
-- **Tree isomorphism**: shape-only equality (values may differ) -- drop the value check, keep the structural one.
+- Reach for this when asked "same tree" or "deeply equal" -- DOM, JSON, AST equality.
+- Symmetric tree: compare(a->left, b->right) && compare(a->right, b->left) on one root.
+- Subtree of another tree: probe compare at every node of the larger tree.
+
+## Cousins
+
+- **invert_tree**: the destructive twin -- compare reads, invert mutates.
+- **Tree isomorphism**: shape only, drop the value check.
+- **DFS**: one pointer over one tree; compare pairs two pointers at the same slot.

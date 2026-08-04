@@ -1,11 +1,12 @@
 {
-  "title": "Subsets",
+  "title": "Subsets (Power Set)",
   "shape": "list_lists",
-  "description": "Power set of distinct ints (order-insensitive judge).\n",
-  "interface": "subsets(nums) -> int[][]\n",
+  "description": "subsets(a) returns the power set of the distinct ints.",
+  "interface": "subsets(a: int[]) -> int[][]",
+  "example": "a = [1,2] -> [[],[1],[2],[1,2]]",
   "id": "subsets",
   "cpp": {
     "fn": "vector<vector<int>> subsets(const vector<int>& a)",
-    "hint": "// return list of lists (order-insensitive)"
+    "hint": "// return all subsets of a"
   }
 }

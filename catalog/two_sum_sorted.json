@@ -1,11 +1,12 @@
 {
-  "title": "Two Sum Sorted",
+  "title": "Two Sum (Sorted)",
   "shape": "list_k_list",
-  "description": "1-indexed pair of indices that sum to target in a sorted array.\n",
-  "interface": "two_sum_sorted(nums: int[], target: int) -> int[2]\n",
+  "description": "two_sum_sorted(a, k) returns the 1-indexed indices [i, j] of the pair summing to k.",
+  "interface": "two_sum_sorted(a: int[], k: int) -> int[]",
+  "example": "a = [2,7,11,15], k=9 -> [1,2]",
   "id": "two_sum_sorted",
   "cpp": {
     "fn": "vector<int> two_sum_sorted(const vector<int>& a, int k)",
-    "hint": "// return list from list + k"
+    "hint": "// return the 1-indexed pair [i, j]"
   }
 }

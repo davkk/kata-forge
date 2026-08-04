@@ -1,13 +1,56 @@
-# BFS on a Binary Tree (Level Order)
+# BFS on a Binary Tree -- a FIFO queue drains one level before the next
 
-Breadth-first traversal visits the tree **level by level, left to right**, using a queue. DFS dives with a stack; BFS fans out -- a node is never visited before every node on the levels above it.
+## Core idea
 
-## Intuition
+- Invariant: everything in the queue at the start of a pop belongs to a single depth level, because children are appended at the tail, behind every node already waiting.
+- Mechanism: FIFO ordering IS depth ordering -- each node's children queue up after all pending nodes, so the front always pops the shallowest remaining node.
 
-- A FIFO queue is the whole trick: children enqueued now are processed only after every node already waiting -- which is exactly the current level.
-- While the DFS orders differ by *when* you visit a node relative to its children, BFS sidesteps the question: visit order is determined purely by depth.
-- Snapshot `q.size()` at the start of each level to know where one level ends and the next begins -- that single counter unlocks all per-level problems.
-- Time O(n). Space O(w), where w is the maximum tree width -- a complete tree's last level holds ~n/2 nodes, so BFS can use far more memory than DFS's O(h).
+## Build up
+
+1. **A queue holds the frontier**
+
+```
+queue<Node*> q;
+q.push(root);
+```
+
+2. **Pop the front, check it**
+
+```
+Node* curr = q.front(); q.pop();
+if (curr->val == needle) return true;
+```
+
+3. **Children join the back**
+
+```
+if (curr->left)  q.push(curr->left);
+if (curr->right) q.push(curr->right);
+```
+
+4. **Snapshot the level before draining**
+
+```
+int level_size = (int)q.size();   // before children arrive
+for (int i = 0; i < level_size; ++i) ...
+```
+
+## Diagram
+
+```
+         A <-- root
+        / \
+       B   C
+      / \   \
+     D   E   F
+
+queue: [A]        pop A, push B C
+       [B C]      pop B, push D E
+       [C D E]    pop C, push F
+       [D E F]    pop D E F
+
+order: A B C D E F -- strictly level by level
+```
 
 ## Approach -- level-order search
 
@@ -17,14 +60,14 @@ using namespace std;
 bool bfs(Node* root, int needle) {
     if (!root) return false;
     queue<Node*> q;
-    q.push(root);
+    q.push(root);                           // step 1
     while (!q.empty()) {
-        int level_size = (int)q.size();          // nodes on this level
+        int level_size = (int)q.size();     // step 4: width of this level
         for (int i = 0; i < level_size; ++i) {
-            Node* curr = q.front(); q.pop();
+            Node* curr = q.front(); q.pop();    // step 2
             if (curr->val == needle) return true;
-            if (curr->left)  q.push(curr->left);
-            if (curr->right) q.push(curr->right);
+            if (curr->left)  q.push(curr->left);    // step 3
+            if (curr->right) q.push(curr->right);   // step 3
         }
         // one full level done here -- collect averages, maxima, ...
     }
@@ -32,35 +75,32 @@ bool bfs(Node* root, int needle) {
 }
 ```
 
-- Only enqueue non-null children -- keeps all null checks in one place.
-- The `level_size` loop is optional for a plain search but is the standard idiom whenever results are grouped per level.
+- The `while` just drains what steps 1-3 build; step 4's snapshot turns a plain search into per-level work.
+- `level_size` is read once, before the loop -- the current frontier, not the growing tail.
+- Only non-null children are enqueued, so the null check lives in one place.
 
-## Alternative -- DFS with depth parameter
+### Trace
 
-- Pass a depth argument; a `vector<vector<int>> levels` indexed by depth collects nodes as you recurse.
-- Lower memory for skinny trees (O(h) recursion instead of O(w) queue), and trivially computes results like "average value at each depth" without a level_size snapshot.
-- Loses the "left-to-right within a level" guarantee that BFS gives for free.
-
-## Alternative -- Morris-style traversal (O(1) space, no queue, no stack)
-
-- Reuse leaf pointers as a temporary "next" thread to walk the tree, restoring pointers on the way back.
-- O(n) time and O(1) space, no recursion, no explicit queue. Hard to get right and fragile under concurrent mutation -- an interview curiosity more than a default.
+- Root 20, children 10/50, 45 under 30 (right of 50): pop 20, push 10 50; pop 10, 50 (push 5 15 30 100); pop 5,15,30 (push 29 45); pop 29, then 45 -> true.
+- Levels drain one at a time; the hit at 45 exits mid-level, so unvisited nodes stay queued.
 
 ## Complexity
 
-- Time: O(n).
-- Space: O(w) for the queue (max tree width); O(h) recursion depth for the DFS variant.
+- Time: O(n) -- each node enqueued once, popped once. Space: O(w), w = widest level.
 
-## Usage
+## Alternative -- DFS with depth parameter
 
-- **Shortest depth / nearest match**: the first BFS hit is guaranteed shallowest -- DFS gives no such guarantee.
-- Level averages, level maxima, right-side view (last node per level), zigzag traversal (alternate direction per level).
-- Serialization formats that store a tree level by level.
-- Anything where the *layer* of a node carries meaning: tree depth, the k-th row of a tree, peer-by-peer expansion.
+- Recurse carrying a `depth` and append to `levels[depth]`: same per-level result with O(h) space, but no queue and no free left-to-right guarantee.
 
-## Cousins & contrasts
+## Use when
 
-- **DFS (pre/in/post-order)**: dives to a leaf with a stack or recursion, O(h) space; better for structure-preserving walks and bottom-up aggregation.
-- **Graph BFS**: same queue plus a `visited` set -- trees need none since they have no cycles.
-- **Dijkstra**: BFS generalized to weighted graphs -- the FIFO queue becomes a min-heap on distance.
-- **DFS with depth param**: same per-level results, lower peak memory for skinny trees, loses BFS's left-to-right ordering.
+- Reach for this when the question is about a node's *layer*: k-th row, shortest path, level order output.
+- Level-grouped results: averages, maxima, right-side view (last node per level), zigzag.
+- The answer sits near the root: BFS finds the shallowest hit first, DFS does not.
+
+## Cousins
+
+- **DFS**: a stack, O(h) space -- for paths and bottom-up work, not layers.
+- **Graph BFS**: the same queue plus a `visited` set; trees need none.
+- **dfs_on_bst**: prunes by ordering to O(h); BFS has no ordering to exploit.
+- **Dijkstra**: BFS whose FIFO becomes a min-heap on distance.

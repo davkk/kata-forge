@@ -1,16 +1,51 @@
-# Dijkstra's Shortest Path
+# Dijkstra's Shortest Path -- the nearest unsettled node settles first, and its cost is final
 
-Single-source shortest paths on a weighted graph with **non-negative** edge weights. Greedy: the unsettled node with the smallest tentative distance is already final -- lock it in.
+## Core idea
+- Invariant: the unsettled node with the smallest dist cannot be improved, since any detour to it must exit the settled set over a non-negative edge.
+- dist/prev hold the best known cost and its parent; settling in ascending cost order is the greedy that matches the optimum.
 
-## Intuition
+## Build up
+1. **Scan for the nearest**
 
-- Maintain `dist[v]` = best known distance from source; start with 0 at source, infinity elsewhere.
-- Each round, settle the unsettled node `u` with the smallest `dist[u]`. Because no edge is negative, no future detour can improve it -- the claim is a proof by "any alternate route exits the settled set through a non-negative edge, so it can only be longer".
-- Relax every edge `u -> v`: `dist[v] = min(dist[v], dist[u] + w)`. Store `prev[v] = u` whenever you improve, so the path can be rebuilt backwards at the end.
-- Negative edges break the greedy argument (a settled node could still improve) -> use Bellman-Ford there.
+```
+int u = -1;
+for (int i = 0; i < n; i++)
+    if (!seen[i] && (u == -1 || dist[i] < dist[u])) u = i;
+```
 
-## Approach 1 -- O(V^2) linear scan (simple, good for dense graphs)
+2. **Settle: cost is final**
 
+```
+seen[u] = true;
+```
+
+3. **Relax: try a cheaper way**
+
+```
+if (dist[u] + e.weight < dist[e.to]) {
+    dist[e.to] = dist[u] + e.weight;
+    prev[e.to] = u;
+}
+```
+
+4. **Stop at the sink**
+
+```
+if (u == -1 || u == sink) break;
+```
+
+## Diagram
+```
+dist labels; [x] = settled (final):
+  node    0    1    2    3    4    5    6
+  dist    0    3    1    8    4    6    7
+         [0]  [3]  [1]   (8)  [4]  [6]  [7]
+  settle order: 0 -> 2 -> 1 -> 4 -> 5 -> 6, stop at sink
+  relax only lowers dist: 2->1 = 5 worse than 3, keep 3
+  prev: 6 <- 5 <- 4 <- 1 <- 0  =>  [0 1 4 5 6], sum 7
+```
+
+## Approach -- linear-scan settle
 ```cpp
 using namespace std;
 
@@ -21,13 +56,13 @@ optional<vector<int>> dijkstra(const vector<vector<Edge>>& g, int source, int si
     dist[source] = 0;
 
     for (int iter = 0; iter < n; ++iter) {
-        int u = -1;                                  // min unsettled node
+        int u = -1;                                  // step 1: scan for nearest
         for (int i = 0; i < n; ++i)
             if (!seen[i] && (u == -1 || dist[i] < dist[u])) u = i;
-        if (u == -1 || u == sink) break;             // done / unreachable
-        seen[u] = true;
+        if (u == -1 || u == sink) break;             // step 4: done / sink settled
+        seen[u] = true;                              // step 2: settle, cost final
 
-        for (auto& e : g[u])                         // relax outgoing edges
+        for (auto& e : g[u])                         // step 3: relax neighbors
             if (!seen[e.to] && dist[u] + e.weight < dist[e.to]) {
                 dist[e.to] = dist[u] + e.weight;
                 prev[e.to] = u;
@@ -36,65 +71,32 @@ optional<vector<int>> dijkstra(const vector<vector<Edge>>& g, int source, int si
 
     if (prev[sink] == -1 && source != sink) return nullopt;
 
-    vector<int> path;                                // rebuild sink->source
+    vector<int> path;                                // walk prev backwards
     for (int at = sink; at != -1; at = prev[at]) path.push_back(at);
     reverse(path.begin(), path.end());
     return path;
 }
 ```
 
-### Walkthrough
+- The scan is step 1; settling (step 2) locks the cost, and relax (step 3) is the only place dist/prev change.
+- The `!seen[e.to]` guard never relaxes into a settled node, which is the non-negative-weights assumption, line by line.
 
-4 nodes, edges (u, v, w): 0-1:4, 0-2:1, 1-3:1, 2-1:2, 2-3:5, 3-(none). Source=0, sink=3:
-- dist=[0, INF, INF, INF], seen=[F,F,F,F]
-- settle u=0 (dist=0): relax 0->1 (dist[1]=4, prev=0), 0->2 (dist[2]=1, prev=0)
-- settle u=2 (dist=1): relax 2->1 (1+2=3 < 4 -> dist[1]=3, prev=2), 2->3 (1+5=6 -> dist[3]=6, prev=2)
-- settle u=1 (dist=3): relax 1->3 (3+1=4 < 6 -> dist[3]=4, prev=1)
-- settle u=3 (dist=4): u==sink, break
-- reconstruct: 3 <- 1 <- 2 <- 0 -> reverse -> [0, 2, 1, 3] (total weight 4)
-
-- Early exit at `u == sink` is safe: sink is settled the moment it becomes the minimum.
-- Pitfall: never relax *into* a settled node; the `seen` check enforces it.
-- Pitfall: `dist[u] + e.weight` overflows if `dist[u] == INT_MAX` -- the `u == -1` break guards it here.
+### Trace
+- Settle order 0 (0), 2 (1), 1 (3), 4 (4), 5 (6), 6 (7) then stop; relax 2->1 = 5 rejected, 1->4 = 4 accepted. Path [0,1,4,5,6], sum 7.
+- Sink 3 is unreachable from 0, so dijkstra returns nullopt.
 
 ## Complexity
+- O(V^2) time with the scan (O(E log V) with a heap), O(V) space.
 
-- Time: O(V^2) with linear scan, O(E log V) with min-heap. Space: O(V).
+## Alternative -- lazy min-heap
+- A priority_queue of (dist, node) replaces the scan; on pop, `if (d > dist[u]) continue;` skips stale entries.
+- O(E log V), best when E is far below V^2.
 
-## Approach 2 -- O(E log V) lazy min-heap (better on sparse graphs)
+## Use when
+- Weighted shortest path: reach for this when edges carry non-negative costs and you want the minimum sum (GPS routing, cheapest flights, OSPF).
+- Primitive routine: reach for this as the core of A* and Johnson's algorithm.
 
-```cpp
-priority_queue<pair<int,int>, vector<pair<int,int>>, greater<>> pq;
-pq.push({0, source});
-while (!pq.empty()) {
-    auto [d, u] = pq.top(); pq.pop();
-    if (d > dist[u]) continue;                       // stale heap entry
-    if (u == sink) break;
-    for (auto& e : g[u])
-        if (d + e.weight < dist[e.to]) {
-            dist[e.to] = d + e.weight;
-            prev[e.to] = u;
-            pq.push({dist[e.to], e.to});
-        }
-}
-```
-
-- Replace the scan with a priority queue of `(dist, node)`; push on every successful relaxation.
-- No decrease-key in `std::priority_queue` -> allow duplicates, skip stale entries when popped (`d > dist[u]`).
-- Wins when E << V^2; on dense graphs the plain scan is simpler and has no heap constant factor.
-
-## Alternative -- A* (goal-directed)
-
-- Same relaxation loop plus an admissible heuristic `h(u)` that estimates distance to the sink; priority becomes `dist[u] + h(u)`.
-- With a perfect heuristic, search goes straight to the sink; with `h = 0`, A* is Dijkstra.
-
-## Usage
-
-- GPS routing, OSPF/IS-IS network routing, latency- and cost-minimization problems.
-- As a subroutine: A* (Dijkstra + heuristic), Johnson's all-pairs algorithm, "cheapest flight with k stops" variants.
-
-## Cousins & contrasts
-
-- **BFS**: Dijkstra with all weights = 1 -- a plain queue suffices, O(V + E).
-- **Bellman-Ford**: tolerates negative edges and detects negative cycles, but O(V*E).
-- **Prim's MST**: nearly identical code -- but the key is the single edge weight, not the path sum. Same greedy skeleton, different quantity being minimized.
+## Cousins
+- BFS: Dijkstra with every edge weight 1; a plain queue.
+- Bellman-Ford: tolerates negative edges, O(V*E); Dijkstra breaks on them.
+- Prim: the same settle skeleton, but the key is a single edge weight, not a path sum.

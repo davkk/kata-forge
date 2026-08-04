@@ -1,14 +1,15 @@
 {
-  "title": "DFS Graph (List)",
+  "title": "DFS on a Graph (Adjacency List)",
   "shape": "graph_path",
-  "description": "DFS path on weighted adj list from source to sink, or null.\n",
-  "interface": "dfs(graph, source, sink) -> int[] | null\n",
+  "description": "dfs(g, source, sink) returns a node path from source to sink, or nullopt.",
+  "interface": "dfs(g: graph, source: int, sink: int) -> int[] | null",
+  "example": "adjacency list with a 0->1->2 path",
   "id": "dfs_graph_list",
   "cpp": {
     "fn": "optional<vector<int>> dfs(const vector<vector<Edge>>& g, int source, int sink)",
     "structs": [
       "struct Edge { int to; int weight; };"
     ],
-    "hint": "// return path or nullopt"
+    "hint": "// return node path from source to sink, or nullopt"
   }
 }

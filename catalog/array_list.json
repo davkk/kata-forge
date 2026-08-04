@@ -1,13 +1,18 @@
 {
   "title": "Array List",
   "shape": "commands",
-  "description": "Dynamic array list with random access. Capacity hint via init.\n",
-  "interface": "prepend(x) append(x) insertAt(i,x)\nget(i) remove(x) removeAt(i) size()\n",
-  "example": "append 5,7,9; get(2) \u2192 9",
+  "description": "dynamic array: O(1) random access, amortized O(1) append, O(n) middle insert/remove.",
+  "interface": "prepend(x) append(x) insertAt(i, x)\nget(i) -> int|null remove(x) -> int|null removeAt(i) -> int|null size() -> int",
+  "example": "append 5,7,9; get(2) -> 9",
   "id": "array_list",
   "cpp": {
     "class": "ArrayList",
-    "members": ["int cap"],
+    "ctor": "int cap",
+    "members": [
+      "int cap",
+      "int len",
+      "int* data"
+    ],
     "methods": [
       "void append(int x)",
       "void prepend(int x)",

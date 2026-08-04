@@ -1,36 +1,68 @@
-# LRU Cache
+# LRU cache -- map finds, list orders: compose two O(1) structures for eviction
 
-A fixed-capacity cache that evicts the **least recently used** entry, with O(1) get and update. Neither a hash map nor a linked list alone can do this — the classic composite structure.
+## Core idea
 
-## Intuition
+- Invariant: the list holds live keys in recency order -- head is most recently used, tail is the eviction victim; every access moves its node to the head.
+- Mechanism: the map answers "where is the node" in O(1), the list answers "what is oldest" in O(1); eviction deletes from both, so lookup and order stay consistent.
 
-- Hash map alone: O(1) lookup, but no notion of "oldest" — finding the evict victim costs O(n).
-- Linked list alone: O(1) reorder and eviction at the ends, but finding a key costs O(n).
-- Composite: `unordered_map<key, Node*>` answers *where* in O(1); the doubly linked list holds nodes in recency order and answers *what to evict / how to reorder* in O(1).
-- Invariant: **head = most recently used, tail = evict victim**. Every access (get *and* update) moves its node to the head.
-- Doubly linked (not singly) because detaching an arbitrary node needs its predecessor — with `prev` pointers it is O(1).
-- All ops O(1): a constant number of pointer swaps and one hash lookup; space O(capacity).
+## Build up
 
-## Approach — hash map + doubly linked list
+1. **Two halves, one gap**
+
+```
+unordered_map<string, Node*> m;   // O(1) lookup, no "oldest"
+Node* head, *tail;                // order, but finding a key is O(n)
+```
+
+2. **Map points at list nodes**
+
+```
+m[key] = n;   // n also sits in the recency list
+```
+
+3. **touch: detach, then prepend**
+
+```
+detach(n);    // splice out of the middle
+prepend(n);   // wire to the head (MRU)
+```
+
+4. **evict: drop tail, erase map**
+
+```
+m.erase(tail->key);   // Node stores its key
+detach(tail);
+delete tail;
+```
+
+## Diagram
+
+```
+cap 2
+update a, update b      list: b <-> a       tail = victim
+get("a") touches        list: a <-> b       a is now MRU
+update c (full)         evict b             map {a, c}, list c <-> a
+get("b")                nullopt             (evicted)
+```
+
+## Approach -- hash map + doubly linked list
 
 ```cpp
 using namespace std;
 
-struct Node {
-    string key;
-    int val;
-    Node *prev, *next;
-};
-
-struct LRU {
+class LRU {
+public:
     int cap;
-    unordered_map<string, Node*> m;
-    Node *head = nullptr, *tail = nullptr;   // head = MRU, tail = victim
+    unordered_map<string, Node*> m;   // step 2
+    Node* head;                       // head = MRU
+    Node* tail;                       // tail = victim
+
+    LRU(int cap) : cap(cap), m(), head(nullptr), tail(nullptr) {}
 
     optional<int> get(const string& k) {
         auto it = m.find(k);
         if (it == m.end()) return nullopt;
-        touch(it->second);
+        touch(it->second);            // step 3
         return it->second->val;
     }
 
@@ -41,15 +73,15 @@ struct LRU {
             touch(it->second);
             return;
         }
-        if ((int)m.size() == cap) evict();
+        if ((int)m.size() == cap) evict();   // step 4
         Node* n = new Node{k, v, nullptr, nullptr};
-        m[k] = n;
+        m[k] = n;                            // step 2
         prepend(n);
     }
 
     int size() { return (int)m.size(); }
 
-    void touch(Node* n) { detach(n); prepend(n); }
+    void touch(Node* n) { detach(n); prepend(n); }   // step 3
 
     void detach(Node* n) {
         if (n->prev) n->prev->next = n->next; else head = n->next;
@@ -62,7 +94,7 @@ struct LRU {
         head = n;
     }
 
-    void evict() {
+    void evict() {                                   // step 4
         Node* dead = tail;
         m.erase(dead->key);
         detach(dead);
@@ -71,30 +103,30 @@ struct LRU {
 };
 ```
 
-### Walkthrough (`cap = 2`)
-- `update("a",1)`: map={a:1}, list=[a:1]; `update("b",2)`: map={a:1,b:2}, list=[b:2]<->[a:1] (b newest)
-- `get("a")` -> 1: detach a from tail, prepend to head; list=[a:1]<->[b:2]
-- `update("c",3)`: cap full, evict tail b, prepend c; map={a:1,c:3}, list=[c:3]<->[a:1]
-- `get("b")` -> nullopt (evicted); `get("a")` -> 1: touch; list=[a:1]<->[c:3]
-- Touching = `detach` + `prepend`. Eviction must erase from both map and list.
-- Pitfall: read `tail->key` before `delete dead`; single-node edge cases fall out naturally.
-## Complexity
-- Time: O(1) per get, update, size.
-- Space: O(capacity).
-## Alternative — `std::list` + map of iterators (interview shorthand)
-- `list<pair<K,V>>` (front = MRU) plus `unordered_map<K, list<...>::iterator>`; list iterators stay valid across moves, so no raw-pointer surgery.
-- Touch is `l.splice(l.begin(), l, it->second)` — O(1), no detach code at all.
-- Same complexity, far less code; the handwritten version above is what interviewers probe for when they say "no library list".
-## Alternative — array + timestamps (low-overhead bounded cache)
-- For a small, fixed key set, store entries in an array indexed by hash and use a per-slot timestamp (counter) for LRU.
-- No allocation, no pointer chasing; wins on cache misses for the entire cache.
-- Loses to the linked list when capacity varies or eviction must be exact.
-## Usage
-- Browser and CDN caches, database buffer pools, Redis (`allkeys-lru`).
-- Bounding memory of memoization: cache the last k results, evict the rest.
+- The map entry and the list node are the same object per key -- that identity joins the two halves (steps 1-2).
+- `get` and `update` both call `touch`: a read changes recency, so reads must reorder (step 3).
+- `evict` cleans both halves; the stored key makes `m.erase` possible (step 4).
 
-## Cousins & contrasts
-- **FIFO cache**: evicts oldest insertion, never reorders on get — simpler but punishes popular old keys.
-- **LFU cache**: evicts least frequently used; needs per-key counters and min-tracking.
-- **Second chance / clock**: FIFO + reference bit, OS-friendly LRU approximation with no list surgery.
-- **Direct-mapped CPU cache**: eviction by hash collision, not recency.
+### Trace
+
+- cap 2: update a=1, b=2 -> list `b <-> a`; get("a") touches -> list `a <-> b`; update c=3 evicts b from list and map; get("b") -> nullopt, get("a") -> 1 and a becomes MRU.
+
+## Complexity
+
+- Time: O(1) per get, update, size. Space: O(cap) -- one node plus one map entry per live key.
+
+## Alternative -- std::list + map of iterators
+
+- `list<pair<string,int>>` plus `unordered_map<string, iterator>`; `splice` to the front does the touch -- same complexity, no raw-pointer surgery (the handwritten version is what interviews mean by "no library list").
+
+## Use when
+
+- Reach for this when you need "lookup by key" AND "evict the oldest access", both O(1) -- caches, bounded memoization.
+- Pattern trigger: "cache of size N, drop least recently used" -> hash map + linked list (a heap, if eviction is by urgency).
+
+## Cousins
+
+- **FIFO cache**: evicts oldest insertion; reads never reorder.
+- **LFU cache**: evicts least frequent -- counters plus a heap.
+- **Clock/second chance**: LRU approximation with a reference bit, OS-style.
+- **Doubly linked list**: the order half in isolation (see doubly_linked_list).

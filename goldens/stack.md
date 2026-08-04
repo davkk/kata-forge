@@ -1,20 +1,60 @@
-# Stack
+# Stack -- one end only: LIFO makes push/pop/peek O(1)
 
-LIFO container: the last thing pushed is the first thing popped. Restricting access to **one end only** is precisely what makes every operation O(1).
+## Core idea
 
-## Intuition
+- Only the **top** is reachable; work happens at one fixed end, so every op is pointer rewiring -- no search, no shift.
 
-- One pointer marks the top; push and pop both touch only that end — no traversal, no shifting.
-- The restriction is the feature: LIFO order matches nested, last-opened-first-closed structure — calls, brackets, undo history.
-- All ops O(1) time; O(n) space for n elements.
+## Build up
 
-## Approach 1 — linked-node stack
+1. **One pointer for the top**
+
+```
+class Stack {
+public:
+    Node* head;
+    Stack() : head(nullptr) {}
+};
+```
+
+2. **push: the new top points at the old top**
+
+```
+head = new Node{x, head};
+```
+
+3. **pop: the top moves down**
+
+```
+Node* n = head;
+head = n->next;
+delete n;
+```
+
+4. **empty: nothing to pop**
+
+```
+if (!head) return nullopt;
+```
+
+## Diagram
+
+```
+push 1, 2, 3        pop() -> 3         peek() -> 2
+top->3              top->2             top->2
+     |->2                |->1               |->1 (no change)
+     |->1
+```
+
+## Approach -- linked nodes
 
 ```cpp
 using namespace std;
 
-struct Stack {
-    Node *head = nullptr;
+class Stack {
+public:
+    Node* head;
+
+    Stack() : head(nullptr) {}
 
     void push(int x) {
         head = new Node{x, head};
@@ -23,8 +63,8 @@ struct Stack {
     optional<int> pop() {
         if (!head) return nullopt;
         Node* n = head;
-        int val = n->val;
         head = n->next;
+        int val = n->val;
         delete n;
         return val;
     }
@@ -42,48 +82,28 @@ struct Stack {
 };
 ```
 
-- The top of the stack is the **head** of the list — the one end where a singly-linked list gives O(1) insert and remove. Push prepends, pop unlinks.
-- One pointer suffices; a queue needs two (head + tail) because it touches both ends.
-- `pop`/`peek` return `nullopt` on empty — the caller owns the error check. `delete` the unlinked node or you leak.
-- `size()` is O(n) as a traversal; keep a running counter (++ on push, -- on pop) for O(1).
+- The struct is build steps 1-4 assembled: `head` (step 1), push (step 2), pop = step 3 + step 4's guard.
+- `peek` is `pop` without the unlink; `size()` is an O(n) walk -- keep a counter for O(1).
 
-## Approach 2 — array-backed stack
+### Trace
 
-```cpp
-vector<int> data;
-
-void push(int x) { data.push_back(x); }
-
-optional<int> pop() {
-    if (data.empty()) return nullopt;
-    int val = data.back();
-    data.pop_back();
-    return val;
-}
-```
-
-- The top is the *end* of the vector — the only end where arrays give O(1) add/remove; the front would cost O(n) shifting per op.
-- Wins in practice: no per-element allocation, cache-friendly, amortized O(1) growth. The linked version pays a heap allocation + pointer per element.
-
-## Alternative — two-stack queue (the reverse trick)
-
-- Two stacks simulate a FIFO queue: enqueue pushes onto `in`, dequeue pops from `out` (pouring `in` into `out` when empty). See queue.md.
+- push 5, 7, 9 -> `9 -> 7 -> 5`; pop -> 9, 7, 5, then nullopt. Out = reverse of in.
 
 ## Complexity
 
-- Time: O(1) per push, pop, peek, size (amortized growth for the array version).
-- Space: O(n) for n elements.
+- Time: O(1) per push/pop/peek (size O(n) without counter). Space: O(n).
 
-## Usage
+## Alternative -- array-backed
 
-- **The call stack**: every function call pushes a frame, every return pops one; recursion is an implicit stack.
-- Undo/redo, browser back button, DFS with an explicit stack.
-- Expression work: bracket matching, infix to postfix (shunting yard), postfix evaluation.
-- **Monotonic stack** problems — daily temperatures, next greater element, largest rectangle in histogram: keep the stack strictly increasing/decreasing and pop when the invariant breaks.
-- Any "remember what just happened and undo it" pipeline.
+- Top = the vector's **end**: `push_back`/`pop_back` -- no per-node allocation, cache-friendly (what `std::stack` does).
 
-## Cousins & contrasts
+## Use when
 
-- **Queue**: FIFO instead of LIFO; a queue gives BFS where a stack gives DFS.
-- **Recursion**: an implicit stack — any recursive algorithm can be rewritten with an explicit one (and vice versa).
-- **Deque**: push/pop at both ends; a stack is a deque used at one end only.
+- "Most recent first": brackets, postfix, DFS, backtracking, undo history.
+- **Monotonic stack** (next-greater, daily temperatures): reach for this when you need the nearest smaller/larger neighbor -- LIFO plus a value rule; each element enters/leaves once -> whole pass O(n).
+
+## Cousins
+
+- **Queue**: FIFO needs two ends -> head + tail (see queue).
+- **Recursion**: an implicit stack; any recursive algorithm rewrites to explicit.
+- **Deque**: both ends; a stack is a deque used at one end only.

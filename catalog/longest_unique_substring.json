@@ -1,0 +1,12 @@
+{
+  "title": "Longest Unique Substring",
+  "shape": "str_scalar",
+  "description": "longest_unique_substring(s) returns the length of the longest substring with all distinct chars.",
+  "interface": "longest_unique_substring(s: string) -> int",
+  "example": "s = 'abcabcbb' -> 3",
+  "id": "longest_unique_substring",
+  "cpp": {
+    "fn": "int longest_unique_substring(const string& s)",
+    "hint": "// return max window length with all distinct chars"
+  }
+}

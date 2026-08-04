@@ -1,14 +1,15 @@
 {
-  "title": "Dijkstra (List)",
+  "title": "Dijkstra's Shortest Path",
   "shape": "graph_path",
-  "description": "Shortest weighted path source\u2192sink on adj list. Return node path.\n",
-  "interface": "dijkstra(graph, source, sink) -> int[]\n",
+  "description": "dijkstra(g, source, sink) returns the minimum-total-weight node path, or nullopt.",
+  "interface": "dijkstra(g: graph, source: int, sink: int) -> int[]",
+  "example": "edge weights, cheapest 0->1->2 path",
   "id": "dijkstra_list",
   "cpp": {
     "fn": "optional<vector<int>> dijkstra(const vector<vector<Edge>>& g, int source, int sink)",
     "structs": [
       "struct Edge { int to; int weight; };"
     ],
-    "hint": "// return path or nullopt"
+    "hint": "// return node path from source to sink, or nullopt"
   }
 }

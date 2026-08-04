@@ -1,11 +1,12 @@
 {
   "title": "0/1 Knapsack",
   "shape": "knapsack",
-  "description": "Max value with weight capacity; each item once.\n",
-  "interface": "knapsack(capacity, weights, values) -> int\n",
+  "description": "knapsack(capacity, weights, values) returns the maximum value that fits, each item once.",
+  "interface": "knapsack(capacity: int, weights: int[], values: int[]) -> int",
+  "example": "cap 7, w [1,3,4,5], v [1,4,5,7] -> 9",
   "id": "knapsack",
   "cpp": {
     "fn": "int knapsack(int capacity, const vector<int>& weights, const vector<int>& values)",
-    "hint": "// return max value"
+    "hint": "// return max value that fits in capacity"
   }
 }

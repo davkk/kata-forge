@@ -1,37 +1,82 @@
-# Array List
+# Array list -- doubling spreads the copy: amortized O(1) append in contiguous memory
 
-A dynamic array: O(1) indexed access plus O(1) **amortized** append, paid for by doubling capacity whenever the backing array fills up.
+## Core idea
 
-## Intuition
+- Invariant: the first `len` slots of `data` hold the live elements in order; `len <= cap` always.
+- Mechanism: growth doubles `cap`, so total copy work 1+2+4+...+n ~ 2n spreads over n appends -- constant on average.
 
-- Keep three pieces of state: `data` (raw array), `len` (elements in use), `cap` (allocated slots). `get(i)` is a bounds check plus `data[i]`.
-- Append writes at `data[len]`; when `len == cap`, allocate `2*cap`, copy everything over, free the old array.
-- Why doubling makes append O(1) amortized: copies happen at sizes 1, 2, 4, ..., n -- total copy work is 1+2+...+n ~= 2n spread over n appends, ~2 copies each on average. Growing by a *constant* (e.g. +16) instead gives O(n) amortized.
-- Insert/remove in the middle shifts the tail left or right -- O(n). That shift is the price of contiguous storage.
-- Space O(cap) <= 2*O(n): a just-grown array is at most half empty.
+## Build up
+
+1. **Write at the next slot**
+
+```
+data[len++] = x;
+```
+
+2. **Guard: grow when full**
+
+```
+if (len == cap) grow();
+```
+
+3. **Double, copy, swap**
+
+```
+cap *= 2;
+int* next = new int[cap];
+for (int i = 0; i < len; i++) next[i] = data[i];
+delete[] data; data = next;
+```
+
+4. **Middle insert shifts right**
+
+```
+for (int j = len; j > i; j--) data[j] = data[j - 1];
+data[i] = x; len++;
+```
+
+5. **Middle remove shifts left**
+
+```
+for (int j = i; j < len - 1; j++) data[j] = data[j + 1];
+len--;
+```
+
+## Diagram
+
+```
+cap 3                          append 11 (full -> grow to 6)
+[ 5 7 9 ]                      [ 5 7 9 11 _ _ ]      copy 3, cap 6
+ len=3 cap=3
+
+insertAt(1, 6):                removeAt(1) -> 7:
+[ 5 6 7 9 11 _ ]               [ 5 7 9 11 _ _ ]
+      shift right                   shift left
+```
 
 ## Approach -- growth + shifting
 
 ```cpp
 using namespace std;
 
-struct ArrayList {
+class ArrayList {
+public:
     int cap;
-    int* data;
     int len;
+    int* data;
 
     ArrayList(int cap) : cap(cap), data(new int[cap]), len(0) {}
 
     void append(int x) {
-        if (len == cap) grow();
-        data[len++] = x;
+        if (len == cap) grow();     // step 2
+        data[len++] = x;            // step 1
     }
 
     void prepend(int x) { insertAt(0, x); }
 
     void insertAt(int i, int x) {
         if (len == cap) grow();
-        for (int j = len; j > i; --j) data[j] = data[j - 1];
+        for (int j = len; j > i; --j) data[j] = data[j - 1]; // step 4
         data[i] = x;
         len++;
     }
@@ -39,15 +84,14 @@ struct ArrayList {
     optional<int> removeAt(int i) {
         if (i < 0 || i >= len) return nullopt;
         int val = data[i];
-        for (int j = i; j < len - 1; ++j) data[j] = data[j + 1];
+        for (int j = i; j < len - 1; ++j) data[j] = data[j + 1]; // step 5
         len--;
         return val;
     }
 
     optional<int> remove(int x) {
-        for (int i = 0; i < len; ++i) {
+        for (int i = 0; i < len; ++i)
             if (data[i] == x) return removeAt(i);
-        }
         return nullopt;
     }
 
@@ -58,7 +102,7 @@ struct ArrayList {
 
     int size() { return len; }
 
-    void grow() {
+    void grow() {                   // step 3
         cap *= 2;
         int* next = new int[cap];
         for (int i = 0; i < len; ++i) next[i] = data[i];
@@ -68,33 +112,30 @@ struct ArrayList {
 };
 ```
 
-- `prepend(x)` is `insertAt(0, x)`; `remove(x)` is a linear scan then `removeAt`. Don't duplicate the shifting logic.
-- Grow *before* writing, not after -- writing into a full array is the classic heap overflow.
-- Shift direction matters: shift-right walks `j` from `len` *down* to `i`, shift-left walks *up*. Flip it and you overwrite the element you still need.
+- `append` is step 1 behind step 2's guard; `grow` is step 3 -- doubling (not `cap + k`) is what makes the copy total geometric.
+- `insertAt`/`removeAt` are steps 4-5, the contiguity tax; `prepend` and `remove` compose those primitives.
 
-## Alternative -- linked list
+### Trace
 
-- Prepend/insert/remove become O(1) pointer rewiring once you're at the position, but `get(i)` degrades to O(n) and each element costs a pointer + a heap allocation.
-- Pick the array when indexed access dominates; pick the list when middle-of-sequence edits dominate.
-
-## Alternative -- circular buffer for fixed capacity
-
-- Same O(1) access and O(1) append, but never grows; overwrites the oldest on full. See ring_buffer.
-- The right choice when the workload is naturally bounded and growth is the exception.
+- ArrayList(3): append 5, 7, 9 fills cap; append 11 grows to 6 (copy 3, one O(n) payment); insertAt(1, 6) shifts 7, 9 right; get(2) -> 7 straight off `data[2]`.
 
 ## Complexity
 
-- Time: O(1) amortized append, O(1) get, O(n) insert/remove, O(n) search. Space: O(n), with at most 2x waste.
+- Time: O(1) amortized append, O(1) get, O(n) insert/remove/remove-by-value. Space: O(n), <= 2x waste.
 
-## Usage
+## Alternative -- linked list
 
-- `std::vector`, Python `list`, Java `ArrayList` -- the default sequential container in most languages.
-- Backing store for stacks, binary heaps, hash-table buckets, adjacency arrays.
-- Amortized doubling is *the* canonical example for amortized analysis.
+- O(1) splice once you hold the node, O(n) random access -- the inverse trade (see doubly_linked_list).
 
-## Cousins & contrasts
+## Use when
 
-- **`std::vector`**: the production version -- same growth policy plus iterators and RAII. Its `size()` vs `capacity()` is exactly `len` vs `cap` here.
-- **Static array**: fixed capacity, no growth -- simpler, but overflow is failure instead of reallocation.
-- **Linked list**: O(1) splicing at a known position, O(n) random access -- the opposite trade-off.
-- **Ring buffer**: same O(1) but with a fixed cap; the array list trades the cap guarantee for growth.
+- Reach for this when you need random access plus unbounded append -- vector, Python list, ArrayList.
+- Pattern trigger: a rare O(n) step whose cost scales geometrically (double/halve) can be charged to a run of cheap steps -- the canonical amortized O(1) proof.
+- Backing store for stacks, heaps, hash buckets, adjacency arrays.
+
+## Cousins
+
+- **Static array**: fixed cap; overflow is a bug, not a grow.
+- **Linked list**: O(1) splice, O(n) index -- the opposite trade.
+- **Ring buffer**: fixed cap, wraps instead of growing.
+- **std::vector**: the same policy plus RAII, iterators, and `size()` vs `capacity()`.

@@ -1,34 +1,75 @@
-# Queue
+# Queue -- two ends, two pointers: FIFO needs O(1) access at opposite seams
 
-FIFO container: enqueue at the back, dequeue from the front — the oldest waiting item leaves first. Both ends are touched, so you need **two access points**, not one.
+## Core idea
 
-## Intuition
+- Invariant: arrival order is never broken -- head is the oldest element, tail the newest.
+- Mechanism: enqueue and deque touch different, fixed ends, so one pointer per end means no search and no shifting.
 
-- Enqueue appends at the tail, dequeue removes at the head; each is a fixed amount of pointer or index work -> O(1).
-- A plain array + front index fails: removing from the front either shifts everything (O(n)) or lets the used window crawl off the end. Fix it with head/tail pointers or by wrapping indices (circular array).
-- Guard the degenerate cases: dequeue/peek on empty.
+## Build up
 
-## Approach 1 — linked list with head + tail
+1. **One pointer can't append**
+
+```
+Node* cur = head;
+while (cur->next) cur = cur->next;   // O(n) walk every time
+cur->next = n;
+```
+
+2. **Keep a tail pointer**
+
+```
+tail->next = n;
+```
+
+3. **First node: both pointers**
+
+```
+if (!tail) head = n;
+tail = n;
+```
+
+4. **deque: advance the head**
+
+```
+Node* n = head;
+head = n->next;
+if (!head) tail = nullptr;
+```
+
+## Diagram
+
+```
+enqueue 5, 7, 9           deque() -> 5            peek() -> 7
+head->5 -> 7 -> 9<-tail   head->7 -> 9<-tail      head->7 (unchanged)
+     |                        |
+     oldest                   oldest leaves first
+```
+
+## Approach -- linked head and tail
 
 ```cpp
 using namespace std;
 
-struct Queue {
-    Node *head, *tail;
+class Queue {
+public:
+    Node* head;
+    Node* tail;
+
+    Queue() : head(nullptr), tail(nullptr) {}
 
     void enqueue(int x) {
         Node* n = new Node{x, nullptr};
-        if (tail) tail->next = n;
-        else      head = n;
+        if (tail) tail->next = n;   // step 2
+        else      head = n;         // step 3
         tail = n;
     }
 
     optional<int> deque() {
         if (!head) return nullopt;
         Node* n = head;
+        head = n->next;             // step 4
+        if (!head) tail = nullptr;  // drained: clear both
         int val = n->val;
-        head = n->next;
-        if (!head) tail = nullptr;
         delete n;
         return val;
     }
@@ -38,7 +79,7 @@ struct Queue {
         return head->val;
     }
 
-    int length() {
+    int size() {
         int len = 0;
         for (Node* cur = head; cur; cur = cur->next) len++;
         return len;
@@ -46,48 +87,29 @@ struct Queue {
 };
 ```
 
-- Both pointers are required: `tail` for O(1) enqueue, `head` for O(1) dequeue. With only `head`, append degrades to O(n) walking.
-- After removing the last node, null out **both** ends — a dangling `tail` on an empty queue is the classic bug.
-- `length()` is O(n) with this naïve traversal; store a running `len` counter (increment on enqueue, decrement on deque) for O(1).
+- The struct is the build story: step 1's walk is replaced by `tail` (step 2), step 3 handles the empty queue, step 4 is deque.
+- `peek` is `deque` minus the unlink; `size()` is an O(n) walk -- keep a counter for O(1).
 
-## Approach 2 — two-stack queue
+### Trace
 
-```cpp
-vector<int> in, out;                 // in = newest on top, out = oldest on top
-
-void enqueue(int x) { in.push_back(x); }
-
-int dequeue() {
-    if (out.empty())
-        while (!in.empty()) { out.push_back(in.back()); in.pop_back(); }
-    int val = out.back(); out.pop_back();
-    return val;
-}
-```
-
-- Enqueue pushes onto stack `in`; dequeue pops from stack `out`, pouring `in` into `out` (which reverses the order) only when `out` is empty.
-- Amortized O(1): each element moves `in` -> `out` exactly once in its lifetime, so n operations cost O(n) total.
-
-## Alternative — circular array (fixed capacity)
-
-- `head`/`tail` indices advance and wrap via `(i + 1) % cap`. The ring buffer golden has the full version.
-- Wins on cache locality and no allocation; fails the moment you need a capacity that grows.
+- enqueue 5, 7, 9 -> `head->5 -> 7 -> 9<-tail`; deque -> 5, then 7, then 9; a fourth deque hits `!head` and returns nullopt. Out = in.
 
 ## Complexity
 
-- Time: O(1) per enqueue, deque, peek (amortized for the two-stack version).
-- Space: O(n).
+- Time: O(1) per enqueue/deque/peek (size O(n) as written). Space: O(n).
 
-## Usage
+## Alternative -- circular array
 
-- **BFS**: the frontier — nodes are expanded in discovery order, which is exactly FIFO. Level-order tree traversal is the same idea.
-- Task/job schedulers, print spoolers — fair "first come, first served".
-- Producer/consumer buffers, message queues, event loops serializing async work.
-- Any place where fairness or arrival order matters: ticket lines, OS ready queues, network packet scheduling.
+- head/tail become indices that advance mod cap: O(1), zero allocation, fixed memory -- the ring_buffer golden.
 
-## Cousins & contrasts
+## Use when
 
-- **Stack**: LIFO instead of FIFO; gives DFS where the queue gives BFS. Same O(1) ops, opposite order.
-- **Deque**: push/pop at both ends — subsumes both stack and queue.
-- **Priority queue**: the most urgent (not the oldest) leaves first; heap-backed, O(log n) per op.
-- **Ring buffer**: a fixed-capacity queue that overwrites or rejects on full instead of growing.
+- Reach for this when processing order equals arrival order: BFS, level-order, "first come, first served".
+- Producer/consumer buffers, task and message queues, event loops.
+
+## Cousins
+
+- **Stack**: LIFO at one end -- same O(1) ops, opposite order (see stack).
+- **Deque**: both ends open -- a queue is a deque used at one end.
+- **Priority queue**: the most urgent leaves, not the oldest -- heap, O(log n).
+- **Ring buffer**: the same FIFO in fixed memory, wrapping instead of growing.

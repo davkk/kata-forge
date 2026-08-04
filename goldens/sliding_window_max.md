@@ -1,14 +1,48 @@
-# Sliding Window Maximum
+# Sliding Window Maximum -- max of each k-window in O(n): a deque in decreasing value order, stale fronts expired
 
-Maximum of every contiguous window of size k, in O(n) total -- a **monotonic deque** instead of rescanning each window (O(n*k)).
+## Core idea
 
-## Intuition
+- Invariant: the deque holds only candidates for future maxima -- indices whose values strictly decrease; the front is the current window's max.
+- Mechanism: a new value kills every smaller tail value (the newcomer is larger and outlives them all), and the window's left edge kills expired fronts. Each index enters and leaves once.
 
-- Maintain a deque of **indices** whose values are strictly decreasing; the front is always the current window's maximum.
-- When a new element arrives, pop from the back everything smaller than it: those can *never* be the max again -- the newcomer is larger and outlives them in every future window.
-- Pop from the front any index that has left the window (`<= i - k`).
-- Each index is pushed once and popped at most once -> amortized O(1) per step, O(n) total. The deque holds at most k entries -> O(k) space.
-- Mental model: the deque is the list of *candidates* for future maxima, decreasing in value and increasing in age.
+## Build up
+
+1. **Max-heap per window**
+
+```
+push k, take top, slide     // O(n log k), lazy expiry
+```
+
+2. **Deque: decreasing values**
+
+```
+while (a[dq.back()] < a[i]) dq.pop_back();   // smaller tails die
+```
+
+3. **Expire stale indices**
+
+```
+if (dq.front() <= i - k) dq.pop_front();     // left the window
+```
+
+4. **Front is the max**
+
+```
+if (i >= k - 1) out.push_back(a[dq.front()]);
+```
+
+## Diagram
+
+```
+a = [1 3 -1 -3 5 3 6 7], k = 3
+i=1   3    dq [1]          3 pops 0
+i=2  -1    dq [1 2]        max 3
+i=3  -3    dq [1 2 3]      max 3
+i=4   5    dq [] [4]       5 pops 3, 2, 1
+i=5   3    dq [4 5]        max 5
+i=6   6    dq [6]          6 pops 5, 4
+i=7   7    dq [7]          7 pops 6
+```
 
 ## Approach -- monotonic deque
 
@@ -19,61 +53,43 @@ vector<int> sliding_window_max(const vector<int>& a, int k) {
     vector<int> out;
     deque<int> dq;
     for (int i = 0; i < (int)a.size(); ++i) {
-        while (!dq.empty() && a[dq.back()] < a[i])
+        while (!dq.empty() && a[dq.back()] < a[i])   // step 2: kill smaller
             dq.pop_back();
         dq.push_back(i);
-        if (dq.front() <= i - k)
+        if (dq.front() <= i - k)                     // step 3: expire stale
             dq.pop_front();
-        if (i >= k - 1)
+        if (i >= k - 1)                              // step 4: front is max
             out.push_back(a[dq.front()]);
     }
     return out;
 }
 ```
 
-### Walkthrough
+- Order matters: evict smaller backs, push, expire the front, then emit.
+- `<` (not `<=`) when evicting keeps equal values as fresh candidates; both are correct.
+- The first k - 1 steps only warm the deque; output starts at i == k - 1.
 
-On `a = [1, 3, -1, -3, 5, 3, 6, 7]`, `k = 3`:
-- i=0 (1): dq=[0]; no emit
-- i=1 (3): pop 0, push 1 -> dq=[1]; no emit
-- i=2 (-1): push 2 -> dq=[1,2]; emit a[1]=3
-- i=3 (-3): push 3 -> dq=[1,2,3]; emit a[1]=3
-- i=4 (5): pop 3, 2, 1 -> dq=[]; push 4 -> dq=[4]; emit a[4]=5
-- i=5 (3): push 5 -> dq=[4,5]; emit a[4]=5
-- i=6 (6): pop 5, 4 -> dq=[]; push 6 -> dq=[6]; emit a[6]=6
-- i=7 (7): pop 6 -> dq=[]; push 7 -> dq=[7]; emit a[7]=7
-- return [3, 3, 5, 5, 6, 7]
+### Trace
 
-- Store **indices, not values** -- window expiry (`i - k`) cannot be checked from values alone. This is the classic bug.
-- Order matters: evict from the back *before* pushing, check expiry *before* emitting.
-- `<` (not `<=`) when evicting keeps duplicates; `<=` collapses equal values onto the newer index -- both are correct.
-- The first `k - 1` iterations only warm the deque; output starts at `i == k - 1`.
+- `[1 3 -1 -3 5 3 6 7], k = 3` -> `[3 3 5 5 6 7]`; 5 at i=4 pops the whole deque in one go.
 
 ## Complexity
 
-- Time: O(n) amortized.
-- Space: O(k) for the deque.
+- Time: O(n) amortized. Space: O(k) for the deque.
 
 ## Alternative -- max-heap per window
 
-- A max-heap of `(value, index)` per window, O(n log k) total, with lazy deletion of expired indices.
-- Simpler to reason about but strictly slower than the deque here. Pick it when you also need fast max updates between windows.
+- A max-heap of (value, index) with lazy deletion of expired tops: O(n log k), simpler to reason about but slower.
 
-## Alternative -- segment tree / sparse table
+## Use when
 
-- Range-max on *arbitrary* ranges after O(n log n) build -- overkill when every range has the same length k.
-- Wins only when the kata also asks for arbitrary window sizes or point updates between windows.
+- Live-stream maxima: max price, temperature, throughput over the last k samples.
+- Reach for this when every contiguous k-window needs its max or min and the window slides one step at a time.
+- Flip the comparison and the same algorithm answers sliding-window minimum.
 
-## Usage
+## Cousins
 
-- Real-time dashboards: max price, temperature, or throughput over the last k samples.
-- Network packet analysis, rate-limit windows, "largest value per k-block" as a preprocessing step.
-- The same trick answers sliding-window *minimum* -- flip the comparison; one algorithm gives both bounds.
-- Any "what is the most extreme value over the last k events" query on a live stream.
-
-## Cousins & contrasts
-
-- **Daily temperatures**: the same monotonic idea with a stack -- resolves "next greater" distances for all positions, no moving window.
-- **Monotonic queue**: the data-structure idea itself -- a deque where insertion order is the value order, not the insertion order.
-- **Max-heap per window**: O(log k) per step plus lazy deletion of expired elements -- strictly worse here.
-- **Prefix maximum array**: works for prefix windows (always starting at 0) but cannot shrink the start; the deque handles arbitrary windows.
+- **Daily temperatures**: the same monotonic idea with a stack for next-greater distances.
+- **Monotonic queue**: the idea itself: value order, not insertion order, drives eviction.
+- **Max-heap per window**: O(log k) per step with lazy deletion: strictly worse.
+- **Prefix maxima**: only for windows anchored at 0; cannot shrink the start.

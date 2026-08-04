@@ -1,11 +1,12 @@
 {
   "title": "Coin Change",
   "shape": "coin",
-  "description": "Min coins to make amount. -1 if impossible.\n",
-  "interface": "coin_change(amount: int, coins: int[]) -> int\n",
+  "description": "coin_change(amount, coins) returns the minimum number of coins, or -1 if impossible.",
+  "interface": "coin_change(amount: int, coins: int[]) -> int",
+  "example": "coins [1,2,5], amount 11 -> 3 (5+5+1)",
   "id": "coin_change",
   "cpp": {
     "fn": "int coin_change(int amount, const vector<int>& coins)",
-    "hint": "// return min coins (or -1)"
+    "hint": "// return min number of coins, or -1"
   }
 }

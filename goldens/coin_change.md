@@ -1,16 +1,36 @@
-# Coin Change
+# Coin Change -- fewest coins for a sum: dp[n] reuses dp[n - c]
 
-Minimum number of coins to make an amount, with unlimited coins of each denomination. Coins are **reusable**, so which coins have already been used does not matter. Return -1 if impossible.
+## Core idea
 
-## Intuition
+- The best answer for amount n reuses the best answer for amount n - c: dp[n] = 1 + min over coins c of dp[n - c] -- the last coin c finishes the amount, and the leftover is an independent smaller problem.
+- Coins are unbounded, so only the amount matters: one table indexed by amount replaces an exponential subset search.
 
-- Classic unbounded DP: define a state over the **amount axis only**, because coin supply is infinite.
-- State: `dp[a]` = fewest coins needed to make amount `a`.
-- Recurrence: `dp[a] = 1 + min over c <= a of dp[a - c]` -- treat each denomination as the *last* coin used; the prefix must itself be optimal (optimal substructure).
-- Base case: `dp[0] = 0`; every other entry starts at a sentinel larger than any real answer.
-- The loop order outer-amount / inner-coin computes the **min**; swapping the loops counts **combinations** instead -- same table, different problem.
+## Build up
 
-## Approach 1 -- bottom-up DP (iterative)
+1. **Greedy largest coin fails**
+```
+coins {1,3,4}, amount 6 -> greedy 4+1+1 (3), optimal 3+3 (2)
+```
+2. **Last coin finishes the amount**
+```
+dp[n] = 1 + min over coins c of dp[n - c]
+```
+3. **Iterate amounts upward**
+```
+for a in 1..amount: settle dp[a] from smaller cells
+```
+
+## Diagram
+
+```
+coins {1,3,4}, amount 6
+n:   0  1  2  3  4  5  6
+dp:  0  1  2  1  1  2  2
+dp[6] = 1 + min(dp[5], dp[3], dp[2]) = 1 + min(2, 1, 2) = 2
+every arrow reads a SMALLER cell -> fill left to right
+```
+
+## Approach -- bottom-up table
 
 ```cpp
 using namespace std;
@@ -19,71 +39,37 @@ int coin_change(int amount, const vector<int>& coins) {
     const int INF = amount + 1;                    // sentinel > any real answer
     vector<int> dp(amount + 1, INF);
     dp[0] = 0;
-    for (int a = 1; a <= amount; ++a)
-        for (int c : coins)
+    for (int a = 1; a <= amount; ++a)              // step 3: smaller amounts first
+        for (int c : coins)                        // step 2: try each last coin
             if (c <= a && dp[a - c] + 1 < dp[a])
                 dp[a] = dp[a - c] + 1;
-    return dp[amount] == INF ? -1 : dp[amount];
+    return dp[amount] == INF ? -1 : dp[amount];    // step 3: unreachable
 }
 ```
 
-### Walkthrough
+- `INF = amount + 1`: even all-pennies uses at most `amount` coins, so INF safely means unreachable.
+- The cell rule is the diagram verbatim: cheapest last coin plus 1.
 
-On `coins = [1, 3, 4]`, `amount = 6`:
-- dp[0]=0; INF=7
-- dp[1]: min(dp[0]+1)=1
-- dp[2]: dp[1]+1=2
-- dp[3]: min(dp[2]+1, dp[0]+1)=2
-- dp[4]: min(dp[3]+1, dp[1]+1, dp[0]+1)=2
-- dp[5]: min(dp[4]+1, dp[2]+1, dp[1]+1)=3
-- dp[6]: min(dp[5]+1, dp[3]+1, dp[2]+1)=2 (3+3 -- greedy's 4+1+1 gives 3)
-- return 2
+### Trace
 
-- Sentinel `amount + 1` beats `INT_MAX` to dodge `+1` overflow; no solution ever needs more than `amount` coins (all 1s).
-- Always guard `c <= a` before indexing `dp[a - c]`.
+- coins {1,3,4}, amount 6: dp = [0,1,2,1,1,2,2]; dp[6] = 1 + min(2,1,2) = 2 -> return 2 (3+3, beating greedy).
 
 ## Complexity
 
-- Time: O(amount * #coins).
-- Space: O(amount).
+- Time: O(amount x #coins). Space: O(amount).
 
-## Approach 2 -- top-down recursion with memoization
+## Alternative -- greedy
 
-```cpp
-using namespace std;
+- Grab the largest coin that fits; correct only for canonical systems (US 1/5/10/25). DP is the safe default.
 
-int coin_change(int amount, const vector<int>& coins) {
-    vector<int> memo(amount + 1, -2);             // -2 = uncomputed
-    function<int(int)> go = [&](int a) -> int {
-        if (a == 0) return 0;
-        if (memo[a] != -2) return memo[a];
-        int best = INT_MAX;
-        for (int c : coins)
-            if (c <= a) best = min(best, go(a - c));
-        return memo[a] = (best == INT_MAX ? -1 : 1 + best);
-    };
-    return go(amount);
-}
-```
+## Use when
 
-- Mirrors the recurrence directly: `coin_change(a) = 1 + min(coin_change(a - c))`.
-- Easier to reason about when the recurrence has tricky edge cases; the iterative form avoids stack depth on large amounts.
+- Reach for this when the problem asks fewest (or count of) parts summing to an exact total with reusable parts -> DP over amounts.
+- Vending change, perfect squares, min cuts to reach length n.
+- Count-ways twin: same table, sum instead of min.
 
-## Alternative -- greedy (largest coin first)
+## Cousins
 
-- Repeatedly take the biggest coin <= remaining amount; O(n log n) after sorting.
-- Correct only for **canonical** coin systems (US 1/5/10/25). Fails on {1, 3, 4} at amount 6: greedy picks 4+1+1 (3 coins), optimal is 3+3 (2).
-- Fine as a fast heuristic when canonicity is proven; DP is the safe default.
-
-## Usage
-
-- Vending-machine change, currency arbitrage, postage-stamp problems.
-- Template for any unbounded "fewest parts" problem: min perfect squares summing to n, min cuts to reach a length.
-- The count-ways twin ("how many ways to make the amount") has the same table with `+` instead of `min` and the combination-loop order.
-
-## Cousins & contrasts
-
-- **Unbounded knapsack**: same "items reusable" structure; coin change minimizes count for an exact sum, knapsack maximizes value under a capacity.
-- **0/1 knapsack**: each item at most once -- items enter the state and the inner loop direction flips.
-- **BFS on the amount graph**: amounts as nodes, coins as edges -- correct but strictly more work than DP.
-- **Greedy**: O(n log n), only for canonical systems -- {1, 3, 4} is the classic counterexample.
+- **Knapsack**: reusable items too, but maximizes value under a capacity (see knapsack).
+- **BFS on amounts**: coins as edges between amounts; correct, heavier than DP.
+- **LCS**: same "reuse smaller cells" table, over two string indices.

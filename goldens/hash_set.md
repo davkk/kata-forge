@@ -1,33 +1,68 @@
-# Hash Set
+# Hash Set -- one bucket per key: membership scans only that bucket
 
-Stores distinct keys with O(1) average add/remove/contains by scattering keys across an array of buckets. Everything — correctness of the complexity claim and real-world speed — hinges on the **hash function spreading keys uniformly**.
+## Core idea
 
-## Intuition
+- Invariant: a key lives in exactly one bucket, `hash(key) % capacity`, so contains/add/remove scan that bucket alone -- never the whole set.
+- O(1) average is a contract, not a property: a uniform hash plus a capped load factor (double the table on rehash) keeps every chain a small constant.
 
-- `index = hash(key) % capacity`: the key itself decides its bucket, so a lookup only scans that one bucket instead of the whole set.
-- Collisions are unavoidable (pigeonhole: more possible keys than buckets), so each bucket holds a small vector — *separate chaining* with vector buckets.
-- Average O(1): with a uniform hash, expected chain length is the load factor `n / capacity` — a small constant, not a function of n.
-- Rehash at load factor ~= 0.75: double the capacity and re-link every element. One rehash is O(n), but it buys ~n cheap inserts before the next, so the amortized cost per op stays O(1).
-- Worst case is still O(n): all keys land in one bucket. That is what a bad hash (or adversarial input) does to you.
+## Build up
 
-## Approach — separate chaining
+1. **The key chooses its bucket**
+
+```
+int idx = hash_of(x);                    // hash(x) % buckets.size()
+```
+
+2. **Membership: scan one chain**
+
+```
+for (int v : buckets[idx]) if (v == x) return true;
+```
+
+3. **Add: dedup, then push**
+
+```
+if (contains(x)) return;                 // set semantics: no duplicates
+buckets[hash_of(x)].push_back(x);
+```
+
+4. **Resize before chains grow long**
+
+```
+if (count >= cap * 3 / 4) rehash();      // double, re-scatter every key
+```
+
+## Diagram
+
+```
+cap = 8, hash = k % 8
+add 12, 9, 5, 4, 22        idx:  0   1   2   3    4    5   6   7
+                                []  [9] []  [] [12,4] [5] [22] []
+contains(4): hash 4 -> bucket 4, scan: 12? no, 4? yes -> true
+add 9 again: contains hits, nothing pushed, count stays 5
+```
+
+## Approach -- separate chaining
 
 ```cpp
 using namespace std;
 
-struct HashSet {
-    vector<vector<int>> buckets = vector<vector<int>>(16);
-    int count = 0;
+class HashSet {
+public:
+    vector<vector<int>> buckets;
+    int count;
+
+    HashSet() : buckets(16), count(0) {}
 
     int hash_of(int k) {
         unsigned h = (unsigned)k * 2654435761u;
-        return (int)(h % buckets.size());
+        return (int)(h % buckets.size());       // step 1: scatter
     }
 
     void add(int x) {
-        if (contains(x)) return;
-        if (count >= (int)buckets.size() * 3 / 4) rehash();
-        buckets[hash_of(x)].push_back(x);
+        if (contains(x)) return;                // step 3: dedup
+        if (count >= (int)buckets.size() * 3 / 4) rehash(); // step 4
+        buckets[hash_of(x)].push_back(x);       // step 3: push
         count++;
     }
 
@@ -42,57 +77,50 @@ struct HashSet {
     }
 
     bool contains(int x) {
-        for (int v : buckets[hash_of(x)])
+        for (int v : buckets[hash_of(x)])       // step 2: scan one chain
             if (v == x) return true;
         return false;
     }
 
-    int length() {
+    int size() {
         return count;
     }
 
     void rehash() {
         vector<vector<int>> old = buckets;
-        buckets.assign(old.size() * 2, {});
+        buckets.assign(old.size() * 2, {});     // step 4: double
         for (auto& bucket : old)
             for (int v : bucket)
-                buckets[hash_of(v)].push_back(v);
+                buckets[hash_of(v)].push_back(v); // step 4: re-scatter
     }
 };
 ```
 
-- `hash_of` uses Knuth's multiplicative hash (magic constant) — simple and fast for int keys.
-- `remove` walks the bucket vector and calls `erase` (O(k) shift). Swapping with the last element + `pop_back` avoids the shift but breaks insertion order.
-- `buckets` must never be empty or `%` divides by zero; initialize with e.g. 16 empty vectors and grow.
-- Pitfall: forgetting to recompute the bucket index after `rehash` — the old index points into a resized array.
+- Steps 1-4 assembled: `hash_of` scatters (1), `contains` scans one chain (2), `add` dedups then pushes (3), `rehash` doubles the table (4).
+- `count` is maintained so `size()` is O(1); `remove` erases from the one chain it finds the key in.
 
-## Alternative — open addressing
+### Trace
 
-- Keep all entries in the array itself; on collision probe `idx+1, idx+2, ...` until a free slot. No pointers, no allocation per insert.
-- Wins: cache-friendly (one contiguous array), less memory overhead per entry.
-- Costs: deletion needs *tombstones* (a plain clear would break later probe chains), and performance collapses past ~0.7 load as probes form long runs (*primary clustering*).
-- Chaining degrades gracefully as load grows; open addressing does not — that's why `std::unordered_set` chains.
-
-## Alternative — Robin Hood / cuckoo hashing
-
-- Robin Hood: a colliding key steals the slot of any richer key (greater probe distance), flattening probe lengths and bounding the worst case.
-- Cuckoo: two hash functions and two possible slots; on collision kick the existing key out and reinsert it at its alternate slot. O(1) lookups with bounded worst case but harder to implement.
+- add 12, 9, 5, 22 -> buckets 4, 1, 5, 6; add 5 again -> `contains` hits, count stays 4.
+- contains(9) -> bucket 1, one compare -> true; remove(5) -> bucket 5 erase -> count 3.
 
 ## Complexity
 
-- Time: O(1) average for add/contains/remove, O(n) worst case with a hostile hash.
-- Space: O(n), up to ~4n for the array itself when chained.
+- Time: O(1) average per op (O(n) worst with a hostile hash). Space: O(n).
 
-## Usage
+## Alternative -- open addressing
 
-- Duplicate detection: crawlers remembering visited URLs, one-pass "seen before" checks (two-sum style).
-- Symbol tables in compilers/interpreters, membership filters ahead of expensive lookups.
-- Grouping problems: anagrams, equivalence classes — hash the canonical form, chain the members.
-- Any "have I seen this before" question that needs to stay fast as the data grows.
+- Store entries in the array itself and probe `idx+1, idx+2, ...` on collision: no per-entry allocation, cache-friendlier.
+- Costs: tombstones for delete, long probe runs (clustering) past ~0.7 load -- chaining degrades more gracefully.
 
-## Cousins & contrasts
+## Use when
 
-- **Hash map**: identical skeleton; bucket entries just carry a value next to the key.
-- **Balanced BST set (`std::set`)**: O(log n) *worst case* and ordered iteration; a hash set is O(1) *average* but unordered.
-- **Bloom filter**: probabilistic membership in tiny memory — can say "maybe present", never "definitely present".
-- **Open addressing**: same hash-index idea, collision resolution by probing instead of chaining (see above).
+- Reach for this when you need fast add/remove/membership of distinct keys and never need order or ranges.
+- Dedup streams, "seen before" checks, two-sum complement lookups, visited-URL sets for crawlers.
+
+## Cousins
+
+- **Hash map**: identical skeleton, each bucket entry just carries a value next to the key (see map).
+- **std::set (red-black)**: O(log n) worst case, ordered iteration; this is O(1) average, unordered.
+- **Bloom filter**: tiny probabilistic membership -- may say "maybe", never "definitely not".
+- **Open addressing**: same scatter, collisions resolved by probing instead of chains.

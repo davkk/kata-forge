@@ -1,28 +1,68 @@
-# Median Finder
+# Median Finder -- two facing heaps: the middle lives at the two tops
 
-Running median of a stream: insert values one at a time, report the median in O(1) -- the mean of the two middle values when the count is even.
+## Core idea
 
-## Intuition
+- Split invariant: max-heap `lo` holds the lower half, min-heap `hi` the upper half, every `lo` value <= every `hi` value, and sizes differ by at most 1 -- the two tops border the middle of the data.
+- Mechanism: the median is an order statistic; a heap exposes its extreme in O(1), so each side surfaces its middle candidate with no interior ordering.
 
-- Split the stream into two halves: a **max-heap `lo`** holding the lower half and a **min-heap `hi`** holding the upper half. The middle of the data lives at the two tops.
-- The whole game is one invariant: **every element in `lo` is <= every element in `hi`**. Then the top(s) are the middle element(s) by construction.
-- Rebalance after each insert so the sizes differ by at most 1, keeping `lo` the larger one on odd counts.
-- Why heaps: O(1) access to the *extreme* of each half -- the only two elements that can possibly be the median.
-- O(log n) per insert (one push + at most one rebalance pop/push), O(1) per median query.
+## Build up
+
+1. **Two heaps face each other**
+
+```
+priority_queue<int> lo;                              // max-heap: lower half
+priority_queue<int, vector<int>, greater<>> hi;      // min-heap: upper half
+```
+
+2. **Route by lo's top**
+
+```
+if (lo.empty() || val <= lo.top()) lo.push(val);
+else                               hi.push(val);
+```
+
+3. **Rebalance: move one root across**
+
+```
+if (lo.size() > hi.size() + 1) { hi.push(lo.top()); lo.pop(); }
+else if (hi.size() > lo.size()) { lo.push(hi.top()); hi.pop(); }
+```
+
+4. **Read the median from the tops**
+
+```
+if (lo.size() > hi.size()) return lo.top();
+return (lo.top() + hi.top()) / 2.0;      // /2.0, not /2: keep the .5
+```
+
+## Diagram
+
+```
+insert 5, 10, 3, 8, 1     lo (max)      hi (min)      median
+  5                         [5]           []           5.0
+  10 -> hi                  [5]           [10]         7.5
+  3 -> lo                   [3,5]         [10]         5.0
+  8 -> hi                   [3,5]         [8,10]       6.5
+  1 -> lo                   [1,3,5]       [8,10]       5.0
+  lo.top() <= hi.top() holds after every step
+```
 
 ## Approach -- two heaps
 
 ```cpp
 using namespace std;
 
-struct MedianFinder {
-    priority_queue<int> lo;
-    priority_queue<int, vector<int>, greater<>> hi;
+class MedianFinder {
+public:
+    priority_queue<int> lo;                                  // step 1: max-heap
+    priority_queue<int, vector<int>, greater<>> hi;          // step 1: min-heap
+
+    MedianFinder() : lo(), hi() {}
 
     void insert(int val) {
-        if (lo.empty() || val <= lo.top()) lo.push(val);
+        if (lo.empty() || val <= lo.top()) lo.push(val);     // step 2: route
         else                               hi.push(val);
-        if (lo.size() > hi.size() + 1) {
+        if (lo.size() > hi.size() + 1) {                     // step 3: rebalance
             hi.push(lo.top()); lo.pop();
         } else if (hi.size() > lo.size()) {
             lo.push(hi.top()); hi.pop();
@@ -30,57 +70,38 @@ struct MedianFinder {
     }
 
     double getMedian() {
-        if (lo.size() > hi.size()) return lo.top();
+        if (lo.size() > hi.size()) return lo.top();          // step 4
         return (lo.top() + hi.top()) / 2.0;
     }
 
-    int length() { return (int)(lo.size() + hi.size()); }
+    int size() { return (int)(lo.size() + hi.size()); }
 };
 ```
 
-### Walkthrough
+- Steps 1-4 assembled: facing heaps (1), routing by `lo.top()` (2), one-root rebalance (3), top read (4).
+- The rebalance is the correctness lever: skipping it lets a value sit on the wrong side and corrupts the median.
 
-Streaming `[1, 2, 3, 4, 5]` and asking the median after each insert:
-- insert 1: lo=[1], hi=[] -> median = 1.0
-- insert 2: 2 > lo.top()=1 -> hi=[2]; sizes equal -> median = (1+2)/2 = 1.5
-- insert 3: 3 > 1 -> hi=[2,3]; lo.size()=1 < hi.size()=2 -> rebalance: lo=[1,2], hi=[3] -> median = 2.0
-- insert 4: 4 > 2 -> hi=[3,4]; lo=1 < hi=2 -> rebalance: lo=[1,2,4], hi=[3] -> median = 2.0
-- insert 5: 5 > 4 -> hi=[3,4,5]; lo=3 > hi=3+1=2 -> median = lo.top() = 3.0
-- final state: lo=[1,2,4] (top 4), hi=[3,5] (top 3) -> median = 3.0 (true median of 1..5)
+### Trace
 
-- Rebalancing moves only a root, and the root is by definition the boundary element -- the invariant survives every move.
-- Decide which heap receives `val` by comparing with `lo.top()` *before* inserting; comparing against the wrong side silently breaks the invariant.
-- `/2.0`, not `/2` -- integer division throws away the .5 on even counts.
+- insert 5,10,3,8,1 -> medians 5.0, 7.5, 5.0, 6.5, 5.0; `lo.top() <= hi.top()` holds after every step.
+- insert 100 -> hi takes it: [8,10,100]; lo=3, hi=3 -> median = (5+8)/2 = 6.5.
 
 ## Complexity
 
-- Time: O(log n) per insert, O(1) per getMedian.
-- Space: O(n) for both heaps combined.
+- Time: O(log n) per insert, O(1) per getMedian. Space: O(n).
 
-## Alternative -- balanced BST / order-statistics tree
+## Alternative -- order-statistics tree
 
-- Keeps all elements sorted with subtree sizes -> median (and any kth query, plus deletion) in O(log n).
-- Strictly more general, far more code and worse constants; two heaps win when the workload is only insert + median.
+- A balanced BST with subtree sizes answers any kth query (and deletion) in O(log n) -- more general, far more code; two heaps win for insert + median only.
 
-## Alternative -- sort on every query
+## Use when
 
-- O(n log n) per median -- the naive baseline the two heaps replace. Only sensible in toy code or as a baseline check.
+- Reach for this when the pattern is "insert one element, immediately report the middle" on an unbounded stream.
+- Rolling median of latencies or sensor readings; sliding-window median with lazy deletion.
 
-## Alternative -- Fenwick tree over a small value range
+## Cousins
 
-- If values are integers in a small range, a Fenwick with cumulative counts can find the median in O(log V).
-- O(V) space, but median query is O(1) amortized; wins for repeated percentile queries on a fixed range.
-
-## Usage
-
-- Streaming statistics: rolling median of latencies, sensor readings, stock prices where the full history can't be stored.
-- Sliding-window median -- same two-heap core plus lazy deletion of elements leaving the window.
-- Percentile sketches / approximate-median structures in databases borrow the same split-at-the-middle idea.
-- Any "keep a running middle of incoming data" metric in monitoring, finance, or telemetry.
-
-## Cousins & contrasts
-
-- **Min-heap**: the building block -- this kata is two heaps glued face-to-face.
-- **Kth largest**: median is the special case k = n/2, but quickselect needs the whole array up front and mutates it -- useless on a live stream.
-- **Order-statistics tree**: strictly more powerful (kth of any kind, deletion) but more code and worse constants; reach for it when you need queries other than median.
-- **Sort on every query**: O(n log n) per median -- the naive baseline the two heaps replace.
+- **Min-heap**: the building block -- this kata is two heaps glued face to face.
+- **Kth largest**: median is k = n/2; quickselect needs the whole array and mutates it.
+- **Sort on every query**: O(n log n) per median -- the naive baseline this replaces.
+- **Fenwick over a value range**: O(log V) median for bounded integer streams.

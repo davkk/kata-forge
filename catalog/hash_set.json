@@ -1,17 +1,22 @@
 {
   "title": "Hash Set",
   "shape": "commands",
-  "description": "Set of ints: add, remove, contains. length is distinct count.\n",
-  "interface": "add(x) remove(x) contains(x) -> bool\nlength() -> int\n",
+  "description": "set of ints via separate chaining: add(x), remove(x), contains(x), size().",
+  "interface": "add(x) remove(x) contains(x) -> bool size() -> int",
+  "example": "add 1,2; contains 2 -> true",
   "id": "hash_set",
   "cpp": {
     "class": "HashSet",
-    "members": ["vector<vector<int>> buckets"],
+    "members": [
+      "vector<vector<int>> buckets",
+      "int count"
+    ],
     "methods": [
       "void add(int x)",
       "void remove(int x)",
       "bool contains(int x)",
-      "int length()"
-    ]
+      "int size()"
+    ],
+    "ctor": ""
   }
 }

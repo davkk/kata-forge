@@ -1,20 +1,64 @@
-# Ring Buffer
+# Ring buffer -- modulo wraps the array: bounded FIFO without shifting or allocation
 
-Fixed-capacity FIFO over a circular array: head and tail advance and wrap modulo capacity. **Bounded memory with O(1) push/pop** makes it the standard producer/consumer buffer.
+## Core idea
 
-## Intuition
+- Invariant: `count` live elements start at `buf[head]` and wrap modulo `cap`; the physical array never moves.
+- Mechanism: every index advances as `(i + 1) % cap`, so "next slot" is arithmetic -- old slots get overwritten in place.
 
-- `buf[head]` is the oldest element, `buf[tail]` the next free slot; both advance with `(i + 1) % cap` and wrap around the end -- that's the ring.
-- Never shifts elements and never allocates: overwrite-in-place keeps every op O(1) and memory fixed at `cap` slots.
-- **Full vs. empty ambiguity**: after wrapping, `head == tail` holds both when empty and when full. Fix it with a `count` field (or sacrifice one slot).
-- Decide the full-policy up front: overwrite oldest / reject (streaming) vs. block / grow (lossless).
+## Build up
+
+1. **Tail is derived, not stored**
+
+```
+int tail = (head + count) % cap;
+```
+
+2. **Push: write there, count it**
+
+```
+buf[tail] = x;
+count++;
+```
+
+3. **Full: clobber the oldest**
+
+```
+if (count == cap) head = (head + 1) % cap;   // overwrite policy
+```
+
+4. **Pop: read head, advance**
+
+```
+int v = buf[head];
+head = (head + 1) % cap;
+count--;
+```
+
+5. **Get: index from the head**
+
+```
+return buf[(head + i) % cap];
+```
+
+## Diagram
+
+```
+cap 3                        push 4 (full):        push 5:
+buf [ 1 2 3 ]                buf [ 4 2 3 ]         buf [ 4 5 3 ]
+     h                           h                      h
+count 3                     tail=(0+3)%3=0         tail=(1+3)%3=1
+                            write over oldest 1    head->2
+
+pop -> 3, then 4, then 5: order preserved by the wrap
+```
 
 ## Approach -- count field, overwrite oldest
 
 ```cpp
 using namespace std;
 
-struct RingBuffer {
+class RingBuffer {
+public:
     int cap;
     vector<int> buf;
     int head;
@@ -23,17 +67,17 @@ struct RingBuffer {
     RingBuffer(int cap) : cap(cap), buf(cap), head(0), count(0) {}
 
     void push(int x) {
-        int tail = (head + count) % cap;
+        int tail = (head + count) % cap;    // step 1
         if (count == cap)
-            head = (head + 1) % cap;
+            head = (head + 1) % cap;        // step 3
         else
             count++;
-        buf[tail] = x;
+        buf[tail] = x;                      // step 2
     }
 
     optional<int> pop() {
         if (count == 0) return nullopt;
-        int val = buf[head];
+        int val = buf[head];                // step 4
         head = (head + 1) % cap;
         count--;
         return val;
@@ -41,42 +85,36 @@ struct RingBuffer {
 
     optional<int> get(int i) {
         if (i < 0 || i >= count) return nullopt;
-        return buf[(head + i) % cap];
+        return buf[(head + i) % cap];       // step 5
     }
 
     int size() { return count; }
 };
 ```
 
-- Derive `tail` from `head + count` instead of storing it -- one state variable fewer to desynchronize.
-- Pitfall: every index must pass through `% cap` *after* the addition; `(head + idx)` unwrapped reads out of bounds once the window has passed the end.
-- Pitfall: on full-with-overwrite, advance `head` -- the slot you're about to clobber is the oldest element. Skip it and order silently corrupts.
+- `head + count` derives the tail (step 1) -- one fewer index to keep in sync.
+- `count` disambiguates full from empty (head == tail in both states); when full, push advances head after computing tail, so it overwrites the oldest slot.
 
-## Alternative -- sacrifice one slot
+### Trace
 
-- Drop `count`; declare empty when `tail == head` and full when `(tail + 1) % cap == head`.
-- Saves maintaining `count` but wastes one slot and forces you to store `tail` -- pick whichever state you'd rather not track.
-- Common in low-level kernels where the savings matter.
-
-## Alternative -- block on full / grow on full
-
-- Replace the overwrite-oldest branch with `block` (sleep until consumer pops) or `grow` (reallocate a bigger buffer and copy).
-- Lossless for the block version, unbounded growth for the grow version. The producer/consumer API looks the same; only the back-pressure policy changes.
+- cap 3: push 1, 2, 3 fills it; push 4 wraps tail=(0+3)%3=0 and moves head to 1, clobbering slot 0; push 5 -> tail 1, head 2; pop -> 3, then 4, then 5.
 
 ## Complexity
 
-- Time: O(1) per push and pop.
-- Space: O(cap), fixed.
+- Time: O(1) per push/pop/get. Space: O(cap), fixed.
 
-## Usage
+## Alternative -- sacrifice one slot
 
-- Producer/consumer between threads or interrupt handlers: fixed latency, no allocation, no unbounded growth.
-- Audio/video streaming and jitter buffers: overwriting the oldest sample beats blocking.
-- Logging and flight-recorder buffers: keep the last N events in bounded memory (circular logs in embedded systems).
-- OS/network internals: NIC DMA rings, keyboard buffers, pipe implementations.
+- Drop `count`; empty is `tail == head`, full is `(tail + 1) % cap == head`; wastes a slot, but two indices alone enable lock-free single-producer/single-consumer use.
 
-## Cousins & contrasts
+## Use when
 
-- **Growable queue**: same FIFO order but grows instead of rejecting/overwriting -- choose it when losing data is unacceptable.
-- **Dynamic array**: also contiguous, but grows by copying; the ring trades growth for wrap-around reuse of the same slots.
-- **Circular linked list**: same wrap idea with pointers; the array version wins on cache locality and zero allocation.
+- Reach for this when you need a bounded FIFO that never shifts or allocates: "keep the last N", streaming.
+- Producer/consumer, audio jitter buffers, NIC rings, flight recorders.
+
+## Cousins
+
+- **Queue**: unbounded FIFO that grows (see queue).
+- **Array list**: contiguous and growable; the ring trades growth for wrap.
+- **Circular linked list**: the same wrap with pointers, worse cache behavior.
+- **Deque**: a growable ring with both ends open.

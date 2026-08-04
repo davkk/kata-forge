@@ -1,12 +1,20 @@
 {
   "title": "LRU Cache",
   "shape": "commands",
-  "description": "Least-recently-used cache, capacity via init. get/update by string key, int value.\n",
-  "interface": "update(k,v) get(k) size()\n",
+  "description": "lru cache: get(k) returns the value or nullopt, update(k, v) sets/refreshes; capacity via init.",
+  "interface": "update(k, v) -> void get(k) -> int|null size() -> int",
+  "example": "cap 2: update a=1, b=2, get a -> 1, update c=3 evicts b",
   "id": "lru",
   "cpp": {
     "class": "LRU",
-    "members": ["int cap"],
+    "ctor": "int cap",
+    "members": [
+      "struct Node { string key; int val; Node* prev; Node* next; };",
+      "int cap",
+      "unordered_map<string, Node*> m",
+      "Node* head",
+      "Node* tail"
+    ],
     "methods": [
       "void update(const string& k, int v)",
       "optional<int> get(const string& k)",

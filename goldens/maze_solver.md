@@ -1,16 +1,52 @@
-# Maze Solver
+# Maze Solver -- push on enter, unmark and pop on retreat: DFS backtracking
 
-Find **any** path from start to end in a grid of open/wall cells using DFS with backtracking.
+## Core idea
+- Seen marks "on the current path", not "visited forever": unmark on retreat so other branches can reuse cells.
+- The recursion stack and the path vector grow and shrink together, so at the end cell the vector is exactly the route.
 
-## Intuition
+## Build up
+1. **Reject walls and seen**
 
-- DFS plunges down one corridor until it hits the end or a dead end; on a dead end it retreats and tries the next direction. The recursion stack *is* the current path.
-- Mark a cell visited **on entry** so you never loop; **unmark on retreat** so other paths may reuse the cell -- that's the backtracking step plain graph-DFS skips.
-- Collect the path in a vector: push on enter, pop on exit. When the end cell is reached, the vector holds exactly the solution.
-- O(R*C) time, O(R*C) worst-case recursion depth.
+```
+if (wall.find(maze[y][x]) != string::npos || seen[y][x]) return false;
+```
+
+2. **Mark, push, check the end**
+
+```
+seen[y][x] = true;
+path.push_back(cur);
+if (y == end.y && x == end.x) return true;
+```
+
+3. **Dive into each direction**
+
+```
+for (auto& d : DIRS)
+    if (walk(maze, wall, {x + d[1], y + d[0]}, end, seen, path)) return true;
+```
+
+4. **Unmark and pop on retreat**
+
+```
+path.pop_back();
+seen[y][x] = false;
+return false;
+```
+
+## Diagram
+```
+start (10,0)                    x = wall, . = open
+  | down
+(10,4)                          row 4: x . . . . . . . . . . x
+  left along row 4 -> (1,4)
+(1,4)
+  | up: (1,3) (1,2) (1,1)       dead-end pocket -> unmark, pop
+  | down
+(1,5) end                       final route: down, left, down
+```
 
 ## Approach -- DFS backtracking
-
 ```cpp
 using namespace std;
 
@@ -20,17 +56,17 @@ static bool walk(const vector<string>& maze, const string& wall, Point cur, Poin
                  vector<vector<bool>>& seen, vector<Point>& path) {
     int y = cur.y, x = cur.x;
     if (y < 0 || y >= (int)maze.size() || x < 0 || x >= (int)maze[y].size()) return false;
-    if (wall.find(maze[y][x]) != string::npos || seen[y][x]) return false;
+    if (wall.find(maze[y][x]) != string::npos || seen[y][x]) return false;  // step 1
 
     seen[y][x] = true;
-    path.push_back(cur);
-    if (y == end.y && x == end.x) return true;
+    path.push_back(cur);                                 // step 2: extend the path
+    if (y == end.y && x == end.x) return true;           // step 2: done
 
-    for (auto& d : DIRS)
+    for (auto& d : DIRS)                                 // step 3: dive each way
         if (walk(maze, wall, {x + d[1], y + d[0]}, end, seen, path))
-            return true;
+            return true;                                 // step 3: success floods up
 
-    path.pop_back();
+    path.pop_back();                                     // step 4: unmark, retreat
     seen[y][x] = false;
     return false;
 }
@@ -43,40 +79,24 @@ vector<Point> solve_maze(const vector<string>& maze, const string& wall, Point s
 }
 ```
 
-- Pitfall: forgetting `seen[y][x] = false` on retreat -> cells burned by failed attempts block valid detours.
-- Success short-circuits with `return true` all the way up, preserving the path exactly.
-- Bounds/wall/seen checks at function entry keep the loop body to three lines.
+- walk is steps 1-4 in order; the trailing unmark/pop tail is exactly the backtracking step.
+- The end-check return floods the result up intact, so solve_maze just seeds seen and path.
 
-## Alternative -- BFS (shortest path)
-
-- Replace DFS with BFS and keep a `prev` array for path reconstruction. O(R*C) time, gives the **shortest** path in unweighted grids.
-- Costs O(R*C) extra memory for the queue and `prev` array; pays off when the kata asks for shortest or minimum steps.
-
-## Alternative -- A* (faster shortest path on big maps)
-
-- BFS + admissible heuristic (e.g. Manhattan distance) to steer the search toward the goal. Heuristic-heavy, but explores far fewer cells on large grids.
-- Drop the heuristic and you get Dijkstra over a 4-connected grid; drop the priority queue and you get plain BFS.
-
-## Alternative -- bidirectional BFS (huge state spaces)
-
-- BFS from start and from end simultaneously; stop when the two frontiers meet. Roughly halves the search diameter.
-- Best when the grid is enormous and the heuristic-free uniform-cost approach is too slow.
+### Trace
+- From (10,0) only down is open: dive to (10,4), walk row 4 left to (1,4); the up-pocket (1,3)(1,2)(1,1) exhausts and pops; down reaches (1,5). Path: column 10, row 4, then down.
 
 ## Complexity
+- O(R*C) time, O(R*C) space for seen, the path, and the recursion stack.
 
-- Time: O(R*C) -- every cell is visited at most a small constant number of times.
-- Space: O(R*C) for `seen`, path, and recursion stack.
+## Alternative -- BFS shortest path
+- A queue plus a prev array finds the fewest-move route instead of any route.
+- Costs a frontier that can dwarf the DFS stack; use it when the kata asks for shortest.
 
-## Usage
+## Use when
+- Any path through a grid: reach for this when the question is "is there a way, and what is it" (robot pathfinding, puzzle solvers).
+- Deep narrow maps: reach for this when O(depth) recursion beats a ballooning frontier.
 
-- Robot pathfinding, puzzle solvers (sudoku-style backtracking shares the skeleton), PCB routing.
-- "Find any feasible solution" where depth-first memory beats BFS's frontier.
-- Game AI pathfinding (though A* is more common in practice for shortest paths).
-- Any "is there a way through this grid, and if so, what is it" question.
-
-## Cousins & contrasts
-
-- **BFS**: gives the **shortest** path in an unweighted grid; this DFS gives *any* path but dives deep first.
-- **Plain graph DFS**: marks visited permanently; maze backtracking must unmark because "visited on this path" != "visited globally".
-- **A***: Dijkstra + heuristic when you need the shortest path fast on large maps.
-- **Union-find / flood fill**: if you only need to know whether start and end are connected, BFS/DFS without path reconstruction is the simpler tool.
+## Cousins
+- Plain graph DFS: marks visited forever; maze DFS must unmark on retreat.
+- BFS: shortest grid path, queue plus prev instead of recursion plus unmark.
+- A*: Dijkstra plus a heuristic that steers toward the end cell.

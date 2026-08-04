@@ -1,27 +1,64 @@
-# Min Heap
+# Min Heap -- parent <= child in a packed array: the minimum lives at index 0
 
-Binary heap in a flat array: a complete binary tree where **every parent is <= its children**, so the minimum is always at index 0. Insert and extract-min both cost O(log n).
+## Core idea
 
-## Intuition
+- Invariant: every parent is <= its children -- a partial order that constrains root-to-leaf chains only, never siblings, so one misplaced node is fixed by sifting along a single path.
+- The array *is* the tree: index math `(i-1)/2`, `2i+1`, `2i+2` replaces pointers, and only tail edits (append, last-to-root + pop) keep it complete -- no rebalancing, ever.
 
-- Index math replaces pointers: parent of `i` is `(i-1)/2`, children are `2i+1` and `2i+2`. Only ever appending/removing at the tail keeps the tree complete (no holes).
-- Heap invariant: `a[parent(i)] <= a[i]` for all `i > 0`. It is a *partial* order -- only along root-to-leaf paths -- which is exactly why restoring it locally is cheap.
-- Insert: append (may violate the invariant against its parent), then **sift up** -- swap with the parent while smaller. At most tree-height swaps -> O(log n).
-- Extract-min: min is at index 0. Move the last element to the root, pop the tail, **sift down** -- swap with the *smaller* child until no child is smaller. Also O(log n).
-- Space O(n) in one contiguous array -- no pointer overhead, cache-friendly.
+## Build up
+
+1. **Insert: append, sift up**
+
+```
+data.push_back(x);                                  // shape: tree stays complete
+for (int i = last; i > 0 && data[i] < data[parent(i)]; i = parent(i))
+    swap(data[i], data[parent(i)]);                 // order: walk up one path
+```
+
+2. **DeleteMin: last element to the root**
+
+```
+int out = data[0];
+data[0] = data.back();
+data.pop_back();                                    // shape: tail gone, still complete
+```
+
+3. **Sift down into the smaller child**
+
+```
+int l = 2*i + 1, r = 2*i + 2, smallest = i;
+if (l < n && data[l] < data[smallest]) smallest = l;
+if (r < n && data[r] < data[smallest]) smallest = r;
+if (smallest == i) break;                           // both children bigger: done
+```
+
+## Diagram
+
+```
+insert 1:  [3,5,9] --append--> [3,5,9,1] --sift up--> [1,5,9,3]
+tree:         3                       1
+             / \                     / \
+            5   9                   5   9
+                                  /
+                                 1
+deleteMin:  save 1, root = 3, pop tail -> [3,5,9]   3 < 5, 9: stop
+```
 
 ## Approach -- sift-up / sift-down
 
 ```cpp
 using namespace std;
 
-struct MinHeap {
+class MinHeap {
+public:
     vector<int> data;
 
-    int parent(int i) { return (i - 1) / 2; }
+    MinHeap() : data() {}
+
+    int parent(int i) { return (i - 1) / 2; }           // index math: 2i+1, 2i+2
 
     void siftUp(int i) {
-        while (i > 0 && data[i] < data[parent(i)]) {
+        while (i > 0 && data[i] < data[parent(i)]) {    // step 1: order repair
             swap(data[i], data[parent(i)]);
             i = parent(i);
         }
@@ -30,66 +67,58 @@ struct MinHeap {
     void siftDown(int i) {
         int n = (int)data.size();
         while (true) {
-            int l = 2*i + 1, r = 2*i + 2, smallest = i;
+            int l = 2*i + 1, r = 2*i + 2, smallest = i; // step 3: smaller child
             if (l < n && data[l] < data[smallest]) smallest = l;
             if (r < n && data[r] < data[smallest]) smallest = r;
-            if (smallest == i) break;
+            if (smallest == i) break;                   // step 3: done
             swap(data[i], data[smallest]);
             i = smallest;
         }
     }
 
     void insert(int x) {
-        data.push_back(x);
-        siftUp((int)data.size() - 1);
+        data.push_back(x);                              // step 1: shape
+        siftUp((int)data.size() - 1);                   // step 1: order
     }
 
     optional<int> deleteMin() {
         if (data.empty()) return nullopt;
         int out = data[0];
-        data[0] = data.back();
+        data[0] = data.back();                          // step 2: shape
         data.pop_back();
-        if (!data.empty()) siftDown(0);
+        if (!data.empty()) siftDown(0);                 // step 3: order
         return out;
     }
 
-    int length() { return (int)data.size(); }
+    int size() { return (int)data.size(); }
 };
 ```
 
-- Sift down toward the *smaller* child -- swapping with the larger one breaks the invariant between the two children.
-- Guard the `siftDown` after `pop_back`: on a heap that just became empty, index 0 no longer exists.
-- Iterative loops beat recursion here: same O(log n), no call-stack depth.
+- Steps 1-3 assembled: append + siftUp (1), last-to-root + pop (2), siftDown (3); the `n` bounds guard a missing child near the tail.
+- siftDown must pick the *smaller* child -- swapping into the larger one breaks the invariant between siblings.
 
-## Alternative -- Floyd's build-heap (O(n) from a full array)
+### Trace
 
-```cpp
-for (int i = (int)a.size() / 2 - 1; i >= 0; --i) siftDown(a, i);
-```
-
-- To heapify an existing array, sift down every node from the last parent `n/2 - 1` back to 0 -- O(n) total, beating n inserts at O(n log n).
-- Why it is linear: most nodes sit near the bottom, so most sift-downs travel O(1) levels; the sum of heights over all nodes is ~n, not n*log n.
-
-## Alternative -- d-ary heap (fewer, larger children)
-
-- d children per node -> shallower tree, faster sift-up, but d comparisons per sift-down level.
-- Wins when inserts dominate (d = 3 or 4) or when you need the children to be cache-line aligned (d = 8, 16).
+- insert 3, 5, 9 -> [3,5,9]; insert 1 -> append [3,5,9,1], sift up past 3 -> [1,5,9,3].
+- deleteMin -> save 1, root = 3, pop tail -> [3,5,9]; sift down: 3 < 5, 9 -> stop. Returns 1.
 
 ## Complexity
 
-- Time: O(log n) per insert/deleteMin, O(n) build.
-- Space: O(n), stored in a single array.
+- Time: O(log n) per insert/deleteMin. Space: O(n) in one array.
 
-## Usage
+## Alternative -- Floyd build-heap
 
-- Dijkstra's and Prim's algorithms -- the "extract cheapest frontier node" step.
-- K-way merge of sorted lists/streams; every "top-k" query keeps a size-k heap.
-- OS task schedulers, timer queues, discrete-event simulation (next event = min timestamp).
-- Streaming "smallest k" and running-median problems -- see median_finder for the two-heap extension.
+- Sift down from `n/2 - 1` down to 0 heapifies a whole array in O(n): half the nodes are leaves, and the sum of all sift heights is ~n, not n*log n.
 
-## Cousins & contrasts
+## Use when
 
-- **Max-heap**: flip every comparison; `std::priority_queue` is a max-heap by default (`greater<>` turns it into this one).
-- **`std::priority_queue`**: exactly this structure over a `vector` (`push`/`pop`/`top`) -- hand-roll it for interviews and custom comparators.
-- **d-ary heap**: d children per node -- shallower tree, faster sift-up, but d comparisons per sift-down level. Wins when inserts dominate.
-- **Binary search tree**: total order and O(log n) lookup of any key, but needs balancing; a heap only promises the min at the top, nothing else.
+- Reach for this when you repeatedly need the min (or max) of a growing set -- top-k, cheapest-next, running median (see median_finder).
+- Task queues, Dijkstra/Prim frontier extraction, k-way merges: "give me the extreme" workloads.
+- Never to search or remove arbitrary elements -- the top is the only window.
+
+## Cousins
+
+- **Priority queue**: `std::priority_queue` is exactly this over a vector (`greater<>` flips it to a min-heap).
+- **BST**: total order with search of any key, but needs balancing; a heap only promises the top.
+- **d-ary heap**: d children per node -- shallower tree, faster sifts, more comparisons per level.
+- **heapselect**: top-k of an array in O(n) -- this heap is its incremental, insert-friendly form.

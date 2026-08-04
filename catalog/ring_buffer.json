@@ -1,12 +1,19 @@
 {
   "title": "Ring Buffer",
   "shape": "commands",
-  "description": "Fixed-capacity circular buffer. push, pop, get(idx from head).\n",
-  "interface": "push(x) pop() get(i) size()\n",
+  "description": "fixed-capacity circular buffer: push(x), pop() (fifo), get(i) from the head; overwrites oldest.",
+  "interface": "push(x) -> void pop() -> int|null get(i) -> int|null size() -> int",
+  "example": "cap 3: push 5,7,9; push 42 overwrites 5; pop() -> 7",
   "id": "ring_buffer",
   "cpp": {
     "class": "RingBuffer",
-    "members": ["int cap"],
+    "ctor": "int cap",
+    "members": [
+      "int cap",
+      "vector<int> buf",
+      "int head",
+      "int count"
+    ],
     "methods": [
       "void push(int x)",
       "optional<int> pop()",

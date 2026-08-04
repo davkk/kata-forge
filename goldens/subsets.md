@@ -1,27 +1,62 @@
-# Subsets (Power Set)
+# Subsets -- all 2^n choices: record at every recursion node while a start index sweeps increasing picks
 
-All 2^n subsets of a list of **distinct** integers -- including the empty set. The canonical first backtracking problem: a binary decision tree where every node is a valid answer.
+## Core idea
 
-## Intuition
+- Invariant: every recursion node is itself a valid subset, and picks only move forward, so each subset is recorded once in increasing index order.
+- Mechanism: push, recurse, pop bracket each choice; the loop's next index is the "skip" branch, so take/skip is covered without an explicit skip call.
 
-- Shared skeleton: **choose -> explore -> unchoose** down a decision tree, one level per item.
-- What changes per enumerator is the branching rule. Here: at each level, decide the **next item to append** from a start index onward. The start index never moves backward, so no subset repeats.
-- Equivalent view: at each level, include the item or skip it. A binary tree of depth n has exactly **2^n leaves**, and every internal node is also a valid subset.
-- Record `curr` at *every* node, not just leaves -- every prefix of choices is a subset.
-- Output itself is 2^n subsets, so the work is O(n * 2^n) just to write the answer. The algorithm's overhead on top of that is linear.
+## Build up
 
-## Approach 1 -- backtracking with start index
+1. **Record every node**
+
+```
+out.push_back(curr);    // every prefix is a subset
+```
+
+2. **Take the next element**
+
+```
+curr.push_back(a[i]);
+backtrack(a, i + 1, curr, out);
+```
+
+3. **Put it back**
+
+```
+curr.pop_back();
+```
+
+4. **Next i skips a[i]**
+
+```
+for (int i = start; i < (int)a.size(); ++i) ...
+```
+
+## Diagram
+
+```
+a = [1 2 3], record at EVERY node
+                   []
+            take /     \ skip
+              [1]        []
+            /    \      /    \
+         [12]    [1]  [2]    []
+        /  \    /  \  /  \  /  \
+     123  12  13  1  23  2  3  []    8 nodes at depth 3 = 2^3
+```
+
+## Approach -- backtracking with start index
 
 ```cpp
 using namespace std;
 
 static void backtrack(const vector<int>& a, int start,
                       vector<int>& curr, vector<vector<int>>& out) {
-    out.push_back(curr);
-    for (int i = start; i < (int)a.size(); ++i) {
-        curr.push_back(a[i]);
+    out.push_back(curr);             // step 1: record every node
+    for (int i = start; i < (int)a.size(); ++i) {  // step 4: skip = next i
+        curr.push_back(a[i]);        // step 2: take a[i]
         backtrack(a, i + 1, curr, out);
-        curr.pop_back();
+        curr.pop_back();             // step 3: put it back
     }
 }
 
@@ -33,65 +68,29 @@ vector<vector<int>> subsets(const vector<int>& a) {
 }
 ```
 
-### Walkthrough
+- The record sits before the loop, so the empty subset is written first on every call.
+- Recurse with `i + 1` to keep the start index growing: uniqueness comes from never rewinding.
 
-On `nums = [1, 2, 3]`:
-- Call with start=0, curr=[]: record [], recurse
-  - i=0, push 1: record [1], recurse
-    - i=1, push 2: record [1,2], recurse
-      - i=2, push 3: record [1,2,3] -> pop 3
-    - pop 2
-  - pop 1
-  - i=1, push 2: record [2], recurse
-    - i=2, push 3: record [2,3] -> pop 3
-  - pop 2
-  - i=2, push 3: record [3] -> pop 3
-- return [[], [1], [1,2], [1,2,3], [1,3], [2], [2,3], [3]] -- all 2^3 = 8 subsets
+### Trace
 
-- Push `curr` *before* the loop: the empty set comes for free.
-- Pass `i + 1`, not `start + 1` -- the next level continues after the item just chosen.
+- On `[1,2,3]`: `[]`, take 1 -> `[1]`, take 2 -> `[12]`, take 3 -> `[123]`, unwind, skip 2, take 3 -> `[13]`, unwind, take 2 -> `[2]`, `[23]`, then `[3]`. All 8.
 
 ## Complexity
 
-- Time: O(n * 2^n) -- output dominates.
-- Space: O(n) recursion depth plus O(n * 2^n) for the output itself.
+- Time: O(n * 2^n), the output dominates. Space: O(n) depth plus the results.
 
-## Approach 2 -- bitmask enumeration (n <= 20-ish)
+## Alternative -- bitmask enumeration
 
-```cpp
-using namespace std;
+- Each mask from 0 to 2^n - 1 is a subset: bit j set means include a[j]. No recursion; best under n <= 20.
 
-vector<vector<int>> subsets(const vector<int>& a) {
-    vector<vector<int>> out;
-    int n = (int)a.size();
-    for (int mask = 0; mask < (1 << n); ++mask) {
-        vector<int> curr;
-        for (int j = 0; j < n; ++j)
-            if (mask & (1 << j)) curr.push_back(a[j]);
-        out.push_back(curr);
-    }
-    return out;
-}
-```
+## Use when
 
-- Every n-bit number maps to one subset: bit j set means item j included.
-- No recursion, no bookkeeping; still O(n * 2^n). Wins when you want the simplest possible code and `n` fits in a machine word.
-- For `n` around 20, this is the cleanest production form; for larger `n` you need the backtracking version to avoid the bitmask overflow.
+- Enumerate every inclusion choice over a small set: feature flags, exhaustive tests, subset-sum, meet-in-the-middle halves.
+- Reach for this when a problem asks for "all subsets" and 2^n fits in memory.
 
-## Alternative -- duplicate-safe version
+## Cousins
 
-- Sort first, then at each level skip values equal to the one just tried: `if (i > start && nums[i] == nums[i-1]) continue;`.
-- Same skeleton, one extra guard, prevents the same subset from appearing with permuted duplicates.
-
-## Usage
-
-- Power-set enumeration: feature flags, test-case generation, exhaustive small-n search.
-- Meet-in-the-middle precomputation: split n around 40 items, enumerate each half's 2^20 subsets, combine with binary search.
-- Feature selection, subset-sum style problems, generating all states of a small system.
-
-## Cousins & contrasts
-
-- **Permutations**: same skeleton, branches over *all unused* items -- n! leaves instead of 2^n.
-- **Combinations**: subsets of size exactly k -- same start-index walk, stop at depth k, C(n, k) leaves.
-- **Subsets with duplicates**: sort first, skip equal values at the same level (same trick as duplicate permutations).
-- **Iterative build-up**: start with `[[]]`, then for each element append it to every existing subset. Same result, no recursion.
+- **Permutations**: branch over all unused items: n! leaves.
+- **Combinations**: the same walk, stopping at depth k: C(n,k) leaves.
+- **Subsets with duplicates**: sort first, skip `a[i] == a[i-1]` at the same level.
+- **Iterative build**: start with `[[]]`, append each element to every existing subset.

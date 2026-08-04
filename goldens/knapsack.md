@@ -1,86 +1,74 @@
-# 0/1 Knapsack
+# 0/1 Knapsack -- max value in a capacity: dp[w] reuses dp[w - wi], swept backwards
 
-Max total value fitting in a weight capacity, **each item taken at most once**. The canonical subset-selection DP -- pseudo-polynomial in the capacity.
+## Core idea
 
-## Intuition
+- The best packing for capacity w reuses the best packing for capacity w - wi: taking item i adds vi to the optimum on the leftover, skipping keeps the old value, so dp[w] = max(dp[w], vi + dp[w - wi]).
+- 0/1 means each item enters at most once: iterate capacities BACKWARDS so dp[w - wi] still holds the previous item's row.
 
-- State: `dp[w]` = best value achievable with capacity `w` using items considered so far. Compressed from the full 2D `dp[i][w]` = best using the first `i` items.
-- Recurrence per item: `dp[w] = max(dp[w], dp[w - wi] + vi)` -- either skip the item or take it and add its value to the best packing of the remaining capacity.
-- Optimal substructure: in any optimal packing, item `i` is either absent (the optimum without it) or present (`vi` plus the optimum on `w - wi` without it).
-- Base case: all zeros -- empty capacity or no items give value 0.
+## Build up
 
-## Approach 1 -- 1D DP, capacity iterated BACKWARDS
+1. **Try every subset**
+```
+for each subset: sum weights, sum values -> 2^n, hopeless
+```
+2. **Best value per capacity**
+```
+dp[w] = best value achievable with capacity w so far
+```
+3. **Iterate capacities backwards**
+```
+for w = capacity down to weights[i]    // 0/1, one use per item
+```
+
+## Diagram
+
+```
+weights [2,3,4], values [3,4,5], cap 5
+w:       0  1  2  3  4  5
+start    0  0  0  0  0  0
+item 0   0  0  3  3  3  3
+item 1   0  0  3  4  4  7
+item 2   0  0  3  4  5  7   <- max(7, dp[1]+5=5): skip
+backwards keeps rows apart; ascending re-takes the item
+```
+
+## Approach -- 1D, capacity backwards
 
 ```cpp
 using namespace std;
 
 int knapsack(int capacity, const vector<int>& weights, const vector<int>& values) {
     vector<int> dp(capacity + 1, 0);
-    for (int i = 0; i < (int)weights.size(); ++i)
-        for (int w = capacity; w >= weights[i]; --w)
-            dp[w] = max(dp[w], dp[w - weights[i]] + values[i]);
+    for (int i = 0; i < (int)weights.size(); ++i)        // step 1: one item at a time
+        for (int w = capacity; w >= weights[i]; --w)     // step 3: BACKWARDS
+            dp[w] = max(dp[w], dp[w - weights[i]] + values[i]); // step 2: take or skip
     return dp[capacity];
 }
 ```
 
-### Walkthrough
+- Backwards is the whole point: descending w keeps dp[w - wi] from the previous item, so item i is used at most once.
+- Ascending w would re-read just-updated cells and take the same item repeatedly.
 
-On `weights = [2, 3, 4]`, `values = [3, 4, 5]`, `capacity = 5`:
-- dp = [0, 0, 0, 0, 0, 0]
-- Item 0 (w=2, v=3): w=5..2: dp[5]=max(0, dp[3]+3)=3, dp[4]=3, dp[3]=3, dp[2]=3
-- Item 1 (w=3, v=4): w=5..3: dp[5]=max(3, dp[2]+4)=7, dp[4]=max(3, dp[1]+4)=4, dp[3]=max(3, dp[0]+4)=4
-- Item 2 (w=4, v=5): w=5..4: dp[5]=max(7, dp[1]+5)=5 (skip -- take 2 items 0+1 = 7 wins), dp[4]=max(4, dp[0]+5)=5
-- return dp[5] = 7 (items 0+1, total weight 5, total value 7)
+### Trace
 
-- This compresses the 2D origin: `dp[i][w]` reads only row `i - 1`, so one rolling row suffices.
-- **Backwards `w` is the whole point**: descending means `dp[w - wi]` still holds the *previous* item's row, so item `i` enters at most once. Ascending re-reads cells already updated by item `i` and the same item gets taken repeatedly -- accidental unbounded knapsack.
+- weights [2,3,4], values [3,4,5], cap 5: dp runs [0,0,3,3,3,3], [0,0,3,4,4,7], [0,0,3,4,5,7] -> return 7 (items 0+1).
 
 ## Complexity
 
-- Time: O(n * capacity).
-- Space: O(capacity) for the 1D version; O(n * capacity) for the 2D recursive form.
+- Time: O(n x capacity). Space: O(capacity).
 
-## Approach 2 -- top-down recursion with memoization
+## Alternative -- top-down memoization
 
-```cpp
-using namespace std;
+- Recursive go(i, w) = max(skip, take) with a 2D memo; reads exactly like the recurrence, same time, more stack.
 
-int knapsack(int capacity, const vector<int>& weights, const vector<int>& values) {
-    int n = (int)weights.size();
-    vector<vector<int>> memo(n + 1, vector<int>(capacity + 1, -1));
-    function<int(int,int)> go = [&](int i, int w) -> int {
-        if (i == 0 || w == 0) return 0;
-        if (memo[i][w] != -1) return memo[i][w];
-        int skip = go(i - 1, w);
-        int take = (weights[i-1] <= w)
-                 ? values[i-1] + go(i - 1, w - weights[i-1])
-                 : 0;
-        return memo[i][w] = max(skip, take);
-    };
-    return go(n, capacity);
-}
-```
+## Use when
 
-- Reads as a direct translation of the recurrence: take item `i` (adding its value to the optimum on the remaining capacity) or skip it.
-- Stack depth O(n) plus memo table O(n * capacity); the iterative form is leaner when the capacity is large but `n` is small.
+- Reach for this when the problem asks max/min over a subset that fits a capacity budget, each item at most once -> 0/1 knapsack DP.
+- Budgets, cargo loading, tasks under a time limit.
+- Subset-sum and partition-equal-subset: the same table with value == weight.
 
-## Alternative -- meet-in-the-middle (large n, small capacity)
+## Cousins
 
-- Split items into two halves of size n/2; enumerate all 2^(n/2) subsets of each, recording `(weight, value)` pairs.
-- Sort one half by weight, drop dominated pairs (higher weight, lower value), then for each pair in the other half binary-search the best compatible value.
-- Brings the runtime down from O(n * capacity) to O(2^(n/2) * n) -- exponential in n, but n can be ~40 instead of ~20.
-
-## Usage
-
-- Resource allocation: budgets, cargo loading, portfolio selection, picking tasks under a time limit.
-- Subset-sum and partition-equal-subset are knapsacks with value == weight.
-- Base for approximation schemes: the general problem is NP-hard, but this DP is exact when the capacity is modest.
-- Decisions over "should I include this item" are everywhere -- knapsack is the simplest version that captures them all.
-
-## Cousins & contrasts
-
-- **Unbounded knapsack**: items reusable -> same 1D code with the inner loop ascending. One direction flip changes the problem.
-- **Subset-sum**: boolean version -- "is sum T achievable?" -- same table, OR instead of max.
-- **Partition equal subset sum**: subset-sum with target = total / 2.
-- **Fractional knapsack**: items divisible -> greedy by value/weight ratio, no DP needed. The 0/1 constraint is what forces DP.
-- **Coin change**: unbounded structure, minimizing count for an exact sum rather than maximizing value under a capacity.
+- **Coin change**: unbounded (ascending loop), minimizes count for an exact sum.
+- **Unbounded knapsack**: one direction flip changes the whole problem.
+- **Fractional knapsack**: items divisible -> greedy by value/weight, no DP.

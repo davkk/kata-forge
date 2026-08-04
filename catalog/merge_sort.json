@@ -1,12 +1,12 @@
 {
   "title": "Merge Sort",
   "shape": "list_inplace",
-  "description": "Sort the array ascending in place (Merge Sort).\n",
-  "interface": "sort(arr: int[])\n",
-  "example": "arr = [9,3,7,4,69,420,42] \u2192 [3,4,7,9,42,69,420]",
+  "description": "sort a ascending in place (Merge Sort).",
+  "interface": "sort(a: int[]) -> void",
+  "example": "a = [9,3,7,4,69,420,42] -> [3,4,7,9,42,69,420]",
   "id": "merge_sort",
   "cpp": {
     "fn": "void merge_sort(vector<int>& a)",
-    "hint": "// in-place sort of a"
+    "hint": "// sort a ascending in place"
   }
 }

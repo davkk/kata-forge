@@ -1,14 +1,15 @@
 {
-  "title": "BT BFS",
+  "title": "BFS on a Binary Tree (Level Order)",
   "shape": "tree_find",
-  "description": "Breadth-first search for a value in a binary tree.\n",
-  "interface": "bfs(root, needle) -> bool\n",
+  "description": "bfs(root, needle) returns true if needle is anywhere in the tree.",
+  "interface": "bfs(root, needle) -> bool",
+  "example": "root [1,2,3], needle 3 -> true",
   "id": "bt_bfs",
   "cpp": {
     "fn": "bool bfs(Node* root, int needle)",
     "structs": [
       "struct Node { int val; Node* left; Node* right; };"
     ],
-    "hint": "// return true if needle in tree"
+    "hint": "// return true if needle is in the tree"
   }
 }

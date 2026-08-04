@@ -1,14 +1,15 @@
 {
   "title": "Kruskal's MST",
   "shape": "graph_mst",
-  "description": "Minimum spanning tree via Kruskal + Union-Find.\n",
-  "interface": "kruskals(graph) -> graph | null\n",
+  "description": "kruskals(g) returns the mst as an adjacency list, or nullopt if g is disconnected.",
+  "interface": "kruskals(g: graph) -> graph | null",
+  "example": "weighted triangle -> 2 cheapest edges",
   "id": "kruskals",
   "cpp": {
     "fn": "optional<vector<vector<Edge>>> kruskals(const vector<vector<Edge>>& g)",
     "structs": [
       "struct Edge { int to; int weight; };"
     ],
-    "hint": "// return MST adjacency or nullopt"
+    "hint": "// return MST adjacency list, or nullopt"
   }
 }

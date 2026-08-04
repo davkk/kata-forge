@@ -1,20 +1,54 @@
-# Kruskal's MST
+# Kruskal's MST -- cheapest edges first, union-find rejects the ones that close a cycle
 
-Finds a minimum spanning tree by sorting all edges by weight and adding them one by one if they connect different components -- cycle test via Union-Find.
+## Core idea
+- Cut property: the cheapest edge crossing any cut belongs to some MST, and processing edges cheapest-first finds it.
+- Union-find answers "same component?" in near O(1), so the cycle test is near-free per edge.
 
-## Intuition
+## Build up
+1. **Sort edges by weight**
 
-- Sort all edges by weight -- O(E log E) dominates the runtime.
-- Walk the sorted list; for each edge, check whether its endpoints are already in the same component. If not, add it (Union-Find tracks this in near-O(1)).
-- The cut property justifies Kruskal: the minimum edge crossing any cut belongs to some MST, and processing in sorted order guarantees we find it.
-- Returns nullopt if the graph is disconnected (fewer than n-1 edges added).
+```
+sort(es.begin(), es.end());
+```
 
-## Approach -- Kruskal + Union-Find
+2. **Union-find skips cycles**
 
+```
+if (!uf.unite(u, v)) continue;   // already connected -> would cycle
+mst[u].push_back({v, w});
+mst[v].push_back({u, w});
+```
+
+3. **n-1 edges finish**
+
+```
+if (++added == n - 1) break;
+```
+
+4. **Shortfall means disconnected**
+
+```
+if (added != n - 1) return nullopt;
+```
+
+## Diagram
+```
+sorted edge list (weight: u-v):
+  1:0-2  1:1-4  1:3-6  1:5-6  2:4-5  3:0-1  4:1-2
+  add    add    add    add    add    add    skip
+  0-2 joins {0}{2}      5-6 joins {3,6}{5}
+  1-4 joins {1}{4}      4-5 joins {1,4}{3,5,6}
+  3-6 joins {3}{6}      0-1 joins {0,2}{1,3,4,5,6}
+  4:1-2 skipped: union-find sees 1, 2 already in one tree
+  n-1 = 6 edges -> stop.  MST total 1+1+1+1+2+3 = 9
+```
+
+## Approach -- sorted edges with union-find
 ```cpp
 using namespace std;
 
-struct UF {
+class UF {
+public:
     vector<int> p;
     UF(int n) : p(n, -1) {}
     int find(int x) { return p[x] < 0 ? x : (p[x] = find(p[x])); }
@@ -35,52 +69,41 @@ optional<vector<vector<Edge>>> kruskals(const vector<vector<Edge>>& g) {
             if (u < e.to)
                 es.push_back({e.weight, u, e.to});
 
-    sort(es.begin(), es.end());
+    sort(es.begin(), es.end());         // step 1: cheapest edges first
 
     UF uf(n);
     vector<vector<Edge>> mst(n);
     int added = 0;
     for (auto& [w, u, v] : es) {
-        if (!uf.unite(u, v)) continue;
+        if (!uf.unite(u, v)) continue;  // step 2: same tree -> would cycle
         mst[u].push_back({v, (int)w});
         mst[v].push_back({u, (int)w});
-        if (++added == n - 1) break;        // tree complete
+        if (++added == n - 1) break;    // step 3: tree complete
     }
 
-    if (added != n - 1) return nullopt;     // disconnected
+    if (added != n - 1) return nullopt; // step 4: disconnected
     return mst;
 }
 ```
 
-- Only take each undirected edge once (`u < e.to`). The adjacency list has both directions; without dedup, the sort doubles E and halves the effective threshold.
-- Early break at `n-1` edges avoids processing the rest of the sorted list once the MST is complete.
-- The Union-Find is self-contained: `find` with full path compression, `unite` by size (negative parent encodes size).
+- Step 2 is the add loop: union-find rejects same-component edges, both directions enter the MST, and `u < e.to` dedups the undirected list.
+- Step 3's break skips the rest of the sort; step 4's check turns a shortfall into nullopt.
 
-## Alternative -- Prim's algorithm
-
-- Same result, different approach -- grows one tree from a root. O(V^2) for dense graphs beats Kruskal's O(E log E).
-- See prims_list for the full version.
-
-## Alternative -- Boruvka's algorithm (parallel-friendly)
-
-- Add the cheapest edge from each component simultaneously, then recurse.
-- Rarely coded by hand but parallelizes well -- used in some distributed MST implementations.
+### Trace
+- Picks 0-2, 1-4, 3-6, 5-6, 4-5, 0-1 in sorted order; 1-2 (weight 4) is skipped, 1 and 2 already joined. Total 9, all 7 nodes in one tree.
 
 ## Complexity
+- O(E log E) time (the sort dominates; union-find is amortized near O(1)), O(E + V) space.
 
-- Time: O(E log E) -- the sort dominates; the union-find work is amortized alpha(n) per op.
-- Space: O(E) for the edge list, O(V) for the union-find and MST.
+## Alternative -- Prim's
+- Same MST grown from one root by cheapest cut edge, no global sort (see prims_list).
+- Better when the graph arrives as a dense adjacency list.
 
-## Usage
+## Use when
+- Min-cost connection: reach for this when everything must be connected as cheaply as possible (cable layout, network design).
+- Flat edge lists: reach for this when edges come pre-enumerated and sorting is natural; single-linkage clustering is Kruskal stopped at k components.
 
-- Any MST problem where edges arrive as a flat list rather than an adjacency structure.
-- Hierarchical clustering (single-linkage = Kruskal stopped at k components).
-- Network design: minimum cost to connect sites, cheapest way to lay cable between buildings.
-- The "min cost to connect everything" question wherever it shows up.
-
-## Cousins & contrasts
-
-- **Prim's**: same result, different approach -- grows one tree from a root. O(V^2) for dense graphs beats Kruskal's O(E log E).
-- **Union-Find**: the reason Kruskal is simple. Without it, cycle detection would need a full DFS per edge.
-- **Boruvka's**: add the cheapest edge from each component simultaneously. Rarely coded but parallelizes well.
-- **Reverse-delete MST**: sort descending and remove any edge that doesn't disconnect the graph -- O(E log E) and conceptually dual to Kruskal.
+## Cousins
+- Union-Find: the near-O(1) "same component?" tester the algorithm is built on.
+- Reverse-delete: sort descending and drop edges that keep the graph connected; the dual.
+- Boruvka: add every component's cheapest edge at once; parallel-friendly.

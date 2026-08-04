@@ -1,11 +1,12 @@
 {
   "title": "Permutations",
   "shape": "list_lists",
-  "description": "All permutations of distinct ints (order-insensitive judge).\n",
-  "interface": "permutations(nums) -> int[][]\n",
+  "description": "permutations(a) returns all permutations of the distinct ints.",
+  "interface": "permutations(a: int[]) -> int[][]",
+  "example": "a = [1,2,3] -> 6 permutations",
   "id": "permutations",
   "cpp": {
     "fn": "vector<vector<int>> permutations(const vector<int>& a)",
-    "hint": "// return list of lists (order-insensitive)"
+    "hint": "// return all permutations of a"
   }
 }

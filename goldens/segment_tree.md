@@ -1,26 +1,54 @@
-# Segment Tree
-
-Full binary tree over an array: leaves = elements, internal nodes = aggregate (sum/min/max) of their range. Range query and point update both O(log n).
-
-## Intuition
-
-- Each node owns segment `[lo, hi]`; children split at mid. A query range decomposes into <= **2 nodes per level**, so O(log n) nodes total.
-- Point update walks one root-to-leaf path: change the leaf, recompute every ancestor on the way back up.
-- Works with any associative op with an identity: sum (0), min (infinity), max, gcd. Only the combine function changes.
-- O(n) build, O(log n) query/update, O(4n) array is the safe bound.
-
-## Approach 1 -- recursive struct (sum)
-
+# Segment Tree -- cache every split range: a query touches <= 2 nodes per level, an update refolds one path
+## Core idea
+- Invariant: node `v` owns the segment `[lo, hi]` and `t[v]` aggregates it, folded from its two children; children split a parent at `mid`, so height stays log2(n).
+- Mechanism: a query returns a whole cached node when fully inside, the identity when fully outside, recursing only on partial overlap; an update rewrites one leaf and refolds its root-to-leaf path.
+## Build up
+1. **Naive range sum**
+```
+sum: for (i = l; i <= r; i++) s += a[i];   // O(n) per query
+```
+2. **Split into a range tree**
+```
+t[v] = t[2v] + t[2v+1];   // node owns [lo, hi]; children split at mid
+```
+3. **Build leaves up**
+```
+if (lo == hi) t[v] = a[lo]; else { build children; t[v] = t[2v] + t[2v+1]; }
+```
+4. **Query: prune by overlap**
+```
+if (ql <= lo && hi <= qr) return t[v];     // fully inside
+if (hi < ql || qr < lo) return 0;          // outside -> identity
+```
+5. **Update: refold one path**
+```
+if (lo == hi) t[v] = val; else { descend one child; t[v] = t[2v] + t[2v+1]; }
+```
+## Diagram
+```
+a = [1,3,5,7,9,11]
+               [0..5] = 36
+             /          \
+        [0..2] = 9    [3..5] = 27
+        /     \         /     \
+   [0..1] = 4 [2]=5  [3..4]=16 [5]=11
+    / \               / \
+ [0]=1 [1]=3       [3]=7 [4]=9
+query(1,4): [1]=3 + [2]=5 + [3..4]=16 = 24
+update(2,10): 5 -> 10, refold [0..2] = 14, root = 41
+```
+## Approach -- recursive struct
 ```cpp
 using namespace std;
 
-struct SegmentTree {
+class SegmentTree {
+public:
     vector<int> t;
     int n;
 
     SegmentTree(vector<int> a) : n((int)a.size()) {
         t.assign(4 * n, 0);
-        build_(a, 1, 0, n - 1);
+        build_(a, 1, 0, n - 1);               // step 3
     }
 
     void build_(const vector<int>& a, int v, int lo, int hi) {
@@ -28,65 +56,42 @@ struct SegmentTree {
         int mid = lo + (hi - lo) / 2;
         build_(a, v*2, lo, mid);
         build_(a, v*2+1, mid+1, hi);
-        t[v] = t[v*2] + t[v*2+1];
+        t[v] = t[v*2] + t[v*2+1];             // step 3: fold
     }
 
     int query_(int v, int lo, int hi, int ql, int qr) {
-        if (ql <= lo && hi <= qr) return t[v];
-        if (hi < ql || lo > qr) return 0;
+        if (ql <= lo && hi <= qr) return t[v];   // step 4: fully inside
+        if (hi < ql || lo > qr) return 0;        // step 4: identity
         int mid = lo + (hi - lo) / 2;
         return query_(v*2, lo, mid, ql, qr) + query_(v*2+1, mid+1, hi, ql, qr);
     }
 
     void update_(int v, int lo, int hi, int i, int val) {
-        if (lo == hi) { t[v] = val; return; }
+        if (lo == hi) { t[v] = val; return; }    // step 5: rewrite leaf
         int mid = lo + (hi - lo) / 2;
-        if (i <= mid) update_(v*2, lo, mid, i, val);
+        if (i <= mid) update_(v*2, lo, mid, i, val); // step 5: descend one child
         else          update_(v*2+1, mid+1, hi, i, val);
-        t[v] = t[v*2] + t[v*2+1];
+        t[v] = t[v*2] + t[v*2+1];                // step 5: refold
     }
 
     int query(int left, int right) { return query_(1, 0, n - 1, left, right); }
     void update(int idx, int val) { update_(1, 0, n - 1, idx, val); }
-    int length() { return n; }
+    int size() { return n; }
 };
 ```
-
-- Nodes 1-indexed (root = 1, children `2v` / `2v+1`); keeps array small, arithmetic obvious.
-- The `mid` split must be identical in all three functions -- mismatched partitions are the classic index bug.
-- Early exits: full containment returns immediately, full disjointness returns identity. Partial overlap recurses both ways.
-
-## Approach 2 -- iterative bottom-up
-
-- Build leaves at indices `[n, 2n)`, internal nodes at `[1, n)`. Parent = `i/2`, children = `2i` and `2i+1`.
-- Query walks up two chains (one for the left bound, one for the right) and combines; update walks from a leaf to the root.
-- Faster constants than the recursive form, no stack depth, and easier to extend with lazy propagation.
-
-## Alternative -- lazy propagation (for range updates)
-
-- To add x to a whole *range*, tag the node: apply `x * range_size` to `t[v]` now, record x in a parallel `lazy[v]`, don't touch children yet.
-- Push down on demand: whenever a later query/update descends past `v`, flush `lazy[v]` into both children and clear it. Work stays O(log n) per range update instead of O(k log n).
-
-## Alternative -- sparse segment tree (only touched ranges)
-
-- Use a hash map (`unordered_map`) for the tree nodes; only allocate nodes that are actually visited.
-- O(K log N) memory where K is the number of point updates; perfect for offline problems with huge coordinate ranges and few updates.
-
+- Root = 1, children `2v`/`2v+1` in a flat array sized `4n`; build, query, and update must all split at the same `mid` -- a mismatch is the classic index bug.
+- The outside return must be the operation's identity (0 for sum), not a sentinel; `query(left, right)` is inclusive on both ends.
+### Trace
+- a = [1,3,5,7,9,11]: query(0,2) = cached 9; query(1,4) = 3 + 5 + 16 = 24; query(0,5) = root = 36.
+- update(2,10): leaf 5 -> 10, refold [0..2] = 14, root = 41; query(2,2) = 10.
 ## Complexity
-
-- Time: O(n) build, O(log n) query and update.
-- Space: O(n), or O(4n) for the safe array bound.
-
-## Usage
-
-- Range sum/min/max with updates: stock prices over time windows, leaderboard scores, sensor aggregates.
-- The default answer to "updates + range queries, op isn't associative-with-inverse" in competitive programming.
-- Interval scheduling with counts: sweep events over coordinates, query/update coverage counts per segment.
-- Any "what is the aggregate over this index range, where values change over time" question.
-
-## Cousins & contrasts
-
-- **Fenwick tree**: prefix-only special case -- ~n memory, iterative, ~2x faster constant -- but needs invertible op (sum yes, min no) and can't do lazy range updates.
-- **Sparse table**: static data only; O(n log n) build, O(1) RMQ via overlapping power-of-two intervals. No updates.
-- **Sqrt decomposition**: sqrt(n) blocks, O(sqrt(n)) everything -- crude but flexible and easy to improvise under pressure.
-- **Lazy propagation**: the range-update extension; turns the segment tree into a full interval-arithmetic engine.
+- Time: O(n) build; O(log n) per query and update. Space: O(n) as a 4n flat array.
+## Alternative -- lazy propagation
+- Range updates: tag a fully-covered node (`lazy[v] += x`, add `x * len` to `t[v]`) and flush tags only when a query descends past it -- range ops stay O(log n).
+## Use when
+- Reach for this when: point updates interleave with range queries and the op is associative but not invertible -- sum, min, max, gcd all plug in by swapping the combine.
+- Queries are inclusive `[left, right]`; coverage sweeps and windowed aggregates over a changing array.
+## Cousins
+- **Fenwick tree**: prefix-only and needs invertibility, but ~n memory and ~2x faster.
+- **Sparse table**: O(1) static range min, no updates.
+- **Sqrt decomposition**: O(sqrt n) per op, tolerant of any aggregate.

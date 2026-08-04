@@ -1,14 +1,15 @@
 {
   "title": "Maze Solver",
   "shape": "maze",
-  "description": "Find a path from start to end. wall char blocks cells. Return list of points.\n",
-  "interface": "solve_maze(maze, wall, start, end) -> Point[]\n",
+  "description": "solve_maze(maze, wall, start, end) returns a path of points, or nullopt if unreachable.",
+  "interface": "solve_maze(maze: string[], wall: string, start: Point, end: Point) -> Point[]",
+  "example": "2x2 open maze, start (0,0) end (1,1) -> path of 4 points",
   "id": "maze_solver",
   "cpp": {
     "fn": "vector<Point> solve_maze(const vector<string>& maze, const string& wall, Point start, Point end)",
     "structs": [
       "struct Point { int x, y; bool operator==(const Point& o) const { return x == o.x && y == o.y; } };"
     ],
-    "hint": "// return path"
+    "hint": "// return the point path from start to end, or nullopt"
   }
 }

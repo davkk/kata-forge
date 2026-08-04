@@ -1,16 +1,55 @@
-# Prim's MST
+# Prim's MST -- grow one tree by always adding the cheapest edge that connects a new node
 
-Builds a minimum spanning tree for a connected, undirected, weighted graph. Greedy: repeatedly add the cheapest edge connecting the visited set to an unvisited node.
+## Core idea
+- Cut property: the cheapest edge leaving the growing tree crosses the cut "tree | rest" at minimum weight, so it belongs to some MST.
+- key[v] holds that cheapest edge weight from the tree to v, parent[v] its tree endpoint; settling the smallest key locks it as final.
 
-## Intuition
+## Build up
+1. **Pick the nearest to tree**
 
-- **Cut property**: for any partition of vertices into two sets, the minimum-weight edge crossing that cut belongs to every MST. Prim exploits this by growing a single set from one start vertex.
-- Maintain `key[v]` = cheapest edge weight from the growing tree to `v`; `parent[v]` = the tree endpoint of that edge.
-- Each round, settle the unvisited node with the smallest key. The key is final -- any later edge to that node is heavier by construction.
-- Returns nullopt if the graph is disconnected (some `parent[v] == -1`).
+```
+int u = -1;
+for (int i = 0; i < n; i++)
+    if (!inMST[i] && (u == -1 || key[i] < key[u])) u = i;
+```
 
-## Approach 1 -- O(V^2) linear scan (mirrors Dijkstra)
+2. **Join it to the tree**
 
+```
+inMST[u] = true;
+```
+
+3. **Cheapest single edge wins**
+
+```
+if (e.weight < key[e.to]) {
+    key[e.to] = e.weight;
+    parent[e.to] = u;
+}
+```
+
+4. **Build MST from parents**
+
+```
+mst[parent[v]].push_back({v, key[v]});
+mst[v].push_back({parent[v], key[v]});
+```
+
+## Diagram
+```
+cut = tree | rest;  key[v] = cheapest edge weight from tree to v
+  settle order       winning cut edge
+  0 (root)           none
+  2 (key 1)          0-2
+  1 (key 3)          0-1
+  4 (key 1)          1-4
+  5 (key 2)          4-5
+  6 (key 1)          5-6
+  3 (key 1)          6-3
+MST: 0-2 0-1 1-4 4-5 5-6 6-3, total 9
+```
+
+## Approach -- linear-scan grow
 ```cpp
 using namespace std;
 
@@ -23,21 +62,21 @@ optional<vector<vector<Edge>>> prims(const vector<vector<Edge>>& g) {
 
     for (int iter = 0; iter < n; ++iter) {
         int u = -1;
-        for (int i = 0; i < n; ++i)
+        for (int i = 0; i < n; ++i)                    // step 1: nearest to tree
             if (!inMST[i] && (u == -1 || key[i] < key[u])) u = i;
-        if (u == -1) break;                     // disconnected
-        inMST[u] = true;
+        if (u == -1) break;                            // disconnected
+        inMST[u] = true;                               // step 2: join the tree
 
-        for (auto& e : g[u])
+        for (auto& e : g[u])                           // step 3: relax one edge
             if (!inMST[e.to] && e.weight < key[e.to]) {
                 key[e.to] = e.weight;
                 parent[e.to] = u;
             }
     }
 
-    vector<vector<Edge>> mst(n);
+    vector<vector<Edge>> mst(n);                       // step 4: from parents
     for (int v = 1; v < n; ++v) {
-        if (parent[v] == -1) return nullopt;    // disconnected
+        if (parent[v] == -1) return nullopt;           // disconnected
         int u = parent[v];
         mst[u].push_back({v, key[v]});
         mst[v].push_back({u, key[v]});
@@ -46,51 +85,24 @@ optional<vector<vector<Edge>>> prims(const vector<vector<Edge>>& g) {
 }
 ```
 
-- Structurally identical to Dijkstra, but the key is the **single edge weight**, not the path sum. Relaxation: `e.weight < key[e.to]` vs `dist[u] + e.weight < dist[e.to]`.
-- Root at node 0; any start vertex works.
-- Returns null if the input is disconnected.
+- Steps 1-3 mirror Dijkstra exactly, except the key is a single edge weight, not a path sum.
+- Step 4 reads parent/key straight into the adjacency list; any missing parent means disconnected.
 
-## Approach 2 -- O(E log V) min-heap
-
-```cpp
-priority_queue<pair<int,int>, vector<pair<int,int>>, greater<>> pq;
-pq.push({0, 0});
-key[0] = 0;
-while (!pq.empty()) {
-    auto [w, u] = pq.top(); pq.pop();
-    if (inMST[u]) continue;        // stale entry
-    inMST[u] = true;
-    for (auto& e : g[u])
-        if (!inMST[e.to] && e.weight < key[e.to]) {
-            key[e.to] = e.weight;
-            parent[e.to] = u;
-            pq.push({e.weight, e.to});
-        }
-}
-```
-
-- Replace the linear scan with a priority queue. Push `(weight, v)` on every improved key.
-- Better on sparse graphs; the constant factor makes it slower than scan on very dense graphs.
-
-## Alternative -- Kruskal (edge-sort)
-
-- Same result, different structure: sort edges by weight, add if they don't form a cycle via Union-Find. Better when the edge list is available directly; Prim is better for dense adjacency-list graphs.
-- See kruskals for the full version.
+### Trace
+- Settle order 0, 2, 1, 4, 5, 6, 3; keys settle at 2=1 (0-2), 1=3 (0-1), 4=1 (1-4), 5=2 (4-5), 6=1 (5-6), 3=1 (6-3). MST total 9.
 
 ## Complexity
+- O(V^2) time with the scan (O(E log V) with a heap), O(V) space.
 
-- Time: O(V^2) with a linear scan, O(E log V) with a min-heap.
-- Space: O(V) for key/parent/inMST plus the heap.
+## Alternative -- Kruskal
+- Sort all edges and union-find rejects cycles (see kruskals).
+- Better when edges arrive as a flat list instead of an adjacency structure.
 
-## Usage
+## Use when
+- Dense node-first graphs: reach for this when you need a minimum spanning tree from an adjacency list (grids, road networks).
+- Approximation bounds: reach for this when an MST lower bound matters (Steiner tree, metric TSP).
 
-- Network design: electrical grids, fiber-optic cable, road networks connecting cities.
-- Approximation algorithms: MST is a lower bound for Steiner tree and metric TSP.
-- Any "minimize the cost of connecting everything" question on a graph.
-
-## Cousins & contrasts
-
-- **Dijkstra**: same skeleton, different key -- path sum vs edge weight. Dijkstra can stop early at the sink; Prim always processes all V nodes.
-- **Kruskal**: sorts all edges globally and uses Union-Find. Better when the edge list is available directly; Prim is better for dense adjacency-list graphs.
-- **Boruvka's**: parallel-friendly alternative -- pick the cheapest outgoing edge from every component simultaneously, repeat.
-- **Reverse-delete MST**: sort descending, remove any edge whose removal doesn't disconnect. O(E log E) and conceptually dual to Prim.
+## Cousins
+- Dijkstra: identical skeleton; the key is edge weight vs path sum, and Prim cannot stop early.
+- Reverse-delete: sort descending and drop edges that keep the graph connected.
+- Boruvka: adds every component's cheapest edge at once; parallel-friendly.

@@ -1,16 +1,21 @@
 {
-  "title": "Trie",
+  "title": "Trie (Prefix Tree)",
   "shape": "commands",
-  "description": "Prefix tree: insert/remove words, find all words with a prefix.\n",
-  "interface": "insert(s) remove(s) find(prefix) -> string[]\n",
+  "description": "prefix tree over lowercase a-z: insert(s), remove(s), find(prefix) returns all words with that prefix.",
+  "interface": "insert(s) -> void remove(s) -> void find(prefix) -> string[]",
+  "example": "insert 'hello','help'; find('hel') -> ['help','hello']",
   "id": "trie",
   "cpp": {
     "class": "Trie",
-    "members": ["struct Node { Node* child[26] = {}; bool isWord = false; }", "Node* root = new Node()"],
+    "members": [
+      "struct Node { Node* child[26] = {}; bool isWord = false; };",
+      "Node* root"
+    ],
     "methods": [
       "void insert(const string& word)",
       "void remove(const string& word)",
       "vector<string> find(const string& prefix)"
-    ]
+    ],
+    "ctor": ""
   }
 }

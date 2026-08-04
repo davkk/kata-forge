@@ -1,8 +1,9 @@
 {
-  "title": "Union Find",
+  "title": "Union-Find (Disjoint Set Union)",
   "shape": "commands",
-  "description": "Disjoint set: find, union, connected. init = n elements 0..n-1.\n",
-  "interface": "find(p) unite(p,q) connected(p,q) size()\n",
+  "description": "disjoint set over n elements 0..n-1: find(x), unite(x, y), connected(x, y), size().",
+  "interface": "find(x) -> int unite(x, y) -> bool connected(x, y) -> bool size() -> int",
+  "example": "n=5: unite(0,1), connected(0,1) -> true",
   "id": "union_find",
   "cpp": {
     "class": "UnionFind",

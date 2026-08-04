@@ -1,13 +1,33 @@
-# Merge Ranges
+# Merge Ranges -- sort by start, then one sweep: overlap is a local test
 
-Merge all overlapping `[start, end]` intervals into a minimal set of disjoint intervals. One sort plus one linear sweep.
+## Core idea
 
-## Intuition
+- After sorting by start, overlapping intervals form a contiguous run: a later interval joins the run iff next.start <= last.end.
+- Keep one open run; extend its end with max(end, next.end), close it and open a new run when the test fails.
 
-- **Sort by start.** After that, intervals that can merge form a *contiguous run* in sorted order -- a later interval can only join the run if its start is <= the run's current end.
-- Sweep once, keeping one open interval: if the next interval overlaps it, extend the open end; otherwise close it and open a new one.
-- Why one pass suffices: sorting removes every "earlier start" case from consideration, so overlap becomes a purely local test against the current run's end.
-- O(n log n) total -- the sort dominates; the sweep itself is O(n). O(1) extra space beyond the output when sorting in place.
+## Build up
+
+1. **Sort by start**
+```
+sort(a.begin(), a.end());
+```
+2. **Overlap test**
+```
+if (next.first <= last.second)    touch or cross
+```
+3. **Extend with max(end)**
+```
+last.second = max(last.second, next.second);
+```
+
+## Diagram
+
+```
+sorted: [1,3] [2,6] [8,10] [15,18]
+[1,3] -> [1,6] -> [1,6] + [8,10] + [15,18]
+2 <= 3 extends; 8 > 6 commits; 15 > 10 commits
+contained [2,3] inside [1,10]: max(10, 3) = 10, no shrink
+```
 
 ## Approach -- sort + sweep
 
@@ -15,48 +35,41 @@ Merge all overlapping `[start, end]` intervals into a minimal set of disjoint in
 using namespace std;
 
 vector<pair<int,int>> merge_ranges(vector<pair<int,int>> a) {
-    sort(a.begin(), a.end());                          // by start, then end
+    sort(a.begin(), a.end());                          // step 1: by start, then end
     vector<pair<int,int>> out;
     for (auto& iv : a) {
-        if (!out.empty() && iv.first <= out.back().second)
-            out.back().second = max(out.back().second, iv.second);
+        if (!out.empty() && iv.first <= out.back().second)    // step 2: overlap test
+            out.back().second = max(out.back().second, iv.second); // step 3: extend
         else
-            out.push_back(iv);
+            out.push_back(iv);                          // step 3: open a new run
     }
     return out;
 }
 ```
 
-- Extend with `max(end, iv[1])`, never plain `iv[1]` -- a *contained* interval like `[2,3]` inside `[1,10]` would otherwise shrink the run.
-- Empty input needs no special case: the `out.empty()` guard makes the first interval open a run, and an empty list returns empty.
-- Touching intervals `[1,4] + [4,5]`: `<=` merges them, `<` keeps them apart -- both conventions exist; read the problem statement.
+- `<=` merges touching intervals; `<` keeps [1,4] and [4,5] apart -- both conventions exist, read the statement.
+- The max (not bare iv.second) keeps a contained interval from shrinking the run.
 
-## Alternative -- sweep line with events (continuous intervals)
+### Trace
 
-- Emit `(start, +1)` and `(end, -1)` events; sort and sweep, maintaining a depth counter. Overlapping run boundaries become "depth returns to zero" points.
-- Same O(n log n), works on continuous or open/closed intervals without a discrete sort key.
-- Best when intervals are open/closed or unbounded on one side.
-
-## Alternative -- line sweep with interval tree (dynamic intervals)
-
-- For a stream of insert and remove operations, keep an interval tree (or augmented BST) keyed by start.
-- Insert O(log n), query "merge with neighbors" O(log n + k) for k merged intervals. Right choice when intervals are added one at a time, not known in advance.
+- [[1,3],[2,6],[8,10],[15,18]]: open [1,3]; [2,6] extends to [1,6]; 8 > 6 and 15 > 10 open fresh runs -> out = [[1,6],[8,10],[15,18]].
 
 ## Complexity
 
-- Time: O(n log n) -- the sort dominates; sweep is O(n).
-- Space: O(n) for the output, O(1) extra when sorting in place.
+- Time: O(n log n), the sort dominates. Space: O(n) for the output.
 
-## Usage
+## Alternative -- sweep line events
 
-- Calendar availability / free-busy computation, consolidating meeting bookings.
-- IP-range consolidation, genome interval unions, version-range resolution.
-- Preprocessing: merge first, then binary-search which run a query point falls into.
-- Any "combine these overlapping ranges into the minimum number of runs" task.
+- Emit (start, +1) and (end, -1), merge wherever depth returns to zero; same O(n log n), handles open/closed endpoints.
 
-## Cousins & contrasts
+## Use when
 
-- **Insert interval**: add one new interval to an already-sorted disjoint list -- no sort needed, same extend-or-close logic in O(n).
-- **Minimum meeting rooms**: sort starts against ends or keep a min-heap of end times -- counts *concurrency* rather than unioning the ranges.
-- **Interval scheduling** (max non-overlapping subset): greedy by *earliest end* -- a selection problem, not a merge; the sort key changes because the objective changes.
-- **Union of intervals (measure)**: same sweep, but accumulate the total covered length instead of the run list.
+- Reach for this when overlapping or touching intervals must be unioned into a minimal disjoint set -> sort by start, then sweep.
+- Calendar availability, IP consolidation, genome interval unions.
+- Preprocess first, then binary-search which run a query point falls into.
+
+## Cousins
+
+- **Insert interval**: one new interval into a sorted disjoint list, no sort, O(n).
+- **Minimum meeting rooms**: counts concurrency with a heap of end times, not a union.
+- **Interval scheduling**: max non-overlapping subset by earliest end -- selection, not merge.

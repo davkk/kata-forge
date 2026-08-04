@@ -1,0 +1,12 @@
+{
+  "title": "Minimum Window Substring",
+  "shape": "str2_str",
+  "description": "min_window_substring(s, t) returns the shortest substring of s containing every char of t, or \"\" if none.",
+  "interface": "min_window_substring(s: string, t: string) -> string",
+  "example": "s = 'ADOBECODEBANC', t = 'ABC' -> 'BANC'",
+  "id": "min_window_substring",
+  "cpp": {
+    "fn": "string min_window_substring(const string& s, const string& t)",
+    "hint": "// return shortest window of s holding all t chars, or \"\""
+  }
+}

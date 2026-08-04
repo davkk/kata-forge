@@ -1,30 +1,61 @@
-# DFS on a Graph (Adjacency List)
+# DFS on a Graph -- plunge to the dead end, back up to the last fork, try the next branch
 
-Depth-first search -- explores as far as possible along each branch before backtracking. Finds **a** path from source to sink (not necessarily the shortest).
+## Core idea
+- Recursion is the trail: commit to one branch, and the call stack holds every fork you can back up to.
+- Mark seen on entry stops cycles; first-found path is a path, not necessarily the shortest.
 
-## Intuition
+## Build up
+1. **Sink ends the dive**
 
-- Recursive skeleton: mark -> recurse children -> (optionally unmark). This is the template for all backtracking.
-- Unlike BFS, DFS does not need a queue; the call stack acts as the implicit stack.
-- O(V+E): each node visited once, each edge examined once.
-- For path search, `prev` records the parent and recursion stops early when the sink is found.
+```
+if (u == sink) return true;
+```
 
-## Approach 1 -- recursive DFS
+2. **Mark seen on entry**
 
+```
+seen[u] = true;
+```
+
+3. **Record parent, plunge**
+
+```
+prev[e.to] = u;
+if (walk(g, e.to, sink, seen, prev)) return true;
+```
+
+4. **Dead end backs out**
+
+```
+return false;
+```
+
+## Diagram
+```
+walk(0)
+  walk(1)                prev[4] = 1
+    walk(4)              prev[3] = 4, prev[5] = 4
+      walk(3)            no open neighbor -> false, backs out
+      walk(5)            prev[6] = 5
+        walk(6)          == sink -> true floods upward
+path: [0 1 4 5 6]        the recursion stack is the trail
+```
+
+## Approach -- recursive walk
 ```cpp
 using namespace std;
 
 bool walk(const vector<vector<Edge>>& g, int u, int sink,
           vector<bool>& seen, vector<int>& prev) {
-    if (u == sink) return true;
-    seen[u] = true;
+    if (u == sink) return true;           // step 1: sink ends the dive
+    seen[u] = true;                       // step 2: mark on entry
     for (auto& e : g[u]) {
         if (seen[e.to]) continue;
-        prev[e.to] = u;
+        prev[e.to] = u;                   // step 3: record parent, plunge
         if (walk(g, e.to, sink, seen, prev))
-            return true;
+            return true;                  // step 3: branch succeeded
     }
-    return false;
+    return false;                         // step 4: dead end backs out
 }
 
 optional<vector<int>> dfs(const vector<vector<Edge>>& g, int source, int sink) {
@@ -35,7 +66,7 @@ optional<vector<int>> dfs(const vector<vector<Edge>>& g, int source, int sink) {
     if (!walk(g, source, sink, seen, prev))
         return nullopt;
 
-    vector<int> path;
+    vector<int> path;                     // rebuild: walk prev backwards
     for (int at = sink; at != -1; at = prev[at])
         path.push_back(at);
     reverse(path.begin(), path.end());
@@ -43,49 +74,25 @@ optional<vector<int>> dfs(const vector<vector<Edge>>& g, int source, int sink) {
 }
 ```
 
-- Mark `seen` before recursing, not after -- prevents revisiting a node in the same call chain.
-- The walk returns `bool` so it can short-circuit the entire recursion once the sink is found.
-- For traversal (visit every node), omit the early return and make walk return void.
+- walk is steps 1-4 stacked; the `if (walk(...)) return true;` unwinds the whole stack on success, so prev keeps only winning parents.
+- The rebuild loop is the same walk-back BFS uses; a failed walk returns nullopt.
 
-## Approach 2 -- iterative DFS (explicit stack)
-
-```cpp
-stack<int> st;
-st.push(source);
-seen[source] = true;
-while (!st.empty()) {
-    int u = st.top(); st.pop();
-    if (u == sink) { /* found */ break; }
-    for (auto& e : g[u])
-        if (!seen[e.to]) { seen[e.to] = true; prev[e.to] = u; st.push(e.to); }
-}
-```
-
-- Use a stack instead of recursion to avoid call-stack overflow on deep graphs.
-- Push neighbors in reverse adjacency order to match the recursive visitation order.
-
-## Alternative -- DFS with three colors (cycle detection)
-
-- Add an `onStack` array alongside `seen`. A back edge to a node still `onStack` reveals a cycle.
-- The same idea generalizes to strongly connected components (Tarjan, Kosaraju) and 2-SAT.
-- Track pre/post times for interval arithmetic: edge u->v is a tree/back/forward/cross edge depending on where v's interval sits relative to u's.
+### Trace
+- walk(0) -> 1 -> 4: child 3 dead-ends and pops, child 5 -> 6 == sink floods true -> [0,1,4,5,6].
+- From 6 the recursion never reaches 0, so dfs returns nullopt.
 
 ## Complexity
+- O(V+E) time, O(V) space: each node visited once, plus recursion depth.
 
-- Time: O(V+E).
-- Space: O(V) for seen/prev, plus O(V) recursion depth in the worst case.
+## Alternative -- iterative stack
+- A `stack<int>` plus a while loop replaces the call stack; push neighbors in reverse order to match recursive order.
+- Use it on very deep graphs near recursion limits.
 
-## Usage
+## Use when
+- Existence and exploration: reach for this when the question is "does a path exist" or "visit everything" (reachability, connected components).
+- Backtracking: reach for this when you mutate state, explore, then undo (Sudoku, N-Queens).
 
-- Cycle detection: a back edge points to an ancestor still on the recursion stack.
-- Topological sort via DFS post-order: append node after recursing all children, reverse at the end.
-- Connected components, bipartite coloring, maze solving, Sudoku/N-Queens backtracking.
-- Strongly connected components (Tarjan, Kosaraju -- both build on DFS).
-- Anywhere "go as deep as you can, then back up" matches the problem's natural shape.
-
-## Cousins & contrasts
-
-- **BFS**: finds the shortest path, O(V+E). DFS uses a stack; BFS uses a queue.
-- **Backtracking**: DFS with state mutation and unmarking -- exhaustive search over a decision space.
-- **Iterative DFS**: avoids recursion depth limits; same logic, different container.
-- **Dijkstra**: BFS for non-negative weights -- DFS has no early-stop guarantee for weighted shortest paths.
+## Cousins
+- BFS: breadth-first sibling; shortest path in unweighted graphs.
+- Backtracking: DFS plus unmarking; exhaustive search over a decision space.
+- Cycle detection: a 3-color DFS (onStack flag) is the standard test.

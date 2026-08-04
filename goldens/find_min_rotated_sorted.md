@@ -1,13 +1,52 @@
-# Find Min in Rotated Sorted Array
+# Find Min Rotated -- hunt the wrap point: one comparison halves the window
 
-A sorted array of **distinct** values, rotated by an unknown offset: find the minimum in O(log n). The minimum is the single disorder point where the array "wraps".
+## Core idea
 
-## Intuition
+- Invariant: rotation splits the array into two sorted runs where everything left exceeds everything right; the min is the head of the right run, and the window keeps it inside [lo, hi].
+- Mechanism: `a[mid] > a[hi]` proves mid sits in the big run -> the min is strictly right of mid; otherwise mid is in the small run -> the min is at or left of mid.
 
-- One rotation -> two sorted runs; everything in the left run exceeds everything in the right run, and the min is the head of the right run.
-- Compare `a[mid]` with `a[hi]`: if `a[mid] > a[hi]`, mid sits in the left (larger) run -> the min is strictly right of mid. Otherwise mid is in the right run -> the min is at mid or left.
-- Invariant: the min stays inside `[lo, hi]`; the window halves each step and converges on the answer.
-- Returns `a[lo] == a[0]` (the original first element) when the array was never rotated.
+## Build up
+
+1. **Probe the middle**
+
+```
+int mid = lo + (hi - lo) / 2;
+```
+
+2. **Mid in the big run: go right**
+
+```
+if (a[mid] > a[hi]) lo = mid + 1;
+```
+
+3. **Mid in the small run: go left**
+
+```
+else hi = mid;                 // keep mid: it may be the min
+```
+
+4. **Window shrinks to one**
+
+```
+while (lo < hi) { ... }        // lo == hi -> a[lo] is the min
+```
+
+## Diagram
+
+```
+a = [4 5 6 7 0 1 2], min = 0, the head of the small run
+
+lo   mid        hi    a[3]=7 > a[6]=2 ->  min right of mid
+[4 5 6 7 0 1 2]
+      ^
+   lo mid  hi          a[5]=1 <= a[6]=2 ->  min at or left of mid
+[4 5 6 7 0 1 2]
+        ^
+   lo  hi              a[4]=0 <= a[5]=1 ->  hi = mid
+[4 5 6 7 0 1 2]
+     ^
+   lo == hi -> return a[4] = 0
+```
 
 ## Approach -- halve against the right end
 
@@ -16,52 +55,37 @@ using namespace std;
 
 int find_min_rotated(const vector<int>& a) {
     int lo = 0, hi = (int)a.size() - 1;
-    while (lo < hi) {
-        int mid = lo + (hi - lo) / 2;
-        if (a[mid] > a[hi]) lo = mid + 1;
-        else                hi = mid;
+    while (lo < hi) {                    // step 4
+        int mid = lo + (hi - lo) / 2;    // step 1
+        if (a[mid] > a[hi]) lo = mid + 1; // step 2
+        else                hi = mid;    // step 3
     }
     return a[lo];
 }
 ```
 
-### Walkthrough
+- `hi = mid`, never `mid - 1`: mid itself may be the min; `lo = mid + 1` is safe only where mid provably is not.
+- Already sorted input: `a[mid] <= a[hi]` always, so `hi` walks to 0, still O(log n). Duplicates break the halving (the `--hi` fix degrades to O(n)).
 
-On `a = [4, 5, 6, 7, 0, 1, 2]` (rotated by 4):
-- lo=0, hi=6: mid=3, a[3]=7 > a[6]=2 -> lo=4
-- lo=4, hi=6: mid=5, a[5]=1 <= a[6]=2 -> hi=5
-- lo=4, hi=5: mid=4, a[4]=0 <= a[5]=1 -> hi=4
-- lo==hi=4 -> return a[4] = 0
+### Trace
 
-- `hi = mid`, never `mid - 1`: mid itself might be the minimum -- don't discard it. Symmetrically, `lo = mid + 1` is only safe in the `>` branch, where mid provably isn't the min.
-- Already-sorted input: `a[mid] <= a[hi]` every time, so `hi` marches straight to 0 -- still O(log n), still correct.
-- Comparing against `a[hi]` works because the right end always bounds the right run; comparing against `a[lo]` needs an extra is-sorted check.
-- **Duplicates break the halving**: with `a[mid] == a[hi]` you can't tell which run mid is in -- the only fix (`--hi`) degrades the worst case to O(n).
+- [4,5,6,7,0,1,2]: mid=3 (7 > 2 -> lo=4); mid=5 (1 <= 2 -> hi=5); mid=4 (0 <= 1 -> hi=4); lo == hi == 4 -> return 0.
 
 ## Complexity
 
-- Time: O(log n) for distinct elements; O(n) worst case with duplicates.
-- Space: O(1).
+- Time: O(log n) for distinct values, O(n) worst case with duplicates. Space: O(1).
 
 ## Alternative -- linear scan
 
-- Walk once and track the running minimum. O(n) time, no rotation reasoning required.
-- Use when the array is not guaranteed sorted+rotated, or when n is so small the O(log n) wins don't pay for the code complexity.
+- Track a running minimum in one pass: O(n), no rotation reasoning; use when sortedness is not guaranteed or n is tiny.
 
-## Alternative -- search target in a rotated sorted array
+## Use when
 
-- Find the pivot with this file's approach, then binary-search the correct run. O(log n) total.
-- The single-pass fused version is also possible: after shrinking to the side that *might* contain the target, compare `a[lo] <= target <= a[mid]` to decide.
+- Rotated or circular sorted data: logs, circular buffers, "search in rotated array" as the pivot-finding first half.
+- Reach for this when "sorted but shifted" and the answer is the wrap point.
 
-## Usage
+## Cousins
 
-- Rotated logs / circular buffers: the minimum index is the logical start of the data.
-- Stepping stone for "search target in rotated array": find the pivot here, then binary-search the correct run.
-- Same predicate shape as "first bad version": one threshold, monotone on both sides.
-
-## Cousins & contrasts
-
-- **binary_search_list**: the pure version -- one monotone predicate, no rotation twist.
-- **Search in rotated sorted array**: adds a target; either two passes (pivot, then search) or one fused pass with extra cases.
-- **Find peak element**: also halves the window, but the predicate compares `a[mid]` vs `a[mid + 1]` instead of against an end.
-- **Lower bound**: same half-open `[lo, hi)` discipline, different predicate -- the insertion-point variant.
+- binary_search_list: the pure form, one monotone predicate, no rotation twist.
+- Search in rotated array: this approach to find the pivot, then a binary search inside the right run.
+- Find peak element: same halving, but the predicate compares a[mid] vs a[mid + 1].

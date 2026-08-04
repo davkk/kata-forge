@@ -1,11 +1,12 @@
 {
   "title": "Longest Common Subsequence",
   "shape": "str2_scalar",
-  "description": "Length of LCS of two strings.\n",
-  "interface": "lcs(a: string, b: string) -> int\n",
+  "description": "lcs(a, b) returns the length of the longest common subsequence.",
+  "interface": "lcs(a: string, b: string) -> int",
+  "example": "a = 'abcde', b = 'ace' -> 3",
   "id": "longest_common_subsequence",
   "cpp": {
     "fn": "int lcs(const string& a, const string& b)",
-    "hint": "// return scalar from two strings"
+    "hint": "// return LCS length of a and b"
   }
 }

@@ -1,31 +1,58 @@
-# Combinations
+# Combinations -- pick k of n, order ignored: a start index that never moves back keeps exactly C(n,k) sequences
 
-All C(n, k) k-element subsets of `{1, 2, ..., n}` -- subsets of size exactly k, order irrelevant. The "subsets, but only depth k" enumerator.
+## Core idea
 
-## Intuition
+- Invariant: every pick is larger than the last, so each combination has one canonical increasing form and `{1,3}` can never be rebuilt as `{3,1}`.
+- Mechanism: pick, recurse past the pick, undo the pick; depth k is a leaf, so the walk visits each k-subset exactly once.
 
-- Shared skeleton: **choose -> explore -> unchoose** down a decision tree. The branching rule: pick the **next item from a start index onward** (like subsets), but stop once `curr` reaches size k.
-- The start index guarantees increasing order inside every combination, so `{1, 3}` appears once and `{3, 1}` never exists.
-- Leaves sit at depth k -> exactly **C(n, k) = n! / (k! * (n-k)!)** leaves.
-- Prune: if `curr.size() + (n - i + 1) < k`, the remaining items cannot fill k -- break the loop. Keeps work at O(C(n, k)) instead of exploring doomed branches.
-- Output is C(n, k) combinations of k elements, so the work is O(k * C(n, k)) just to write the answer.
+## Build up
 
-## Approach 1 -- backtracking with start index and size cap
+1. **Pick an element, recurse**
+
+```
+curr.push_back(i);
+backtrack(n, k, i + 1, curr, out);
+```
+
+2. **Restore the choice**
+
+```
+curr.pop_back();
+```
+
+3. **Prune with start index**
+
+```
+for (int i = start; i <= n; ++i)   // i only grows: no repeats
+```
+
+## Diagram
+
+```
+n = 4, k = 2                     []
+               /       |        |       \
+             1        2        3        4 [dead]
+           / | \     / \       |        only 1 left,
+          2  3  4   3   4      4        needs 2: pruned
+        [12][13][14][23][24]  [34]
+```
+
+## Approach -- backtracking with start index
 
 ```cpp
 using namespace std;
 
 static void backtrack(int n, int k, int start,
                       vector<int>& curr, vector<vector<int>>& out) {
-    if ((int)curr.size() == k) {
+    if ((int)curr.size() == k) {         // depth k is a leaf: save
         out.push_back(curr);
         return;
     }
-    for (int i = start; i <= n; ++i) {
+    for (int i = start; i <= n; ++i) {   // step 3: start only grows
         if ((int)curr.size() + (n - i + 1) < k) break;
-        curr.push_back(i);
+        curr.push_back(i);               // step 1: pick
         backtrack(n, k, i + 1, curr, out);
-        curr.pop_back();
+        curr.pop_back();                 // step 2: undo
     }
 }
 
@@ -37,64 +64,28 @@ vector<vector<int>> combinations(int n, int k) {
 }
 ```
 
-### Walkthrough
+- The prune is a `break`: as `i` grows, the values left `n - i + 1` only shrink, so a doomed branch never recovers.
+- `k == 0` records `[]` at once: the empty combination falls out of the base case with no special handling.
 
-`combinations(4, 2)` should produce C(4, 2) = 6 results:
-- backtrack(n=4, k=2, start=1, curr=[]):
-  - curr.size=0 + (4-1+1)=4 >= 2 -> try i=1: push 1
-    - start=2, curr=[1]: try i=2: push 2 -> record [1,2]; pop
-    - i=3: push 3 -> record [1,3]; pop
-    - i=4: push 4 -> record [1,4]; pop
-  - pop 1
-  - try i=2: push 2
-    - i=3: push 3 -> record [2,3]; pop
-    - i=4: push 4 -> record [2,4]; pop
-  - i=3: push 3
-    - i=4: 1 + (4-4+1)=2 >= 2 -> push 4 -> record [3,4]; pop
-- return [[1,2], [1,3], [1,4], [2,3], [2,4], [3,4]]
+### Trace
 
-- `k == 0` yields one empty combination -- falls out of the base case naturally.
-- Pass `i + 1`, not `start + 1`; loop bound is `<= n` since values are `1..n`.
-- The prune is a `break`, not `continue`: as `i` grows, the remaining count only shrinks.
+- `combinations(4, 2)`: pick 1 then 2, 3, 4; pick 2 then 3, 4; pick 3 then 4; the branch at 4 is pruned. Six leaves = C(4,2).
 
 ## Complexity
 
-- Time: O(k * C(n, k)) -- output copies dominate. Space: O(k) recursion depth plus output.
+- Time: O(k * C(n,k)) to write the output; internal nodes stay O(C(n,k)). Space: O(k) depth plus the results.
 
-## Approach 2 -- bitmask enumeration (small n)
+## Alternative -- bitmask enumeration
 
-```cpp
-using namespace std;
+- Try all 2^n masks and keep those with popcount k: no recursion, but scans 2^n masks, so only for n <= 20.
 
-vector<vector<int>> combinations(int n, int k) {
-    vector<vector<int>> out;
-    for (int mask = 0; mask < (1 << n); ++mask) {
-        if (__builtin_popcount(mask) != k) continue;
-        vector<int> curr;
-        for (int j = 0; j < n; ++j)
-            if (mask & (1 << j)) curr.push_back(j + 1);
-        out.push_back(curr);
-    }
-    return out;
-}
-```
+## Use when
 
-- Iterate every n-bit mask, keep the ones with exactly k bits set, decode to the combination.
-- No recursion, no pruning, no argument gymnastics. Enumerates 2^n masks to find C(n, k) results -- fine for n <= 20, disastrous around 30.
+- Enumerate fixed-size subgroups where composition has no order: committees, lottery picks, feature sets.
+- Reach for this when a problem asks "choose k of n" and needs every unordered selection listed.
 
-## Alternative -- combinations with repetition
+## Cousins
 
-- Same code but recurse with `i` instead of `i + 1`: each level may pick the same value again, producing C(n + k - 1, k) combinations. Models k items drawn from n types with replacement -- multiset selections, dice sum outcomes.
-
-## Usage
-
-- Lottery and committee selection: enumerate all ways to pick k from n.
-- n-choose-k rollouts in probabilistic algorithms, uniform sampling of fixed-size subsets.
-- Combinatorial search: try every size-k feature set, every k-edge subgraph, every k-element committee.
-
-## Cousins & contrasts
-
-- **Subsets**: same start-index walk with no size cap -- record at every node, 2^n leaves.
-- **Permutations**: branches over all unused items with `used[]` or in-place swap -- n! ordered leaves.
-- **Combinations with repetition**: recurse with `i` not `i + 1` -- C(n + k - 1, k) leaves.
-- **Pascal's triangle**: row n is C(n, 0), C(n, 1), ..., C(n, n) -- the same numbers, computed additively.
+- **Subsets**: the same start-index walk, but record at every node: 2^n results.
+- **Permutations**: branch over all unused items: n! ordered results.
+- **Combinations with repetition**: recurse with `i`, not `i + 1`: C(n+k-1, k) multisets.

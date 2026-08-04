@@ -1,11 +1,12 @@
 {
   "title": "Kth Largest Element",
   "shape": "list_k_scalar",
-  "description": "Return the k-th largest element in the array (1-based k).\n",
-  "interface": "kth_largest(nums: int[], k: int) -> int\n",
+  "description": "kth_largest(a, k) returns the k-th largest element (k is 1-based).",
+  "interface": "kth_largest(a: int[], k: int) -> int",
+  "example": "a = [3,2,1,5,6,4], k=2 -> 5",
   "id": "kth_largest",
   "cpp": {
     "fn": "int kth_largest(const vector<int>& a, int k)",
-    "hint": "// return scalar from list + k"
+    "hint": "// return the k-th largest element"
   }
 }

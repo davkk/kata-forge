@@ -1,11 +1,12 @@
 {
   "title": "Topological Sort",
   "shape": "topo",
-  "description": "Kahn topo sort. edges are [from,to] directed. Return [] if cycle. Deterministic: always pop smallest ready node.\n",
-  "interface": "topological_sort(n, edges) -> int[]\n",
+  "description": "topological_sort(n, edges) returns a deterministic topological order (smallest node first), or empty if there is a cycle.",
+  "interface": "topological_sort(n: int, edges: [int,int][]) -> int[]",
+  "example": "n=4, edges [[1,0],[2,0],[3,1],[3,2]] -> [0,1,2,3]",
   "id": "topological_sort",
   "cpp": {
     "fn": "vector<int> topological_sort(int n, const vector<pair<int,int>>& edges)",
-    "hint": "// return topological order"
+    "hint": "// return the topological order, or empty if cyclic"
   }
 }

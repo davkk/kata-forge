@@ -1,14 +1,15 @@
 {
-  "title": "Linked List Cycle",
+  "title": "Linked List Cycle Detection (Tortoise and Hare)",
   "shape": "cycle",
-  "description": "Detect cycle (Floyd). cycle_to is index the tail links to, or -1.\n",
-  "interface": "has_cycle(head) -> bool\n",
+  "description": "has_cycle(head) returns true if the linked list contains a cycle.",
+  "interface": "has_cycle(head: Node) -> bool",
+  "example": "0->1->2->1 (cycle) -> true",
   "id": "has_cycle",
   "cpp": {
     "fn": "bool has_cycle(ListNode* head)",
     "structs": [
       "struct ListNode { int val; ListNode* next; };"
     ],
-    "hint": "// return true if cycle"
+    "hint": "// return true if the list has a cycle"
   }
 }

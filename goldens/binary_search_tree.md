@@ -1,100 +1,142 @@
-# Binary Search Tree
+# Binary Search Tree -- left < node < right: each comparison halves the tree
 
-A binary tree with the ordering invariant: for every node, **every** value in its left subtree is smaller and **every** value in its right subtree is larger. Search, insert, and delete are all O(h).
+## Core idea
 
-## Intuition
+- Invariant: every value in a node's left subtree is smaller and every value in its right subtree is larger -- the sorted order embedded in pointers.
+- Mechanism: search, insert, and delete are the same root-to-leaf walk; each comparison discards one whole subtree, so ops are O(h) with h = log n only while balanced.
 
-- The invariant applies to whole **subtrees, not just direct children** -- checking only `left->value < node->value < right->value` is the classic validate-BST bug.
-- Search and insert are the same walk: each comparison discards half the remaining tree, exactly like binary search on a sorted array.
-- All operations are O(h); h = log n only if the tree stays balanced. Sorted input builds a linked list and everything degrades to O(n) -- the shape depends entirely on insertion order, which is why self-balancing variants exist.
-- In-order traversal yields the values sorted -- many BST problems reduce to that fact.
+## Build up
+
+1. **The ordering rule**
+
+```
+left subtree < node->val < right subtree      // holds for every node
+```
+
+2. **Find: compare and descend**
+
+```
+while (cur) {
+    if (val == cur->val) return val;
+    cur = val < cur->val ? cur->left : cur->right;
+}
+return nullopt;
+```
+
+3. **Insert: recurse to a leaf**
+
+```
+if (!n) return new Node{v, nullptr, nullptr};
+if (v < n->val) n->left = insert(n->left, v);
+else            n->right = insert(n->right, v);
+return n;                       // re-link on the way up
+```
+
+4. **Remove: splice or copy successor**
+
+```
+if (!n->left) return n->right;              // 0 or 1 child: splice
+Node* s = n->right;
+while (s->left) s = s->left;                // 2 children: in-order successor
+n->val = s->val;
+n->right = remove(n->right, s->val);        // delete the now-easy successor
+```
+
+## Diagram
+
+```
+insert 50, 30, 80, 20, 40, 70, 90           find(40):
+        50                                   40 < 50 -> left
+       /  \                                  40 > 30 -> right
+      30   80                                40 == 40 -> found, 3 comparisons
+     / \   / \
+    20 40 70 90
+```
 
 ## Approach -- recursive operations
 
 ```cpp
 using namespace std;
 
-struct BinarySearchTree {
-    Node* root = nullptr;
+class BinarySearchTree {
+public:
+    Node* root;
+
+    BinarySearchTree() : root(nullptr) {}
 
     void insert(int val) {
-        root = insert(root, val);
+        root = insert(root, val);           // step 3: re-link
     }
 
-    void erase(int val) {
-        root = erase(root, val);
+    void remove(int val) {
+        root = remove(root, val);
     }
 
     optional<int> find(int val) {
         Node* cur = root;
-        while (cur) {
+        while (cur) {                       // step 2: the walk
             if (val == cur->val) return val;
             cur = val < cur->val ? cur->left : cur->right;
         }
         return nullopt;
     }
 
-    int length() {
-        return length(root);
+    int size() {
+        return size(root);
     }
 
     Node* insert(Node* n, int v) {
-        if (!n) return new Node{v, nullptr, nullptr};
-        if (v < n->val) n->left = insert(n->left, v);
+        if (!n) return new Node{v, nullptr, nullptr}; // step 3: hang a leaf
+        if (v < n->val) n->left = insert(n->left, v); // step 1: ordering rule
         else            n->right = insert(n->right, v);
-        return n;
+        return n;                           // step 3: re-link on the way up
     }
 
-    Node* erase(Node* n, int v) {
+    Node* remove(Node* n, int v) {
         if (!n) return nullptr;
-        if      (v < n->val) n->left = erase(n->left, v);
-        else if (v > n->val) n->right = erase(n->right, v);
+        if      (v < n->val) n->left = remove(n->left, v);
+        else if (v > n->val) n->right = remove(n->right, v);
         else {
-            if (!n->left)  { Node* r = n->right; delete n; return r; }
+            if (!n->left)  { Node* r = n->right; delete n; return r; } // step 4
             if (!n->right) { Node* l = n->left;  delete n; return l; }
-            Node* s = n->right;
+            Node* s = n->right;             // step 4: successor
             while (s->left) s = s->left;
             n->val = s->val;
-            n->right = erase(n->right, s->val);
+            n->right = remove(n->right, s->val);
         }
         return n;
     }
 
-    int length(Node* n) {
-        return n ? 1 + length(n->left) + length(n->right) : 0;
+    int size(Node* n) {
+        return n ? 1 + size(n->left) + size(n->right) : 0;
     }
 };
 ```
 
-- Public `insert`/`erase` delegate to overloaded helpers that return the new subtree root -- the caller re-links it, eliminating all parent-pointer bookkeeping.
-- Delete has exactly three cases: **leaf or one child** -- splice the child (or null) up; **two children** -- copy the in-order successor's value into the node, then delete the successor, which always has at most one child.
-- `find` returns `nullopt` on miss instead of a null pointer.
-- `length` does a full traversal each call; for hot-path usage, cache it as a member counter bumped on insert/erase. Duplicates go right; reject `v == n->val` for set semantics.
+- Step 1 is the rule the branches encode; the walk (2) is the skeleton that insert (3) and remove (4) reuse with a mutation at the end.
+- `find` returns the value (or `nullopt`), not a bool -- matches the catalog contract.
 
-## Alternative -- self-balancing BSTs (AVL, red-black)
+### Trace
 
-- Same invariant plus a balance rule maintained by **rotations** -- local pointer rewires that preserve the in-order sequence.
-- Guarantees h = O(log n) regardless of insertion order; this is what `std::map` and `std::set` are.
-- Write the plain BST first; reach for balancing when input order is adversarial or sorted.
-
-## Alternative -- order-statistics tree (kth element)
-
-- Augment each node with the size of its left subtree, so kth-smallest (and rank queries) drop out in O(log n).
-- Library of useful extra operations (select, rank, count of keys in a range) on top of the same BST skeleton; slightly more code per operation.
+- insert 50,30,80,20,40,70,90 builds the balanced tree above; find(20): left, left, hit -> 20; find(100) -> nullopt.
+- remove(20) splices an empty child; remove(80) copies successor 90 into it, then deletes the 90 leaf.
 
 ## Complexity
 
-- Time: O(h) per operation (h = O(log n) when balanced, O(n) when degenerate). Space: O(n).
+- Time: O(h) per op (h = O(log n) balanced, O(n) if sorted input degenerates it). Space: O(n).
 
-## Usage
+## Alternative -- self-balancing (AVL, red-black)
 
-- Ordered dictionaries: `std::map`/`std::set`, database indices (B-trees are the disk-friendly generalization), autocomplete-style ordered scans.
-- Spell checkers and file-system directories: ordered storage with fast lookup plus sorted enumeration.
-- Anywhere a sorted array would do, but you also need fast insert/delete -- the dynamic version of a sorted array.
+- Same invariant plus rotations -- local rewires that preserve the in-order sequence -- keeping h = O(log n) under any insertion order; what `std::map` and `std::set` are.
 
-## Cousins & contrasts
+## Use when
 
-- **Hash table**: O(1) average lookup but unordered -- no sorted iteration, no range queries. Pay O(log n) when order matters.
-- **Binary search on a sorted array**: the same halving logic on indices; a balanced BST is a *dynamic* sorted array.
-- **DFS on a BST**: the search half of this structure in isolation. See dfs_on_bst.
-- **Heap**: also a shaped binary tree, but it orders parent vs children (not left vs right) -- min/max only, no sorted walk.
+- Reach for this when you need ordered keys with fast insert/delete: sorted iteration, range queries, predecessor/successor.
+- A dynamic sorted array -- a sorted vector's O(n) inserts become O(log n) walks.
+
+## Cousins
+
+- **Hash table**: O(1) average, but no order, no ranges, no successor queries.
+- **Binary search**: the same halving on array indices; a BST is the mutable version.
+- **Heap**: orders parent vs children, not left vs right -- only the extreme is reachable.
+- **B-tree**: the disk generalization -- what database indices actually use.

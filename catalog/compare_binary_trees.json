@@ -1,14 +1,15 @@
 {
   "title": "Compare Binary Trees",
   "shape": "tree_eq",
-  "description": "Deep equality of shape and values.\n",
-  "interface": "compare(a, b) -> bool\n",
+  "description": "compare(a, b) returns true when both trees have identical shape and values.",
+  "interface": "compare(a, b) -> bool",
+  "example": "two identical trees -> true",
   "id": "compare_binary_trees",
   "cpp": {
     "fn": "bool compare(Node* a, Node* b)",
     "structs": [
       "struct Node { int val; Node* left; Node* right; };"
     ],
-    "hint": "// return true if trees equal"
+    "hint": "// return true if the trees are deeply equal"
   }
 }

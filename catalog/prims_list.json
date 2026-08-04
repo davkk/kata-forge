@@ -1,14 +1,15 @@
 {
   "title": "Prim's MST",
   "shape": "graph_mst",
-  "description": "Minimum spanning tree via Prim on undirected weighted adj list.\n",
-  "interface": "prims(graph) -> graph | null\n",
+  "description": "prims(g) returns the mst as an adjacency list, or nullopt if g is disconnected.",
+  "interface": "prims(g: graph) -> graph | null",
+  "example": "weighted triangle -> 2 cheapest edges",
   "id": "prims_list",
   "cpp": {
     "fn": "optional<vector<vector<Edge>>> prims(const vector<vector<Edge>>& g)",
     "structs": [
       "struct Edge { int to; int weight; };"
     ],
-    "hint": "// return MST adjacency or nullopt"
+    "hint": "// return MST adjacency list, or nullopt"
   }
 }
