@@ -17,9 +17,11 @@ from kflib.kf_common import (
 
 INCLUDE_DIR = TOOL_ROOT / "include"
 
-TIMEOUT_S = 2.0
+TIMEOUT_S = 5.0
 CXX = os.environ.get("CXX", "c++")
 TMP_BIN = Path("/tmp") / "kata-forge-test"
+
+SANITIZERS = ["-fsanitize=address,undefined", "-fno-omit-frame-pointer", "-fno-sanitize-recover=all"]
 
 
 def compile_with_include(src: Path, include_path: Path, out_bin: Path) -> tuple[bool, str]:
@@ -28,6 +30,7 @@ def compile_with_include(src: Path, include_path: Path, out_bin: Path) -> tuple[
         "-std=c++17",
         "-O2",
         "-Wall",
+        *SANITIZERS,
         f"-include", str(include_path.resolve()),
         f"-I{INCLUDE_DIR}",
         str(src.resolve()),
@@ -46,12 +49,16 @@ def compile_with_include(src: Path, include_path: Path, out_bin: Path) -> tuple[
 
 
 def run_bin(bin_path: Path) -> tuple[int, str, str]:
+    env = os.environ.copy()
+    env["ASAN_OPTIONS"] = "detect_leaks=0"
+    env["UBSAN_OPTIONS"] = "print_stacktrace=1"
     try:
         r = subprocess.run(
             [str(bin_path)],
             capture_output=True,
             text=True,
             timeout=TIMEOUT_S,
+            env=env,
         )
         return r.returncode, r.stdout, r.stderr
     except subprocess.TimeoutExpired:
